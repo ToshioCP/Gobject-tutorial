@@ -33,7 +33,7 @@ task all: [:md, :html, :pdf]
 
 task md: ["Readme.md"]
 
-file "Readme.md" => mdfilenames do
+file "Readme.md" => mdfilenames+["src/abstract.src.md"] do
   buf = [ "# GObject Tutorial for beginners\n", "\n" ]
   src2md "src/abstract.src.md", "gfm/abstract.md"
   File.open("gfm/abstract.md") do |file|

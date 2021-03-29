@@ -1,7 +1,7 @@
 # GObject Tutorial for beginners
 
-This tutorial is aimed at beginners who begins to learn Gtk4.
-One of the biggest difficulty to learn Gtk4 is to understand the concept of GObject system.
+This tutorial is aimed at beginners who begins learning Gobject system.
+One of the biggest difficulty to learn GObject system is to understand its object oriented strategy.
 All the necessary topics is described in [GObject API reference](https://developer.gnome.org/gobject/stable/).
 But it is probably difficult especially for beginners.
 
@@ -11,13 +11,13 @@ Readers should refer to the API reference when learning this tutorial.
 
 This tutorial includes:
 
+- GObject itself
 - Type system
 - Object, class and instance
-- GObject
 - Child object and inheritance
 - Signals
 - Properties
-- Override
+- Abstract class
 - Interface
 
 This tutorial is incomplete and unstable at present.
