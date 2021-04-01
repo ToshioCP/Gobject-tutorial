@@ -4,6 +4,10 @@ sample.html
 sample.md
 src/misc/_build
 src/tdouble1/_build
+src/tdouble2/_build
+src/tdouble3/_build
+src/tdouble4/_build
+src/tdouble5/_build
 src/temp
 html/*
 latex/*

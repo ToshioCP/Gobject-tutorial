@@ -46,7 +46,7 @@ struct _TDoubleClass {
 
 TDoubleClass doesn't need its own member.
 
-The structure type of the instance of TDouble is TDouble type.
+The type of the instance of TDouble is TDouble.
 
 ~~~C
 typedef struct _TDouble TDouble
@@ -85,7 +85,7 @@ There are two kinds of types, static and dynamic.
 Static type doesn't destroy its class even all the instances have been destroyed.
 Dynamic type destroys its class when the last instance has been destroyed.
 The type of GObject is static and its descendant objects' type is also static.
-The function `g_type_register_static` registers a type of static object.
+The function `g_type_register_static` registers a type of a static object.
 The following code is extracted from `gtype.h` in the Glib source files.
 
 ~~~C
@@ -105,7 +105,7 @@ For example, "TDouble".
 `GTypeInfo` structure will be explained below.
 - flags: Flag.
 If the type is abstract type or abstract value type, then set their flag.
-Otherwise, set it to zero.
+Otherwise, set it zero.
 
 Because the type system maintains the parent-child relationship of the type, `g_type_refister_static` has a parent type parameter.
 And the type system also keeps the information of the type.
@@ -144,20 +144,21 @@ This structure needs to be created before the registration.
 - class_size: The size of the class.
 For example, TDouble's class size is `sizeof (TDoubleClass)`.
 - base_init, base_finalize: These function initialize/finalize the dynamic members of the class.
-In many cases, they aren't necessary, and are assigned with NULL.
+In many cases, they aren't necessary, and are assigned NULL.
 For further information, see [GObject API reference](https://developer.gnome.org/gobject/stable/gobject-Type-Information.html#GClassInitFunc).
 - class_init: Initializes static members of the class.
-Assign your class initialization function to here.
+Assign your class initialization function to `clas_init`member.
 By convention, the name is `<name space>_<name>_class_init`, for example, `t_double_class_init`.
 - class_finalize: Finalizes the class.
-Because descendant type of GObjec is static, its `class_finalize` member is assigned with NULL.
+Because descendant type of GObjec is static, it doesn't have a finalize function.
+Assign NULL to `class_finalize` member.
 - class_data: User-supplied data passed to the class init/finalize functions.
 Usually NULL is assigned.
 - instance_size: The size of the instance.
 For example, TDouble's instance size is `sizeof (TDouble)`.
 - n_preallocs: This is ignored. it has been used by the old version of Glib.
 - instance_init: Initializes instance members.
-Assign your instance initialization function to here.
+Assign your instance initialization function to `instance_init` member.
 By convention, the name is `<name space>_<name>_init`, for example, `t_double_init`.
 - value_table: This is usually only useful for fundamental types.
 If the type is descendant of GObject, assign NULL.
@@ -175,7 +176,7 @@ misc/example3.c
 - 16-22: Class initialization function and instance initialization function.
 They do nothing here but they are necessary for the registration.
 - 24-43: `t_double_get_type` function.
-This function returns the type of TDouble object.
+This function returns the type of the TDouble object.
 The name of a function is always `<name space>_<name>_get_type`.
 And a macro `<NAME_SPACE>_TYPE_<NAME>` (all characters are upper case) is replaced by this function.
 Look at line 3.
@@ -183,7 +184,7 @@ Look at line 3.
 This function has a static variable `type` to keep the type of the object.
 At the first call of this function, `type` is zero.
 Then it calls `g_type_register_static` to register the object to the type system.
-At the second or subsequent call, the function just return `type`, which is non-zero because the variable class is static.
+At the second or subsequent call, the function just return `type`, because the static variable `type` has been assigned non-zero value by `g_type_register_static` and it keeps the value.
 - 30-40 : Sets `info` structure and calls `g_type_register_static`.
 - 45-63: Main function.
 Gets the type of TDouble object and displays it.
@@ -209,17 +210,16 @@ Therefore, it can be defined as a macro such as `G_DEFINE_TYPE`.
 Its name is `<name space>_<name>_class_init`.
 For example, if the object name is `TDouble`, it is `t_double_class_init`.
 This is a declaration, not a definition.
-A user needs to define it.
+You need to define it.
 - Declares a instance initialization function.
 Its name is `<name space>_<name>_init`.
 For example, if the object name is `TDouble`, it is `t_double_init`.
 This is a declaration, not a definition.
-A user needs to define it.
+You need to define it.
 - Defines a static variable pointing to the parent class.
 Its name is `<name space>_<name>_parent_class`.
 For example, if the object name is `TDouble`, it is `t_double_parent_class`.
 - Defines a `<name space>_<name>_get_type ()` function.
-(This is often written as `*_get_type()` function.)
 For example, if the object name is `TDouble`, it is `t_double_get_type`.
 The registration is done in this function like the previous subsection.
 
@@ -256,7 +256,7 @@ You need to define it.
 But you can use `G_DEFINE_TYPE`, its expansion includes the definition of the function.
 So, you actually don't need to write the definition by yourself.
 - The C type of the object is defined as a typedef of structure.
-For example, if the object name is `TDouble`, then `typedef struct _TDouble TDouble` is included in the output.
+For example, if the object name is `TDouble`, then `typedef struct _TDouble TDouble` is included in the expansion.
 But you need to define the structure `struct _TDouble` by yourself before `G_DEFINE_TYPE`.
 - `<NAME SPACE>_<NAME>` macro is defined.
 For example, if the object is `TDouble` the macro is `T_DOUBLE`.
@@ -264,8 +264,8 @@ It will be expanded to a function which casts the argument to the pointer to the
 For example, `T_Double (obj)` casts the type of `obj` to `TDouble *`.
 - `<NAME SPACE>_IS_<NAME>` macro is defined.
 For example, if the object is `TDouble` the macro is `T_IS_DOUBLE`.
-It will be expanded to a function which checks if the argument is the instance of `T_TYPE_DOUBLE`.
-It returns true if the argument is a descendant of `T_TYPE_DOUBLE`.
+It will be expanded to a function which checks if the argument points the instance of `T_TYPE_DOUBLE`.
+It returns true if the argument points a descendant of `T_TYPE_DOUBLE`.
 - The class structure is defined.
 A final type object doesn't need to have its own member of class structure.
 The definition is like the line 11 to 14 in the `example4.c`.
@@ -295,7 +295,7 @@ cd misc; _build/example5
 ## Separate the file into main.c, tdouble.h and tdouble.c
 
 Now it's time to separate the contents into three files, `main.c`, `tdouble.h` and `tdouble.c`.
-An object is defined with two files, header file and C source file.
+An object is defined by two files, header file and C source file.
 
 tdouble.h
 
@@ -304,8 +304,8 @@ tdouble1/tdouble.h
 @@@
 
 - The contents of header files are public, i.e. it is open to any files.
-Header files include macros, which are giving type information, cast and type check, and functions.
-- 1,2,18: These directives prevent that the header file is read two or more times.
+Header files include macros, which are giving type information, cast and type check, and public functions.
+- 1,2,18: These directives prevent that the header file is read two times or more.
 - 6,7: `T_TYPE_DOUBLE` is public.
 `G_DECLARE_FINAL_TYPE` is also expanded to public definitions.
 - 9-13: Function declarations.
@@ -324,16 +324,16 @@ Since `G_DECLARE_FINAL_TYPE` macro emits `typeder struct _TDouble TDouble`, the 
 - 10-16: class and instance initialization functions.
 At present, they don't do anything.
 - 18-24: Getter. The argument `value` is a pointer to double type variable.
-Set the variable with the object value (`d->value`).
+Assigns the object value (`d->value`) to the variable.
 If it succeeds, it returns TRUE.
 `g_return_val_if_fail` is used to check the argument type.
 If the argument `d` is not TDouble type, it outputs error to the log and immediately returns FALSE.
 This function is used to report a programmer's error.
 You shouldn't use it for a runtime error.
 See [Glib API reference](https://developer.gnome.org/glib/stable/glib-Warnings-and-Assertions.html#g-return-val-if-fail) for further information.
-`g_return_val_if_fail` isn't used in static type functions because static functions are called only from other functions in the same file.
+`g_return_val_if_fail` isn't used in static type functions, they are private, because static functions are called only from functions in the same file.
 Such functions know the parameters type well.
-`g_return_val_if_fail` i used in public functions.
+`g_return_val_if_fail` is used in public functions.
 - 26-31: Setter.
 `g_return_if_fail` function is used to check the argument type.
 This function doesn't return any value.
@@ -376,4 +376,40 @@ But any object has header file and C source file as the example above has.
 And they follow the convention.
 You probably aware of the importance of the convention.
 For the further information refer to [GObject API reference](https://developer.gnome.org/gobject/stable/gtype-conventions.html).
+
+## Functions
+
+Functions of objects are open to other objects.
+They are like public methods in object oriented languages.
+
+It is natural to add calculation operators to TDouble objects because they represent real numbers.
+For example, `t_double_add` adds the value of the instance and another instance.
+Then it creates a new TDouble instance which value is the sum of the values.
+
+~~~C
+TDouble *
+t_double_add (TDouble *self, TDouble *other) {
+  g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
+  g_return_val_if_fail (T_IS_DOUBLE (other), NULL);
+  double value;
+
+  if (! t_double_get_value (other, &value))
+    return NULL;
+  return t_double_new (self->value + value);
+}
+~~~
+
+`self` is the instance the function belongs to.
+`other` is another TDouble instance.
+
+The value of `self` can be accessed by `self->value`, but don't use `other->value` to get the value of `other`.
+Use a function `t_double_get_value` instead.
+Because `self` is an instance out of `other`.
+Generally, the structure of an object isn't open to other objects.
+When an object A access to another object B, A must use a public function provided by B.
+
+## Exercise
+
+Write functions of TDouble object for subtraction, multiplication, division and sign changing (unary minus).
+Compare your program to `tdouble.c` in [src/tdouble2](tdouble2) directory.
 
