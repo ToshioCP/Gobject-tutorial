@@ -8,6 +8,8 @@ src/tdouble2/_build
 src/tdouble3/_build
 src/tdouble4/_build
 src/tdouble5/_build
+src/tdouble6/_build
+src/tint/_build
 src/temp
 html/*
 latex/*
