@@ -10,7 +10,7 @@ struct _TDouble {
 G_DEFINE_TYPE (TDouble, t_double, G_TYPE_OBJECT)
 
 static void
-div_by_zero_default_cb (TDouble *d, gpointer user_data) {
+div_by_zero_default_cb (TDouble *d) {
   g_print ("\nError: division by zero.\n\n");
 }
 

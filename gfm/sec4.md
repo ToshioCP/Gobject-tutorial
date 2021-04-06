@@ -418,10 +418,13 @@ That's the reason why we use `g_signal_new_class_handler`.
 
 `tdouble.c` is changed.
 `div_by_zero_default_cb` function is added and `g_signal_new_class_handler` replaces `g_signal_new`.
+Defualt signal handler doesn't have `user_data` parameter.
+A `user_data` parameter is set with `g_signal_connect` family functions when user provided signal handler is connected to the signal.
+Because default signal handler isn't connected with `g_signal_connect` family function, no user data is given as an argument.
 
 ~~~C
  1 static void
- 2 div_by_zero_default_cb (TDouble *d, gpointer user_data) {
+ 2 div_by_zero_default_cb (TDouble *d) {
  3   g_print ("\nError: division by zero.\n\n");
  4 }
  5 

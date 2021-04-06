@@ -28,3 +28,4 @@ This tutorial is incomplete and unstable at present.
 1. [Type system and registration process](gfm/sec3.md)
 1. [Signals](gfm/sec4.md)
 1. [Properties](gfm/sec5.md)
+1. [Derivable type and abstract type](gfm/sec6.md)

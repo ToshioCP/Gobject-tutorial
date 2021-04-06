@@ -1,4 +1,4 @@
-Up: [Readme.md](../Readme.md),  Prev: [Section 4](sec4.md)
+Up: [Readme.md](../Readme.md),  Prev: [Section 4](sec4.md), Next: [Section 6](sec6.md)
 
 # Properties
 
@@ -326,4 +326,4 @@ Define "div-by-zero" signal and "value" property.
 Compare your answer to the files in [src/tint](../src/tint) directory.
 
 
-Up: [Readme.md](../Readme.md),  Prev: [Section 4](sec4.md)
+Up: [Readme.md](../Readme.md),  Prev: [Section 4](sec4.md), Next: [Section 6](sec6.md)
