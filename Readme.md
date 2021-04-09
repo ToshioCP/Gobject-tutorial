@@ -1,6 +1,6 @@
 # GObject Tutorial for beginners
 
-This tutorial is aimed at beginners who begins learning Gobject system.
+This tutorial is aimed at beginners who is learning Gobject system.
 One of the biggest difficulty to learn GObject system is to understand its object oriented strategy.
 All the necessary topics is described in [GObject API reference](https://developer.gnome.org/gobject/stable/).
 But it is probably difficult especially for beginners.
@@ -29,3 +29,5 @@ This tutorial is incomplete and unstable at present.
 1. [Signals](gfm/sec4.md)
 1. [Properties](gfm/sec5.md)
 1. [Derivable type and abstract type](gfm/sec6.md)
+1. [Derivable and non-abstract type](gfm/sec7.md)
+1. [String and memory management](gfm/sec8.md)

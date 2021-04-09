@@ -1,4 +1,4 @@
-Up: [Readme.md](../Readme.md),  Prev: [Section 5](sec5.md)
+Up: [Readme.md](../Readme.md),  Prev: [Section 5](sec5.md), Next: [Section 7](sec7.md)
 
 # Derivable type and abstract type
 
@@ -796,4 +796,4 @@ The diagram below shows the process.
 ![TIntClass initialization](../image/tintclass_init.png)
 
 
-Up: [Readme.md](../Readme.md),  Prev: [Section 5](sec5.md)
+Up: [Readme.md](../Readme.md),  Prev: [Section 5](sec5.md), Next: [Section 7](sec7.md)

@@ -11,7 +11,8 @@ src/tdouble5/_build
 src/tdouble6/_build
 src/tint/_build
 src/tnumber/_build
-src/tstring/_build
+src/tptr/_build
+src/tstr/_build
 src/temp
 html/*
 latex/*
