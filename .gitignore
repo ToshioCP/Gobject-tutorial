@@ -13,6 +13,7 @@ src/tint/_build
 src/tnumber/_build
 src/tptr/_build
 src/tstr/_build
+src/tcomparable/_build
 src/temp
 html/*
 latex/*

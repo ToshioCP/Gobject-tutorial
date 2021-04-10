@@ -1,5 +1,6 @@
 #include "tdouble.h"
 #include "tint.h"
+#include "tcomparable.h"
 
 #define PROP_DOUBLE 1
 static GParamSpec *double_property = NULL;
@@ -9,7 +10,40 @@ struct _TDouble {
   double value;
 };
 
-G_DEFINE_TYPE (TDouble, t_double, T_TYPE_NUMBER)
+static void t_comparable_interface_init (TComparableInterface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (TDouble, t_double, T_TYPE_NUMBER,
+                         G_IMPLEMENT_INTERFACE (T_TYPE_COMPARABLE, t_comparable_interface_init))
+
+static int
+t_double_comparable_cmp (TComparable *self, TComparable *other) {
+  g_return_val_if_fail (T_IS_DOUBLE (self), -2);
+  g_return_val_if_fail (T_IS_INT (other) || T_IS_DOUBLE (other), -2);
+
+  int i;
+  double s, o;
+
+  g_object_get (self, "value", &s, NULL);
+  if (T_IS_INT (other)) {
+    g_object_get (other, "value", &i, NULL);
+    o = (double) i;
+  } else
+    g_object_get (other, "value", &o, NULL);
+
+  if (s > o)
+    return 1;
+  else if (s == o)
+    return 0;
+  else if (s < o)
+    return -1;
+  else /* This can't happen. */
+    return -2;
+}
+
+static void
+t_comparable_interface_init (TComparableInterface *iface) {
+  iface->cmp = t_double_comparable_cmp;
+}
 
 static void
 t_double_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
@@ -50,6 +84,7 @@ t_double_init (TDouble *d) {
 static TNumber *
 t_double_add (TNumber *self, TNumber *other) {
   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
+  g_return_val_if_fail (T_IS_NUMBER (other), NULL);
 
   t_double_binary_op (+)
 }
@@ -57,6 +92,7 @@ t_double_add (TNumber *self, TNumber *other) {
 static TNumber *
 t_double_sub (TNumber *self, TNumber *other) {
   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
+  g_return_val_if_fail (T_IS_NUMBER (other), NULL);
 
   t_double_binary_op (-)
 }
@@ -64,6 +100,7 @@ t_double_sub (TNumber *self, TNumber *other) {
 static TNumber *
 t_double_mul (TNumber *self, TNumber *other) {
   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
+  g_return_val_if_fail (T_IS_NUMBER (other), NULL);
 
   t_double_binary_op (*)
 }
@@ -71,6 +108,7 @@ t_double_mul (TNumber *self, TNumber *other) {
 static TNumber *
 t_double_div (TNumber *self, TNumber *other) {
   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
+  g_return_val_if_fail (T_IS_NUMBER (other), NULL);
   int i;
   double d;
 
