@@ -107,7 +107,7 @@ The difference is the object is derivable or final.
 - 9-19: Definition of the structure of TNumberClass.
 - 11-16: These are pointers to functions.
 They are called class methods or virtual functions.
-They are expected to be overridden by the descendant object.
+They are expected to be overridden by a function in the descendant object.
 The methods are five arithmetic operators and `to_s` function.
 `to_s` function is similar to sprintf function.
 - 18: A pointer to the default signal handler of "div-by-zero" signal.
@@ -450,7 +450,7 @@ However, because TNumber is abstract, the actual type of the object is TInt.
 For example, if the value of the object is 123, then the result is a string "123".
 The caller should free the string if it becomes useless.
 - 111- 128: `t_int_class_init`.
-- 117-122: Overrides the class methods.
+- 117-122: The class methods are overridden.
 For example, if `t_number_add` is called on a TInt object, then the function calls the class method `*tnumber_class->add`.
 The pointer points `t_int_add` function.
 Therefore, `t_int_add` is called finally.

@@ -159,7 +159,7 @@ This is called "chain up to its parent".
 This process is complicated.
 It will explained later.
 - 22-27: `t_str_class_init` initializes TStrClass.
-It overrides `gobject_class->finalize` with `t_str_finalize`.
+`t_str_finalize` overrides `gobject_class->finalize`.
 - 30-35: Setter.
 `s` is owned by the caller.
 `self` needs to own its string so it duplicates `s`.

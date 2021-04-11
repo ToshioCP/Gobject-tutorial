@@ -7,16 +7,17 @@ The contents of this tutorial is not beyond the API reference.
 It just gives the readers some example codes and diagrams to help them.
 Readers should refer to the API reference when learning this tutorial.
 
-This tutorial includes:
+The table of contents is below and you can see all the tutorials by following the link.
+However, you can make html or pdf by the following steps.
 
-- GObject itself
-- Type system
-- Object, class and instance
-- Child object and inheritance
-- Signals
-- Properties
-- Abstract class
-- Interface
+1. You need linux operationg system, ruby, rake, pandoc and latex system.
+2. download this repository and uncompress the files.
+3. change your current directory directory to the top directory of the source files.
+4. type `rake html` to produce html files. The files are generated under `html` directory.
+5. type `rake pdf` to produce pdf file. The file is generated under `latex` directory.
 
-This tutorial is incomplete and unstable at present.
+This system is the same as the one in the `gtk4 tutorial` repository.
+There's a document `Readme_for_developers.md` in `doc` directory of the repository.
+The document describes the details.
 
+If you have any questions, feel free to post an issue.

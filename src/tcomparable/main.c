@@ -73,13 +73,13 @@ main (int argc, char **argv) {
   TInt *i;
   TDouble *d;
   TStr *str1, *str2;
-  GObject *obj;
+  gpointer obj;
 
   i = t_int_new ();
   d = t_double_new ();
   str1 = t_str_new ();
   str2 = t_str_new ();
-  obj = G_OBJECT (g_object_new (G_TYPE_OBJECT, NULL));
+  obj = g_object_new (G_TYPE_OBJECT, NULL);
 
   g_signal_connect (G_OBJECT (i), "notify::value", G_CALLBACK (notify_cb), NULL);
   g_signal_connect (G_OBJECT (d), "notify::value", G_CALLBACK (notify_cb), NULL);
@@ -93,7 +93,7 @@ main (int argc, char **argv) {
 
   compare (T_COMPARABLE (i), T_COMPARABLE (d));
   compare (T_COMPARABLE (str1), T_COMPARABLE (str2));
-  compare (T_COMPARABLE (d), (gpointer) obj);
+  t_comparable_eq (T_COMPARABLE (d), obj);
 
   g_object_unref (i);
   g_object_unref (d);

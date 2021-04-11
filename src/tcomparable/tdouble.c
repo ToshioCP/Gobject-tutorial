@@ -84,7 +84,6 @@ t_double_init (TDouble *d) {
 static TNumber *
 t_double_add (TNumber *self, TNumber *other) {
   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
-  g_return_val_if_fail (T_IS_NUMBER (other), NULL);
 
   t_double_binary_op (+)
 }
@@ -92,7 +91,6 @@ t_double_add (TNumber *self, TNumber *other) {
 static TNumber *
 t_double_sub (TNumber *self, TNumber *other) {
   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
-  g_return_val_if_fail (T_IS_NUMBER (other), NULL);
 
   t_double_binary_op (-)
 }
@@ -100,7 +98,6 @@ t_double_sub (TNumber *self, TNumber *other) {
 static TNumber *
 t_double_mul (TNumber *self, TNumber *other) {
   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
-  g_return_val_if_fail (T_IS_NUMBER (other), NULL);
 
   t_double_binary_op (*)
 }
@@ -108,7 +105,6 @@ t_double_mul (TNumber *self, TNumber *other) {
 static TNumber *
 t_double_div (TNumber *self, TNumber *other) {
   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
-  g_return_val_if_fail (T_IS_NUMBER (other), NULL);
   int i;
   double d;
 

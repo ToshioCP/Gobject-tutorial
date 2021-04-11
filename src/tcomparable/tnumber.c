@@ -41,36 +41,52 @@ t_number_init (TNumber *inst) {
 
 TNumber *
 t_number_add (TNumber *self, TNumber *other) {
+  g_return_val_if_fail (T_IS_NUMBER (self), NULL);
+  g_return_val_if_fail (T_IS_NUMBER (other), NULL);
+
   TNumberClass *class = T_NUMBER_GET_CLASS(self);
   return class->add ? class->add (self, other) : NULL;
 }
 
 TNumber *
 t_number_sub (TNumber *self, TNumber *other) {
+  g_return_val_if_fail (T_IS_NUMBER (self), NULL);
+  g_return_val_if_fail (T_IS_NUMBER (other), NULL);
+
   TNumberClass *class = T_NUMBER_GET_CLASS(self);
   return class->sub ? class->sub (self, other) : NULL;
 }
 
 TNumber *
 t_number_mul (TNumber *self, TNumber *other) {
+  g_return_val_if_fail (T_IS_NUMBER (self), NULL);
+  g_return_val_if_fail (T_IS_NUMBER (other), NULL);
+
   TNumberClass *class = T_NUMBER_GET_CLASS(self);
   return class->mul ? class->mul (self, other) : NULL;
 }
 
 TNumber *
 t_number_div (TNumber *self, TNumber *other) {
+  g_return_val_if_fail (T_IS_NUMBER (self), NULL);
+  g_return_val_if_fail (T_IS_NUMBER (other), NULL);
+
   TNumberClass *class = T_NUMBER_GET_CLASS(self);
   return class->div ? class->div (self, other) : NULL;
 }
 
 TNumber *
 t_number_uminus (TNumber *self) {
+  g_return_val_if_fail (T_IS_NUMBER (self), NULL);
+
   TNumberClass *class = T_NUMBER_GET_CLASS(self);
   return class->uminus ? class->uminus (self) : NULL;
 }
 
 char *
 t_number_to_s (TNumber *self) {
+  g_return_val_if_fail (T_IS_NUMBER (self), NULL);
+
   TNumberClass *class = T_NUMBER_GET_CLASS(self);
   return class->to_s ? class->to_s (self) : NULL;
 }

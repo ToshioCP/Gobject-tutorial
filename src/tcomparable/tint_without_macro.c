@@ -12,8 +12,42 @@ struct _TInt {
 
 static void t_comparable_interface_init (TComparableInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (TInt, t_int, T_TYPE_NUMBER,
-                         G_IMPLEMENT_INTERFACE (T_TYPE_COMPARABLE, t_comparable_interface_init))
+/*G_DEFINE_TYPE_WITH_CODE (TInt, t_int, T_TYPE_NUMBER,*/
+/*                         G_IMPLEMENT_INTERFACE (T_TYPE_COMPARABLE, t_comparable_interface_init))*/
+static void
+t_int_class_init (TIntClass *class);
+static void
+t_int_init (TInt *d);
+
+GType 
+t_int_get_type (void)
+{
+  static GType type = 0;
+  if (type == 0) {
+    const GTypeInfo info = {
+      sizeof (TIntClass),
+      NULL,   /* base_init */
+      NULL,   /* base_finalize */
+      (GClassInitFunc) t_int_class_init,   /* class_init */
+      NULL,   /* class_finalize */
+      NULL,   /* class_data */
+      sizeof (TInt),
+      0,      /* n_preallocs */
+      (GInstanceInitFunc) t_int_init,    /* instance_init */
+      NULL /* value table */
+    };
+    const GInterfaceInfo comparable_info = {
+      (GInterfaceInitFunc) t_comparable_interface_init,  /* interface_init */
+      NULL,   /* interface_finalize */
+      NULL    /* interface_data */
+    };
+    type = g_type_register_static (T_TYPE_NUMBER, "TInt", &info, 0);
+    g_type_add_interface_static (type, T_TYPE_COMPARABLE, &comparable_info);
+  }
+  return type;
+}
+
+
 
 static int
 t_int_comparable_cmp (TComparable *self, TComparable *other) {
