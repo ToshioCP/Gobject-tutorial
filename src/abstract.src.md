@@ -22,4 +22,3 @@ The document describes the details.
 
 If you have any questions, feel free to post an issue.
 
-## Table of contents

@@ -43,6 +43,8 @@ file "Readme.md" => mdfilenames+["src/abstract.src.md"] do
   end
   File.delete("gfm/abstract.md")
   buf << "\n"
+  buf << "## Table of contents\n"
+  buf << "\n"
   0.upto(srcfiles.size-1) do |i|
     h = File.open(srcfiles[i].path) { |file| file.readline }
     h = h.gsub(/^#* */,"").chomp

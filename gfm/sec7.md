@@ -241,8 +241,8 @@ Execute `tptr`.
 ~~~
 $ cd tptr; _build/tptr
 Property "pointer" is set to (nil).
-Property "pointer" is set to 0x55fc14ca8810.
-Get a pointer 0x55fc14ca8810.
+Property "pointer" is set to 0x557cf0eb3810.
+Get a pointer 0x557cf0eb3810.
 ~~~
 
 ## How to write a derivable type

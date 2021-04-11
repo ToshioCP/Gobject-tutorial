@@ -85,10 +85,10 @@ Now, execute it.
 
 ~~~
 $ cd misc; _build/example1
-The address of instance1 is 0x557dbd8d3600
-The address of instance2 is 0x557dbd8d3620
-The address of the class of instance1 is 0x557dbd8d3370
-The address of the class of instance2 is 0x557dbd8d3370
+The address of instance1 is 0x55cc216aa600
+The address of instance2 is 0x55cc216aa620
+The address of the class of instance1 is 0x55cc216aa370
+The address of the class of instance2 is 0x55cc216aa370
 ~~~
 
 The locations of two instances `instance1` and `instance2` are different.
