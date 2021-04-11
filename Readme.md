@@ -14,7 +14,7 @@ However, you can make html or pdf by the following steps.
 
 1. You need linux operationg system, ruby, rake, pandoc and latex system.
 2. download this repository and uncompress the files.
-3. change your current directory directory to the top directory of the source files.
+3. change your current directory to the top directory of the source files.
 4. type `rake html` to produce html files. The files are generated under `html` directory.
 5. type `rake pdf` to produce pdf file. The file is generated under `latex` directory.
 
@@ -23,6 +23,8 @@ There's a document `Readme_for_developers.md` in `doc` directory of the reposito
 The document describes the details.
 
 If you have any questions, feel free to post an issue.
+
+## Table of contents
 
 1. [Prerequisite and License](gfm/sec1.md)
 1. [GObject](gfm/sec2.md)
