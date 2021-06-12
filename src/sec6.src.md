@@ -60,7 +60,7 @@ The difference is the object is derivable or final.
   - Declaration of `t_number_get_type ()` function. This function must be defined in `tnumber.c` file. The definition is usually done with `G_DEFINE_TYPE` or its family macros.
   - Definition of TNumber instance, whose member is its parent only.
   - Declaration of TNumberClass. It should be defined later in the header file.
-  - Convenient macros `T_NUMBER` (cast to instance), `T_NUMBER_CLASS` (cast to class), `T_IS_NUMBER` (instance check), `T_IS_NUMBER_CLASS` (class check) and `T_NUMBER_GET_CLASS` are defined.
+  - Convenience macros `T_NUMBER` (cast to instance), `T_NUMBER_CLASS` (cast to class), `T_IS_NUMBER` (instance check), `T_IS_NUMBER_CLASS` (class check) and `T_NUMBER_GET_CLASS` are defined.
   - `g_autoptr()` support.
 - 9-19: Definition of the structure of TNumberClass.
 - 11-16: These are pointers to functions.
@@ -85,7 +85,7 @@ This macro is expanded to:
   - Declaration of `t_number_init ()` function.
   - Declaration of `t_number_class_init ()` function.
   - Definition of `t_number_get_type ()` function.
-  - Definition of `t_number_parent_class ()` function
+  - Definition of `t_number_parent_class` static variable that points the parent class.
 - 3, 7-10, 25-35: Defines division-by-zero signal.
 `div_by_zero_default_cb` is a default handler of "div-by-zero" signal.
 Default handler doesn't have user data parameter.
@@ -124,7 +124,7 @@ And the pointers of the methods in TNumberClass are rewritten here.
 tnumber/tint.c
 @@@
 
-- 5, 14-32, 124-127: Definition of the property "value".
+- 4-5, 14-32, 124-127: Definition of the property "value".
 This is the same as before.
 - 7-10: Definition of the structure of TInt.
 This must be defined before `G_DEFINE_TYPE`.
@@ -132,13 +132,13 @@ This must be defined before `G_DEFINE_TYPE`.
 This macro expands to:
   - Declaration of `t_int_init ()` function.
   - Definition of `t_int_get_type ()` function.
-  - Definition of `t_int_parent_class ()` function
+  - Definition of `t_int_parent_class` static variable which points the parent class.
 - 34-36: `t_int_init`.
 - 40-109: These functions are connected to the class method pointers in TIntClass.
 They are the implementation of the virtual functions defined in `tnumber.c`.
 - 40-49: Defines a macro used in `t_int_add`, `t_int_sub` and `t_int_mul`.
 This macro is similar to `t_int_div` function.
-refer to the explanation for `t_int_div`.
+refer to the explanation below for `t_int_div`.
 - 51-70: `t_int_add`, `t_int_sub` and `t_int_mul` functions.
 The macro `t_int_binary_op` is used.
 - 72-93: `t_int_div`.
@@ -197,7 +197,7 @@ This handler is upgraded to support both TInt and TDouble.
 The answer is TInt object.
 - 47: Add `i` to `d`.
 The answer is TDouble object.
-The addition of two TNumber objects isn't commutative because the type the result will be different if the two objects are exchanged.
+The addition of two TNumber objects isn't commutative because the type of the result will be different if the two objects are exchanged.
 - 56-63: Tests division by zero signal.
 
 ## Compilation and execution
@@ -240,7 +240,10 @@ Both of them are useful to learn how to write a derivable object.
 ### Initialization process of TNumberClass
 
 1. GObjectClass has been initialized before the function `main` starts.
-2. First call for `g_object_new (T_TYPE_NUMBER, ...)` initializes TNumberClass.
+2. First call for `g_object_new (T_TYPE_INT, ...)` or `g_object_new (T_TYPE_DOUBLE, ...)` initializes TNumberClass.
+Because TNumber is an abstract object, it cannot be instantiated.
+Instead, its child object, TInt or TDouble, can be instantiated.
+And when a child is instantiated for the first time, TNumberClass is initialized before the child is initialized.
 And the initialization process is as follows.
 3. Memory is allocated for TNumberClass.
 4. The parent (GObjectClass) part of the class is copied from GObjectClass.

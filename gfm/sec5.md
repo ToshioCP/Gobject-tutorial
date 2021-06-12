@@ -21,11 +21,11 @@ The type of "default-width" and "default-height" is integer.
 Properties are set and got with functions defined in GObject.
 
 - Properties can be set with several GObject functions.
-`g_object_new` and `g_object_set` are convenient.
+`g_object_new` and `g_object_set` are often used.
 - Properties can be get with several GObject functions.
-`g_object_get` is convenient.
+`g_object_get` is often used.
 
-The functions belongs to GObject, but they can be used for any descendant object of GObject.
+The functions above belongs to GObject, but they can be used for any descendant object of GObject.
 The following is an example of GtkWindow, which is a descendant object of GObject.
 
 An instance is created and its properties are set with `g_object_new`.
@@ -171,17 +171,17 @@ GValue consists of type and value.
 The type is any Gtype.
 The table below shows some GType, but not all.
 
-|GType           |C type|notes                  |
-|:---------------|:-----|:----------------------|
-|G\_TYPE\_CHAR   |char  |                       |
-|G\_TYPE\_BOOLEAN|int   |gboolean               |
-|G\_TYPE\_INT    |int   |                       |
-|G\_TYPE\_FLOAT  |float |                       |
-|G\_TYPE\_DOUBLE |double|                       |
-|G\_TYPE\_STRING |      |null-terminated Cstring|
-|G\_TYPE\_PARAM  |      |GParamSpec             |
-|G\_TYPE\_OBJECT |      |GObject                |
-|G\_TYPE\_VARIANT|      |GVariant               |
+|GType           |C type|type name |notes                  |
+|:---------------|:-----|:---------|:----------------------|
+|G\_TYPE\_CHAR   |char  |gchar     |                       |
+|G\_TYPE\_BOOLEAN|int   |gboolean  |                       |
+|G\_TYPE\_INT    |int   |gint      |                       |
+|G\_TYPE\_FLOAT  |float |gfloat    |                       |
+|G\_TYPE\_DOUBLE |double|gdouble   |                       |
+|G\_TYPE\_STRING |      |gchararray|null-terminated Cstring|
+|G\_TYPE\_PARAM  |      |GParam    |GParamSpec             |
+|G\_TYPE\_OBJECT |      |GObject   |                       |
+|G\_TYPE\_VARIANT|      |GVariant  |                       |
 
 If the type of a GValue `value` is `G_TYPE_DOUBLE`, `value` can be get with `g_value_get_double` function.
 
@@ -203,7 +203,7 @@ Refer to GObject API reference for further information.
 - [II API reference, Generic values](https://developer.gnome.org/gobject/stable/gobject-Generic-values.html)
 - [II API reference, Parameters and Values](https://developer.gnome.org/gobject/stable/gobject-Standard-Parameter-and-Value-Types.html)
 
-## t\_double\_set\_property and g\_double\_get\_property
+## t\_double\_set\_property and t\_double\_get\_property
 
 `g_object_set` makes GValue from the value of the property given as an argument.
 And calls a function pointed by `set_property` in the class.
@@ -246,7 +246,7 @@ struct  _GObjectClass
 - 6: Set `self->value`.
 The assigned value is got with `g_value_get_double` function.
 
-In the same way, `t_double_get_property` changes `self->value` to GValue.
+In the same way, `t_double_get_property` stores `self->value` to GValue.
 
 ~~~C
  1 static void

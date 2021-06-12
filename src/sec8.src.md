@@ -1,216 +1,216 @@
-# String and memory management
+# Overriding a property and chaining up the finalize process
 
-The example in this section is TStr object.
-TStr has a string type value and is a child object of TPtr.
+The example in this section is TNumStr object.
+TNumStr is a child of TStr object.
+TNumStr holds a string and the string is a numeric string.
 
-It is similar to TInt or TDouble but C language String is more complex than int and double.
-When you make TStr program, you need to be careful about memory management, which is not necessary in TInt and TDouble.
-First two subsections are topics about string and memory.
+A numeric string is a string that expresses a number.
+For example, "0", "-100" and "123.456" are numeric strings.
+They are string and expresses numbers.
 
-## String and memory
+- "0" is a string.
+It is a character array and its elements are '0' and '\0'.
+It expresses 0, which is an integer zero.
+- "-100" is a string that consists of '-', '1', '0', '0' and '\0'.
+It expresses an integer -100.
+- "123.456" consists of '1', '2', '3', '.', '4', '5', '6' and '\0'.
+It expresses a real number (double type) 123.456.
 
-String is an array of characters that is terminated with '\0'.
-String is not a C type such as char, int, float or double.
-But the pointer to an array behaves like a string type of other languages.
-So, we often call pointers string when it points a character array.
+A numeric string is such a specific string.
 
-If the pointer is NULL, it points nothing.
-So, the pointer is not a string.
-Programs with string will include bugs if you aren't careful about NULL pointer.
+## Verification of a numeric string
 
-Another annoying problem is memory allocation.
-Because string is an array of characters, memory allocation is necessary to create a new string.
-We don't forget to allocate memory, but often forget to free the memory.
-It causes memory leak.
+Before defining TNumStr, we need a way to verify a numeric string.
 
-~~~C
-char *s;
-s = g_strdup ("Hello.");
-... ... ... do something with s
-g_free (s);
-~~~
+Numeric string includes:
 
-`g_strdup` duplicates a string.
-It does:
+- Integer.
+For example, "0", "100", "-10" and "+20".
+- Double.
+For example, "0.1", "-10.3", "+3.14", ".05" "1." and "0.0".
 
-- Calculates the size of the string.
-The size of "Hello." is 6.
-- Requests the system to allocate 6 bytes memory.
-- Copies the string to the memory.
-- Returns the pointer to the newly-allocated memory.
+We need to be careful that "0" and "0.0" are different.
+Because their type are different.
+The type of "0" is integer and the type of "0.0" is double.
+In the same way, "1" is an integer and "1." is a double.
 
-If the string `s` is no longer useless, `s` must be freed, which means the allocated 6 bytes are returned to the system.
-`g_free` frees the memory.
+".5" and "0.5" are the same.
+Both are double and their value is 0.5.
 
-Strings bounded by double quotes like "Hello." is string literal.
-It is an array of characters, but the contents of the array is not allowed to change usually.
-And it mustn't be freed.
+Verification of a numeric string is a kind of lexical analysis.
+A state diagram and state matrix is often used for lexical analysis.
 
-I wrote "usually".
-There's an exception.
-If an array is initialized with string literal, the array can be changed.
+A numeric string is a sequence of characters that satisfies:
 
-~~~C
-char a[]="Hello!";
-a[1]='a';
-g_print ("%s\n", a);
-~~~
+1. '+' or '-' can be the first character. It can be left out.
+2. a sequence of digits follows.
+3. a period follows.
+4. a sequence of digits follows.
 
-First, the compiler calculates the length of "Hello!".
-It is 6.
-Then 6 bytes memory is allocated in static memory (static class array) or stack memory (auto class array).
-The memory is initialized with "Hello!".
-So, the string in the array can me changed.
-This program displays `Hallo!`, not `Hello!`.
+The second part can be left out.
+For example, ".56" or "-.56" are correct.
 
-The following program is wrong and if you execute it, some bad things will probably happen.
+The third and fourth parts can be left out.
+For example, "12" or "-23" are correct.
 
-~~~C
-char *a = "Hello";
-*(a+1) = `a`;
-g_print ("%s\n", a);
-~~~
+The fourth part can be left out.
+For example, "100." is correct.
 
-In this program, "Hello" is not a static class array or an auto class array.
-It might be in the program code area or some other non-writable area.
-It depends on the implementation of your compiler.
-Anyway, don't program like this.
+There are six state.
 
-## Copying string
+- 0 is the start point.
+- 1 is the state after '+' or '-'.
+- 2 is at the middle of the first sequence of digits (integer part).
+- 3 is the state after the decimal point.
+- 4 is the end of the string and the string is int.
+- 5 is the end of the string and the string is double.
+- 6 is error. The string doesn't express a number.
 
-There are two ways to copy a string.
-First, copy the pointer.
+The input characters are:
 
-~~~C
-char *s = "Hello";
-char *t = s;
-~~~
+- 0: '+' or '-'
+- 1: digit ('0' - '9')
+- 2: period '.'
+- 3: end of string '\0'
+- 4: other characters
 
-Two pointers `s` and `t` points the same address.
-This program is OK because string literal above never changes and never be freed.
-But if the string is mutable or can be freed, a problem might happen.
+The state diagram is as follows.
 
-@@@include
-temp/foobar.c
-@@@
+![state diagram of a numeric string](../image/state_diagram.png)
 
-When the function `func` is called, the copy of the pointer `s` is made and the copy is assigned to the parameter `string`.
-Therefore, `string` is a copy of `s` and both pointer point the same string "Hello Foo!".
-The function replaces `Foo` with `Bar` in the string pointed by `string`.
-The modified string is also pointed by `s`.
-Therefore, the output is "Hello Bar!", not "Hello Foo!".
+The state matrix is:
 
-If the string `s` is copied before the function call, "Hello Foo!" will be shown.
+|state＼input|0 |1 |2 |3 |4 |
+|:-----------|:-|:-|:-|:-|:-|
+|0           |1 |2 |3 |6 |6 |
+|1           |6 |2 |3 |6 |6 |
+|2           |6 |2 |3 |4 |6 |
+|3           |6 |3 |6 |5 |6 |
+
+## Header file
+
+The header file of TNumStr is [`tnumstr.h`](tstr/tnumstr.h).
+It is in the `src/tstr` directory.
 
 @@@include
-temp/foobar2.c
+tstr/tnumstr.h
 @@@
 
-The difference between copying a pointer and duplicating a string (an array of characters) is the same as shallow copy and deep copy in object oriented languages.
-It's useful to learn shallow copy and deep copy.
+- 9: TNumStr is a child object of TStr.
+It is a final type object.
+- 12-16: These three integers define the type of TNumStr string.
+  - `t_none`: No string is stored or the string isn't a numeric string.
+  - `t_int`: Integer
+  - `t_double`: Double
+- 18-19: `t_num_str_is_numerc_string` returns the type of the string.
+The returned value is `t_none`, `t_int` or `t_double`.
+- 22-26: Setter and getter with TNumber object.
+- 28-29: `t_num_str_get_num_type` returns the type of the numeric string.
+- 31-42: Functions to create new TNumStr objects.
 
-The problem above often happens in function call.
-Better designed function uses const qualifier.
-It ensures that the string isn't changed in the function.
+## C file
+
+The C file of TNumStr is [`tnumstr.c`](tstr/tnumstr.c).
+It is in the `src/tstr` directory.
 
 @@@include
-temp/foobar3.c
+tstr/tnumstr.c
 @@@
 
-## TStr object
+- 10-14: Defines a property id `PROP_STRING`.
+This id is used for a overriding property "string".
+It will be explained in the next subsection.
+- 16-22: Definition of TNumStr.
+  - string: the numeric string held by TNumStr instance.
+  - type: the type of the numeric string. `t_int` or `t_double`.
+If It is `t_none`, the string member is NULL or non-numeric string (it isn't expected though).
+  ivalue: If the type is `t_int`, the value is assigned to it.
+  dvalue: If the type is `t_double`, the value is assigned to it.
+- 24: `G_DEFINE_TYPE` macro. the parent object is TStr.
+- 26- 62: `t_num_str_is_numeric_string` function checks the given string and returns `t_int`, `t_double` or `t_none`.
+If the string isn't a numeric string, `t_none` will be returned.
+The check algorithm is explained in the first subsection "Verification of a numeric string".
+- 64-104: Implements overriding "string" property.
+This will be explained in the next subsection.
+- 106-113: Finalize method.
+This method and the "chain up to its parent" process will be explained later.
+- 115-119: Initializes an instance.
+- 121-129: Initializes the class.
+First, the finalize method is overridden by `t_new_str_finalize`.
+The next three lines overrides the "string" property.
+It will be explained in the next subsection.
+- 132-160: Setter and getter.
+The setter sets the numeric string with a TNumber object.
+And the getter returns a TNumber object.
+- 162-167: `t_num_str_get_num_type` returns the type of the numeric string held by the TNumStr instance.
+It is `t_int`, `t_double` or `t_none`.
+- 170- 208: Four functions for creating a new TNumStr instance.
 
-TStr is a child of TPtr.
-It holds a string value.
-The pointer of the string is a "pointer" property of TPtr, which is a parent of TStr.
-It has  a function `t_str_concat` which concatenates two strings of TStr objects and creates a new TStr object.
+## Overriding a property
 
-The header file `tstr.h` is as follows.
+TStr has a "string" property.
+Because TNumStr is a child of TStr, TNumStr also has the property.
+It is natural to think that TNumStr uses the property for its numeric string.
+But TStr's string is a general string.
+It allows any string even if it is not a numeric string.
+Therefore, it is not appropriate to use the "string" property as it is.
+
+TNumStr overrides the property and it restricts it to a numeric string.
+See the class initialization function again.
 
 @@@include
-tstr/tstr.h
+tstr/tnumstr.c t_num_str_class_init
 @@@
 
-- 8: TStr is a final type.
-`G_DECLARE_FINAL_TYPE` is used.
-- 10-11: `t_str_concat` concatenates two strings of `self` and `other`, then returns the newly created TStr instance.
-- 14-18: Setter and getter.
-- 21-22: `t_str_new_with_string (const char *s)` creates a new TStr object and set its value with `s`.
-Because the parameter has const qualifier, it ensures that the string `s` never changes in the function.
-- 24-25: `t_str_new` creates TStr that holds NULL pointer.
+- 6-7: set\_property and get\_property methods are overridden by TNumStr's set/get functions.
+- 8: `g_object_class_override_property` overrides the "string" property.
+The arguments are TNumStr class, new property id and the property name.
+Now, the property can be set/get with the TNumStr's own functions.
 
-`tstr.c` is a C file of TStr object.
+The set/get functions are shown below.
 
 @@@include
-tstr/tstr.c
+tstr/tnumstr.c t_num_str_set_string_property t_num_str_set_property t_num_str_get_property
 @@@
 
-- 3-5: TStr instance structure.
-It only has its parent instance.
-No its own area exists.
-- 7: `G_DEFINE_TYPE` is used.
-- 9-11: `t_str_init` does nothing.
-The parent instance of TPtr initializes its pointer to NULL.
-Therefore, the pointer of TStr instance is also NULL just after it is created.
-- 13-20: `t_str_finalize` finalizes the instance.
-This function is assigned to `class->finalize` in class initialization.
-`t_str_finalize` frees the string pointed by the pointer of TPtr if it is not NULL.
-After that it calls its parent's finalization method.
-This is called "chain up to its parent".
-This process is complicated.
-It will explained later.
-- 22-27: `t_str_class_init` initializes TStrClass.
-`t_str_finalize` overrides `gobject_class->finalize`.
-- 30-35: Setter.
-`s` is owned by the caller.
-`self` needs to own its string so it duplicates `s`.
-After the duplication, `s` and `t` points different address.
-So, the string pointed by `s` and another string pointed by `t` are different but the contents of both the string are the same.
-Set the pointer of `self` with `t`.
-- 37-46: Getter.
-Gets the pointer from `self` and assigns it to `s`.
-If `s` is string (not NULL), then duplicates it and returns it.
-Otherwise, returns NULL.
-- 48-68: `t_str_concat`.
-It concatenates two strings held by `self` and `other`.
-Because `t_str_get_string` allocates memory for strings `s1` and `s2`, they needs to be freed when they become useless.
-- 55-62: Creates `s3`.
-`g_str_concat` concatenates two strings and creates a new string.
-- 63: Creates a new Tstr object with `s3`.
-- 64-66: `s1`, `s2` and `s3` are now useless, so they are freed if they aren't NULL.
-- 70-85: Creates new TStr instance.
-Const qualifier is used in line 71.
-This ensures the parameter `s` never changes in the function.
+- 23-31: `t_num_str_set_property` overrides the set\_property method.
+If the property id is the same as the id set with `g_object_class_override_property`, then `t_num_str_set_string_property` is called.
+- 1-21: `t_num_str_set_string_property` function.
+If the string type is `t_int`, the string expresses an integer.
+The previous string has been stored in `self->string`.
+If it isn't NULL, free the string, first.
+Then, duplicates the new string and stores it in`self->string`.
+Updates `self->type` and `self->ivalue`.
+If the string type is `t_double` the previous string is freed and the new string is duplicated and stored in `self->string`.
+Updates `self->type` and `self->dvalue`.
+If the string type is neither `t_int` nor `t_double`, then nothing happens.
+Notice that even if the string isn't updated, notify signal will be emitted.
+Therefore, if you want to know the change of the numeric string, you need to check the string is really changed.
+- 33-41: `t_num_str_get_property` overrides the get\_property method.
+It just retrieve the numeric string from `self->string` and set the GValue with the copy of the string.
+
+The functions above uses `self->string` to save the numeric string.
+It is a member of TNumStr structure.
+Therefore, a `string` member of TStr (parent instance member) isn't used to save the property value.
+
+## Chaining up to its parent
 
 The "chain up to its parent" process is illustrated with the diagram below.
-There are three classes, GObjectCLass, TPtrClass and TStrClass.
-Each class has finalize method pointer which points finalize functions in gobject program or tstr program.
-The finalize method of TStrClass finalize its own part of the TStr instance.
+There are three classes, GObjectCLass, TStrClass and TNumStrClass.
+Each class has a finalize method pointer which points finalize functions in the corresponding program (GObject, TStr or TNumStr program).
+The finalize method of TNumStrClass finalizes its own part of the TNumStr instance.
 At the end of the function, it calls its parent's finalize method.
-It is the finalize method of TPtrClass.
-The method hasn't been overridden, so it points the finalize method in gobject program.
-It finalizes the GObject part of the TStr instance.
+It is the finalize method of TStrClass.
+It calls its own finalize function and finalizes the TStr private data (TStrPrivate) of the TNumStr instance.
+And at the end of the function, it calls its parent's finalize method.
+At last, GObject finalize method finalizes the GObject part of the TNumStr instance.
 
-![Finalize process](../image/finalize.png)
-
-`main.c` tests TStr object.
-
-@@@include
-tstr/main.c
-@@@
-
-- 5-15: Notify signal handler is almost same as before.
-- 17-58: `main` function.
-This function creates two TStr objects and concatenates them.
-- 24-31: Creates `str1` and `str2`.
-Connects "notify::pointer" signal to `notify_cb`.
-Sets string of the instances with `one` and `two` respectively.
-At the same time, "pointer" properties are set.
-- 33: Concatenates `str1` and `str2`, then creates new object `str3`.
-- 34-36: Gets strings from the TStr instances.
-- 38-48: shows the strings.
-- 50-55: Frees instances and strings.
+![Chaining up process](../image/chainup.png)
 
 ## Compilation and execution
+
+There's `main.c` in `src/tstr` directory.
+It just tests `tstr.c` and `tnumstr.c` program.
 
 Compilation is done by usual way.
 First, change your current directory to `src/tstr`.
@@ -218,25 +218,6 @@ First, change your current directory to `src/tstr`.
 ~~~
 $ meson _build
 $ ninja -C _build
+$ _build/tstr
 ~~~
-
-Then, execute it.
-
-@@@shell
-cd tstr; _build/tstr
-@@@
-
-The last line shows that "one" and "two" are concatenated.
-
-You have probably been aware that strings make things complicated because of memory management.
-However, strings are one of the most useful data structure in computers.
-If you make child objects of GObject, the technique to manage strings will be necessary.
-The important things are:
-
-- Memory allocation and freeing.
-Don't forget freeing.
-- Think about what object or function owns a string and are responsible to free the string.
-- Understand how to initialize and finalize an instance.
-- Use const qualifier in your function if string parameters doesn't change in your function.
-This is useful for users to know whether they should duplicate their strings.
 

@@ -10,7 +10,7 @@ This tutorial is about gobject libraries.
 It is originally used on Linux with C compiler, but now it is used more widely, on windows and macOS, with Vala, python and so on.
 However, this tutorial describes only _C programs on Linux_.
 
-If you want to try the examples in the tutorial, you need:
+If you want to try to compile the examples in the tutorial, you need:
 
 - PC with Linux distribution like Ubuntu, Debian and so on.
 - Gcc
@@ -18,7 +18,7 @@ If you want to try the examples in the tutorial, you need:
 - pkg-config
 - meson and ninja
 
-Linux distributions has Glib, which is enough for you to read this document.
+Linux distributions has Glib, which is enough for you to compile the examples in this repository.
 
 ### Software
 
@@ -32,7 +32,7 @@ You need:
 There are two ways to install it.
 One is install the distribution's package.
 The other is using rbenv and ruby-build.
-If you want to use the latest version of ruby, use rbenv.
+If you want to use the latest version of ruby, use rbenv and ruby-build.
 - Rake.
 It is a gem, which is a library written in ruby.
 You can install it as a package of your distribution or use gem command instead.

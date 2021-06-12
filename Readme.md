@@ -16,10 +16,10 @@ However, you can make html or pdf by the following steps.
 2. download this repository and uncompress the files.
 3. change your current directory to the top directory of the source files.
 4. type `rake html` to produce html files. The files are generated under `html` directory.
-5. type `rake pdf` to produce pdf file. The file is generated under `latex` directory.
+5. type `rake pdf` to produce a pdf file. The file is generated under `latex` directory.
 
 This system is the same as the one in the `gtk4 tutorial` repository.
-There's a document `Readme_for_developers.md` in `doc` directory of the repository.
+There's a document `Readme_for_developers.md` in `gfm` directory of the repository.
 The document describes the details.
 
 If you have any questions, feel free to post an issue.
@@ -34,5 +34,5 @@ If you have any questions, feel free to post an issue.
 1. [Properties](gfm/sec5.md)
 1. [Derivable type and abstract type](gfm/sec6.md)
 1. [Derivable and non-abstract type](gfm/sec7.md)
-1. [String and memory management](gfm/sec8.md)
+1. [Overriding a property and chaining up the finalize process](gfm/sec8.md)
 1. [Interface](gfm/sec9.md)

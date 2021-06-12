@@ -1,5 +1,7 @@
 #include "tdouble.h"
 
+static guint t_double_signal;
+
 #define PROP_DOUBLE 1
 static GParamSpec *double_property = NULL;
 
@@ -9,6 +11,11 @@ struct _TDouble {
 };
 
 G_DEFINE_TYPE (TDouble, t_double, G_TYPE_OBJECT)
+
+static void
+div_by_zero_default_cb (TDouble *d) {
+  g_print ("\nError: division by zero.\n\n");
+}
 
 static void
 t_double_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
@@ -34,6 +41,18 @@ t_double_get_property (GObject *object, guint property_id, GValue *value, GParam
 static void
 t_double_class_init (TDoubleClass *class) {
   GObjectClass *gobject_class = G_OBJECT_CLASS (class);
+
+  t_double_signal =
+  g_signal_new_class_handler ("div-by-zero",
+                              G_TYPE_FROM_CLASS (class),
+                              G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                              G_CALLBACK (div_by_zero_default_cb),
+                              NULL /* accumulator */,
+                              NULL /* accumulator data */,
+                              NULL /* C marshaller */,
+                              G_TYPE_NONE /* return_type */,
+                              0     /* n_params */
+                              );
 
   gobject_class->set_property = t_double_set_property;
   gobject_class->get_property = t_double_get_property;
@@ -85,10 +104,13 @@ t_double_div (TDouble *self, TDouble *other) {
   double value;
 
   g_object_get (other, "value", &value, NULL);
-  if (value == 0)
+  if (value == 0) {
+    g_signal_emit (self, t_double_signal, 0);
     return NULL;
+  }
   return t_double_new_with_value (self->value / value);
 }
+
 TDouble *
 t_double_uminus (TDouble *self) {
   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);

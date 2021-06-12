@@ -11,16 +11,16 @@ G_DEFINE_TYPE (TDouble, t_double, G_TYPE_OBJECT)
 
 static void
 t_double_class_init (TDoubleClass *class) {
-  t_double_signal = g_signal_newv ("div-by-zero",
+  t_double_signal = g_signal_new ("div-by-zero",
                                  G_TYPE_FROM_CLASS (class),
                                  G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                 NULL /* closure */,
+                                 0 /* class offset.Subclass cannot override the class handler (default handler). */,
                                  NULL /* accumulator */,
                                  NULL /* accumulator data */,
-                                 NULL /* C marshaller */,
+                                 NULL /* C marshaller. g_cclosure_marshal_generic() will be used */,
                                  G_TYPE_NONE /* return_type */,
-                                 0     /* n_params */,
-                                 NULL  /* param_types */);
+                                 0     /* n_params */
+                                 );
 }
 
 static void

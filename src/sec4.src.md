@@ -15,7 +15,7 @@ A signal handler is a function that is invoked when the signal is emitted.
 Signals are connected to handlers with `g_connect_signal` or its family functions.
 4. Emit the signal.
 
-Step one and Four are done in the object to which the signal belongs.
+Step one and Four are done on the object to which the signal belongs.
 Step three is usually done outside the object.
 
 The process of signals is complicated and it takes long to explain all the features.
@@ -57,16 +57,16 @@ At present I just show you `g_signal_new` function call extracted from `tdouble.
 
 ~~~C
 t_double_signal =
-g_signal_newv ("div-by-zero",
-               G_TYPE_FROM_CLASS (class),
-               G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-               NULL /* closure */,
-               NULL /* accumulator */,
-               NULL /* accumulator data */,
-               NULL /* C marshaller */,
-               G_TYPE_NONE /* return_type */,
-               0     /* n_params */,
-               NULL  /* param_types */);
+g_signal_new ("div-by-zero",
+              G_TYPE_FROM_CLASS (class),
+              G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+              0 /* class offset.Subclass cannot override the class handler (default handler). */,
+              NULL /* accumulator */,
+              NULL /* accumulator data */,
+              NULL /* C marshaller. g_cclosure_marshal_generic() will be used */,
+              G_TYPE_NONE /* return_type */,
+              0     /* n_params */
+              );
 ~~~
 
 - `t_double_signal` is a static guint variable.
@@ -78,12 +78,15 @@ It is set the signal id.
 Lots of pages are necessary to explain this flag.
 So, I want leave them out now.
 The argument above can be used in many cases.
+The definition is described in the [GObject API reference](https://developer.gnome.org/gobject/stable/gobject-Signals.html#GSignalFlags).
 - The return type is G_TYPE_NONE which means no value is returned by the signal handler.
 - `n_params` is a number of parameters.
 This signal doesn't have parameters, so it is zero.
-And no parameter type is necessary, so the last argument is NULL.
 
 This function call is in the class initialization function.
+
+You can use other functions such as `g_signal_newv`.
+See [GObject API reference](https://developer.gnome.org/gobject/stable/gobject-Signals.html#g-signal-newv) for details.
 
 ## Signal handler
 
@@ -93,29 +96,28 @@ The handler has two parameters.
 - The instance to which the signal belongs
 - A pointer to a user data which is given in the signal connection.
 
-The example signal doesn't need user data.
-You can leave out the second parameter.
+The "div-by-zero" signal doesn't need user data.
 
 ~~~C
 void dev_by_zero_cb (TDouble *d, gpointer user_data) { ... ... ...};
 ~~~
 
-Or
+Or, you can leave out the second parameter.
 
 ~~~C
 void dev_by_zero_cb (TDouble *d) { ... ... ...};
 ~~~
 
 If a signal has parameters, the parameters are between the instance and user data.
-For example, the handler of "response" signal of GtkDialog is:
+For example, the handler of "response" signal on GtkDialog is:
 
 ~~~C
 void user_function (GtkDialog *dialog, int response_id, gpointer user_data);
 ~~~
 
 `resoponse_id` is the parameter of the signal.
-"response" signal is emitted when a user clicks on a button like "OK" or "Cancel".
-The argument of `response_id` is a value shows what button has been clicked.
+The "response" signal is emitted when a user clicks on a button like "OK" or "Cancel".
+The argument of `response_id` is a value that shows what button has been clicked.
 
 The handler of "div-by-zero" signal just shows an error message.
 
@@ -139,7 +141,7 @@ g_signal_connect (d1, "div-by-zero", G_CALLBACK (div_by_zero_cb), NULL);
 - The third argument is the signal handler.
 It must be casted by `G_CALLBACK`.
 - The last argument is an user data.
-The signal doesn't need a user data, so NULL is given.
+The signal doesn't need a user data, so NULL is assigned.
 
 ## Signal emission
 
@@ -167,9 +169,9 @@ If the divisor is zero, the signal is emitted.
 - The second parameter is the signal id.
 Signal id has been set with `g_signal_new` function.
 - The third parameter is detail.
-"dev-by-zero" signal doesn't have an detail, so the argument is zero.
+"dev-by-zero" signal doesn't have a detail, so the argument is zero.
 Detail isn't explained in this section.
-If you want to know details, refer to GObject API referemce.
+If you want to know details, refer to [GObject API reference](https://developer.gnome.org/gobject/stable/signal.html#signal-detail).
 
 If a signal has parameters, they are fourth and subsequent arguments.
 
@@ -206,7 +208,7 @@ cd tdouble3; _build/tdouble
 ## Default signal handler
 
 You may have thought that it was strange that the error message was set in `main.c`.
-Indeed, the error happens in `tdouble.c` so the message should been emitted in `tdouble.c` itself.
+Indeed, the error happens in `tdouble.c` so the message should been managed by `tdouble.c` itself.
 GObject system has a default signal handler that is set in the object itself.
 A default signal handler is also called "default handler" or "object method handler".
 
@@ -234,7 +236,7 @@ That's the reason why we use `g_signal_new_class_handler`.
 
 `tdouble.c` is changed.
 `div_by_zero_default_cb` function is added and `g_signal_new_class_handler` replaces `g_signal_new`.
-Defualt signal handler doesn't have `user_data` parameter.
+Default signal handler doesn't have `user_data` parameter.
 A `user_data` parameter is set with `g_signal_connect` family functions when user provided signal handler is connected to the signal.
 Because default signal handler isn't connected with `g_signal_connect` family function, no user data is given as an argument.
 
@@ -249,6 +251,8 @@ Compile and execute it.
 @@@shell
 cd tdouble4; _build/tdouble
 @@@
+
+The source file is in the directory [src/tdouble4](tdouble4).
 
 If you want to connect your handler (user-provided handler) to the signal, you can still use `g_signal_connect`.
 Add the following in `main.c`.
@@ -322,7 +326,7 @@ The source files are in [src/tdouble5](tdouble5).
 
 ## Signal flag
 
-The order that handlers are called is described in {GObject API reference](https://developer.gnome.org/gobject/stable/gobject-Signals.html#gobject-Signals.description).
+The order that handlers are called is described in [GObject API reference](https://developer.gnome.org/gobject/stable/gobject-Signals.html#gobject-Signals.description).
 
 The order depends on the signal flag which is set in `g_signal_new` or `g_signal_new_class_handler`.
 There are three flags which relate to the order of handlers' invocation.

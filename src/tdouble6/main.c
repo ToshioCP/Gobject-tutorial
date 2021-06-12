@@ -32,27 +32,37 @@ main (int argc, char **argv) {
   d1 = t_double_new_with_value (10.0);
   d2 = t_double_new_with_value (20.0);
   g_signal_connect (G_OBJECT (d1), "notify::value", G_CALLBACK (notify_cb), NULL);
-  if (d3 = t_double_add (d1, d2))
+  if ((d3 = t_double_add (d1, d2)) != NULL) {
     t_print ("+", d1, d2, d3);
-  g_object_unref (d3);
+    g_object_unref (d3);
+  }
 
-  if (d3 = t_double_sub (d1, d2))
+  if ((d3 = t_double_sub (d1, d2)) != NULL) {
     t_print ("-", d1, d2, d3);
-  g_object_unref (d3);
+    g_object_unref (d3);
+  }
 
-  if (d3 = t_double_mul (d1, d2))
+  if ((d3 = t_double_mul (d1, d2)) != NULL) {
     t_print ("*", d1, d2, d3);
-  g_object_unref (d3);
+    g_object_unref (d3);
+  }
 
-  if (d3 = t_double_div (d1, d2))
+  if ((d3 = t_double_div (d1, d2)) != NULL) {
     t_print ("/", d1, d2, d3);
-  g_object_unref (d3);
+    g_object_unref (d3);
+  }
 
-  if ((d3 = t_double_uminus (d1)))
+  g_object_set (d2, "value", 0.0, NULL);
+  if ((d3 = t_double_div (d1, d2)) != NULL) {
+    t_print ("/", d1, d2, d3);
+    g_object_unref (d3);
+  }
+
+  if ((d3 = t_double_uminus (d1)) != NULL) {
     g_print ("-(%lf) = %lf\n", get_value(d1), get_value(d3));
-  g_object_unref (d3);
+    g_object_unref (d3);
+  }
 
-  g_object_set (d1, "value", 100.0, NULL);
   g_object_set (d1, "value", 100.0, NULL);
 
   g_object_unref (d1);

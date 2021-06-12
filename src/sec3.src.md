@@ -105,7 +105,7 @@ For example, "TDouble".
 `GTypeInfo` structure will be explained below.
 - flags: Flag.
 If the type is abstract type or abstract value type, then set their flag.
-Otherwise, set it zero.
+Otherwise, set it to zero.
 
 Because the type system maintains the parent-child relationship of the type, `g_type_refister_static` has a parent type parameter.
 And the type system also keeps the information of the type.
@@ -173,7 +173,7 @@ Class\_init and instance\_init functions are called when class or instance is in
 misc/example3.c
 @@@
 
-- 16-22: Class initialization function and instance initialization function.
+- 16-22: A class initialization function and an instance initialization function.
 They do nothing here but they are necessary for the registration.
 - 24-43: `t_double_get_type` function.
 This function returns the type of the TDouble object.
@@ -201,7 +201,7 @@ cd misc; _build/example3
 
 ## G_DEFINE_TYPE macro
 
-The registration above is done with stereotyped algorithm.
+The registration above is always done with the same algorithm.
 Therefore, it can be defined as a macro such as `G_DEFINE_TYPE`.
 
 `G_DEFINE_TYPE` does the following:
@@ -264,8 +264,8 @@ It will be expanded to a function which casts the argument to the pointer to the
 For example, `T_Double (obj)` casts the type of `obj` to `TDouble *`.
 - `<NAME SPACE>_IS_<NAME>` macro is defined.
 For example, if the object is `TDouble` the macro is `T_IS_DOUBLE`.
-It will be expanded to a function which checks if the argument points the instance of `T_TYPE_DOUBLE`.
-It returns true if the argument points a descendant of `T_TYPE_DOUBLE`.
+It will be expanded to a function which checks if the argument points the instance of `TDouble`.
+It returns true if the argument points a descendant of `TDouble`.
 - The class structure is defined.
 A final type object doesn't need to have its own member of class structure.
 The definition is like the line 11 to 14 in the `example4.c`.
@@ -304,7 +304,7 @@ tdouble1/tdouble.h
 @@@
 
 - The contents of header files are public, i.e. it is open to any files.
-Header files include macros, which are giving type information, cast and type check, and public functions.
+Header files include macros, which gives type information, cast and type check, and public functions.
 - 1,2,18: These directives prevent that the header file is read two times or more.
 - 6,7: `T_TYPE_DOUBLE` is public.
 `G_DECLARE_FINAL_TYPE` is also expanded to public definitions.
@@ -331,19 +331,19 @@ If the argument `d` is not TDouble type, it outputs error to the log and immedia
 This function is used to report a programmer's error.
 You shouldn't use it for a runtime error.
 See [Glib API reference](https://developer.gnome.org/glib/stable/glib-Warnings-and-Assertions.html#g-return-val-if-fail) for further information.
-`g_return_val_if_fail` isn't used in static type functions, they are private, because static functions are called only from functions in the same file.
+`g_return_val_if_fail` isn't used in static class functions, they are private, because static functions are called only from functions in the same file.
 Such functions know the parameters type well.
 `g_return_val_if_fail` is used in public functions.
 - 26-31: Setter.
 `g_return_if_fail` function is used to check the argument type.
 This function doesn't return any value.
 Because the type of `t_double_set_value` is `void` so no value will be returned.
-Therefore, we use `g_return_if_fail`, not `g_return_val_if_fail`.
+Therefore, we use `g_return_if_fail` instead of `g_return_val_if_fail`.
 - 33-40: Object instantiation function.
 It has one parameter `value` to set the value of the object.
 - 37: This function uses `g_object_new` to instantiate the object.
 The argument `T_TYPE_DOUBLE` is expanded to a function `t_double_get_type ()`.
-If this is the first call for `t_double_get_type`, the registration will be carried out.
+If this is the first call for `t_double_get_type`, the type registration will be carried out.
 
 main.c
 

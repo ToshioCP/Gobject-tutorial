@@ -29,7 +29,7 @@ Otherwise it returns FALSE.
 Otherwise it returns FALSE.
 
 Numbers and strings are comparable.
-TInt, TDouble and TStr implement TComparable interface so that they can use the functions above.
+TInt, TDouble, TStr and TNumStr implement TComparable interface so that they can use the functions above.
 For example,
 
 ~~~C
@@ -46,7 +46,7 @@ Compare TNumber and TComparable.
 
 - A function `t_number_add` is overridden in TIntClass and TDoubleClass.
 It can't be overridden in TStrClass because TStr isn't a descendant of TNumber.
-- A function `t_comparable_cmp` is overridden in TIntClass, TDoubleClass and TStrClass.
+- A function `t_comparable_cmp` is overridden in TIntClass, TDoubleClass, TStrClass and TNumStrClass.
 
 ## TComparable interface
 
@@ -71,7 +71,7 @@ This macro expands to:
   - `Typedef struct _TComparableInterface TComparableInterface`
   - `T_COMPARABLE ()` macro. It casts an instance to TComparable type.
   - `T_IS_COMPARABLE ()` macro. It checks if the type of an instance is `T_TYPE_COMPARABLE`.
-  - `T_COMPARABLE_GET_IFACE ()` macro. It gets the interface of the instance.
+  - `T_COMPARABLE_GET_IFACE ()` macro. It gets the interface of the instance which is given as an argument.
 - 9-15: `TComparableInterface` structure.
 This is similar to a class structure.
 The first member is the parent interface.
@@ -83,7 +83,7 @@ It is like a `GTypeClass` which is a base of all class types.
 The next member is a pointer `arg_error` to the default signal handler of "arg-error" signal.
 This signal is emitted when an argument of the public functions isn't TComparable.
 The last member is a pointer to a method `cmp`.
-It is a virtual function and is expected to be overridden by a function in the class.
+It is a virtual function and is expected to be overridden by a function in the object which implements the interface.
 - 23-39: Public functions.
 
 C file `tcomparable.c` is as follows.
@@ -102,7 +102,7 @@ This macro expands to:
 This function is similar to class initialization function.
 It initializes `TComparableInterface` structure.
 - 15: Assigns NULL to the pointer to `cmp` method.
-So, the method doesn't work before an implementation object rewrites it.
+So, the method doesn't work before an implementation object overrides it.
 - 17: Set the default signal handler of the signal "arg-error".
 - 18-28: Creates a signal "arg-error".
 This signal is emitted when an argument for a public function is invalid.
@@ -121,14 +121,20 @@ For example, `t_comparable_eq` just calls `t_comparable_cmp`.
 And if the return value is zero, then it returns TRUE.
 Otherwise it returns FALSE.
 
+This program uses a signal to give the argument type error information to a user.
+This error is usually a program error rather than a run-time error.
+Using a signal to report a program error is not a good way.
+The best way is using `g_return_if_fail`.
+The reason why I made this signal is just I wanted to show how to implement a signal in an interface.
+
 ## Implementing interface
 
-TInt, TDouble and TStr implement TComparable.
+TInt, TDouble, TStr and TNumStr implement TComparable.
 First, look at TInt.
 The header file is the same as before.
 The implementation is written in C file.
 
-`tint.c' is as follows.
+`tint.c'`is as follows.
 
 @@@include
 tcomparable/tint.c
@@ -169,17 +175,29 @@ These two objects can be compared because int is casted to double before the com
 tcomparable/tstr.c
 @@@
 
-- 13-35: `t_str_comparable_cmp`.
-First, strings are got from TStr objects.
-They are `s` and `o`.
-It uses the C standard function `strcmp` to compare strings.
+- 16: Declares `t_comparable_interface_init` function.
+This needs to be declared before `G_DEFINE_TYPE_WITH_CODE` macro.
+- 18-20: `G_DEFINE_TYPE_WITH_CODE` macro.
+Because TStr is derivable type, its private area (TStrPrivate) is needed.
+`G_ADD_PRIVATE` macro makes the private area.
+Be careful that there's no comma after `G_ADD_PRIVATE` macro.
+- 57-79: `t_str_comparable_cmp`.
+First, strings `s` and `o` are got from TStr objects `self` and `other`.
+Then, the C standard function `strcmp` is used to compare strings.
 After that, `s` and `o` are freed.
 
 TStr can be compared with TStr, but not with TInt nor TDouble.
 Generally, comparison is available between two same type instances.
-It is possible that TNumber would implement TComparable instead of TInt and TDouble so far.
-But, if you make TComplex, which is an object of complex number, as a child of TNumber, it is impossible for TNumber to implement TComarable.
-Because complex numbers cannot be ordered linearly.
+
+TNumStr implements TComparable.
+The program `tnumstr.c` is similar to `tint.c`.
+Its `cmp` function compares two numeric strings based on their numbers.
+Therefore, "100" is bigger than "50".
+(If you compare them as TStr, "100" is smaller than "50".)
+The source file is in the `src/tcomparable` directory.
+If you want to know the details, see [`src/tcomparable/tnumstr.c](tcomparable/tnumstr.c).
+
+## Test program.
 
 `main.c` is a test program.
 
@@ -188,18 +206,23 @@ tcomparable/main.c
 @@@
 
 - 10-28: "notify" signal handler is extended to support three types of objects: TInt, TDouble and TStr.
-- 30-53: This function uses `to_s` function to convert TInt and/or TDouble to a string.
+Because TNumStr is a child of TStr, TNumStr instance is also supported.
+- 30-56: This function `t_print` uses `to_s` function to convert TInt and/or TDouble to a string.
 Then, displays the result of the comparison of two TComparable objects.
-- 55-67: `compare` compares two TComparable objects and calls `t_print` to display the result.
-- 69-105: `main` function.
-- 78-92: Creates TInt, TDouble, two TStr and GObject.
-Connects "notify" signal.
-Set values and strings of TInt, TDouble and TStr.
-- 94: Compares TInt and TDouble.
-- 95: Compares two TStr.
-- 96: Check equality between TDouble and GObject.
+- 58-70: `compare` compares two TComparable objects and calls `t_print` to display the result.
+- 72-125: `main` function.
+- 82-88: Creates TInt, TDouble, two TStr, two TNumStr and GObject instances.
+- 90-95: Connects "notify" signal.
+- 97-102: Set values and strings of TInt, TDouble, TStr and TNumStr.
+- 104: Compares TInt and TDouble.
+- 105: Compares two TStr.
+- 106: Compares two TNumStr.
+- 107: Check equality between TDouble and GObject.
 This makes an error because GObject doesn't implement TComparable.
-- 98-102: Frees objects.
+- 109-115: Compare "100" and "50" as TStr first, then as TNumStr.
+"100" is smaller than "50" if they are TStr.
+"100" is bigger than "50" if they are TNumStr.
+- 117-123: Frees objects.
 
 ## Compilation and execution
 
@@ -216,19 +239,46 @@ Then execute it.
 $ cd tcomparable; _build/tcomparable
 Property "value" is set to 124.
 Property "value" is set to 123.450000.
-Property "pointer" is set to one.
-Property "pointer" is set to two.
+Property "string" is set to one.
+Property "string" is set to two.
+Property "string" is set to 124.
+Property "string" is set to 123.450000.
 124 is greater than 123.450000.
 124 is greater than or equal to 123.450000.
-one is less than two.
-one is less than or equal to two.
+"one" is less than "two".
+"one" is less than or equal to "two".
+"124" is greater than "123.450000".
+"124" is greater than or equal to "123.450000".
 
 TComparable: argument error.
 
-** (process:164961): CRITICAL **: 17:01:40.850: t_comparable_eq: assertion 'T_IS_COMPARABLE (other)' failed
+** (process:7737): CRITICAL **: 13:08:42.673: t_comparable_eq: assertion 'T_IS_COMPARABLE (other)' failed
+
+Property "string" is set to 100.
+Property "string" is set to 50.
+Property "string" is set to 100.
+Property "string" is set to 50.
+"100" is less than "50".
+"100" is less than or equal to "50".
+"100" is greater than "50".
+"100" is greater than or equal to "50".
 ~~~
 
-The last two lines show that the comparison with TDouble and GObject fails.
+The lines from `TComparable: argument error.` to `** (process:7737)...` show that the comparison with TDouble and GObject fails.
+
+## Build an interface without macros
+
+We used macros such as `G_DECLARE_INTERFACE`, `G_DEFINE_INTERFACE` to build an interface.
+We can also build it without macros.
+There are two files in the `tcomparable` directory.
+
+- `tcomparable_without_macro.h`
+- `tcomparable_without_macro.c`
+
+These two files don't use the macros.
+Instead, they register the interface to the type system directly.
+If you want to know that, see the source files in [src/tcomparable](tcomparable).
+
 
 ## GObject system and object oriented languages
 

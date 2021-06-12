@@ -24,8 +24,8 @@ t_comparable_default_init (TComparableInterface *iface) {
                 NULL /* accumulator data */,
                 NULL /* C marshaller */,
                 G_TYPE_NONE /* return_type */,
-                0     /* n_params */,
-                NULL  /* param_types */);
+                0     /* n_params */
+                );
 }
 
 int

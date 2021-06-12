@@ -31,7 +31,7 @@ Otherwise it returns FALSE.
 Otherwise it returns FALSE.
 
 Numbers and strings are comparable.
-TInt, TDouble and TStr implement TComparable interface so that they can use the functions above.
+TInt, TDouble, TStr and TNumStr implement TComparable interface so that they can use the functions above.
 For example,
 
 ~~~C
@@ -48,7 +48,7 @@ Compare TNumber and TComparable.
 
 - A function `t_number_add` is overridden in TIntClass and TDoubleClass.
 It can't be overridden in TStrClass because TStr isn't a descendant of TNumber.
-- A function `t_comparable_cmp` is overridden in TIntClass, TDoubleClass and TStrClass.
+- A function `t_comparable_cmp` is overridden in TIntClass, TDoubleClass, TStrClass and TNumStrClass.
 
 ## TComparable interface
 
@@ -114,7 +114,7 @@ This macro expands to:
   - `Typedef struct _TComparableInterface TComparableInterface`
   - `T_COMPARABLE ()` macro. It casts an instance to TComparable type.
   - `T_IS_COMPARABLE ()` macro. It checks if the type of an instance is `T_TYPE_COMPARABLE`.
-  - `T_COMPARABLE_GET_IFACE ()` macro. It gets the interface of the instance.
+  - `T_COMPARABLE_GET_IFACE ()` macro. It gets the interface of the instance which is given as an argument.
 - 9-15: `TComparableInterface` structure.
 This is similar to a class structure.
 The first member is the parent interface.
@@ -126,7 +126,7 @@ It is like a `GTypeClass` which is a base of all class types.
 The next member is a pointer `arg_error` to the default signal handler of "arg-error" signal.
 This signal is emitted when an argument of the public functions isn't TComparable.
 The last member is a pointer to a method `cmp`.
-It is a virtual function and is expected to be overridden by a function in the class.
+It is a virtual function and is expected to be overridden by a function in the object which implements the interface.
 - 23-39: Public functions.
 
 C file `tcomparable.c` is as follows.
@@ -158,8 +158,8 @@ C file `tcomparable.c` is as follows.
  24                 NULL /* accumulator data */,
  25                 NULL /* C marshaller */,
  26                 G_TYPE_NONE /* return_type */,
- 27                 0     /* n_params */,
- 28                 NULL  /* param_types */);
+ 27                 0     /* n_params */
+ 28                 );
  29 }
  30 
  31 int
@@ -259,7 +259,7 @@ This macro expands to:
 This function is similar to class initialization function.
 It initializes `TComparableInterface` structure.
 - 15: Assigns NULL to the pointer to `cmp` method.
-So, the method doesn't work before an implementation object rewrites it.
+So, the method doesn't work before an implementation object overrides it.
 - 17: Set the default signal handler of the signal "arg-error".
 - 18-28: Creates a signal "arg-error".
 This signal is emitted when an argument for a public function is invalid.
@@ -278,14 +278,20 @@ For example, `t_comparable_eq` just calls `t_comparable_cmp`.
 And if the return value is zero, then it returns TRUE.
 Otherwise it returns FALSE.
 
+This program uses a signal to give the argument type error information to a user.
+This error is usually a program error rather than a run-time error.
+Using a signal to report a program error is not a good way.
+The best way is using `g_return_if_fail`.
+The reason why I made this signal is just I wanted to show how to implement a signal in an interface.
+
 ## Implementing interface
 
-TInt, TDouble and TStr implement TComparable.
+TInt, TDouble, TStr and TNumStr implement TComparable.
 First, look at TInt.
 The header file is the same as before.
 The implementation is written in C file.
 
-`tint.c' is as follows.
+`tint.c'`is as follows.
 
 ~~~C
   1 #include "tint.h"
@@ -504,135 +510,185 @@ These two objects can be compared because int is casted to double before the com
   1 #include "tstr.h"
   2 #include "tcomparable.h"
   3 
-  4 struct _TStr {
-  5   TPtr parent;
-  6 };
-  7 
-  8 static void t_comparable_interface_init (TComparableInterface *iface);
+  4 enum {
+  5   PROP_0,
+  6   PROP_STRING,
+  7   N_PROPERTIES
+  8 };
   9 
- 10 G_DEFINE_TYPE_WITH_CODE (TStr, t_str, T_TYPE_PTR,
- 11                          G_IMPLEMENT_INTERFACE (T_TYPE_COMPARABLE, t_comparable_interface_init))
- 12 
- 13 static int
- 14 t_str_comparable_cmp (TComparable *self, TComparable *other) {
- 15   g_return_val_if_fail (T_IS_STR (self), -2);
- 16   g_return_val_if_fail (T_IS_STR (other), -2);
+ 10 static GParamSpec *str_properties[N_PROPERTIES] = {NULL, };
+ 11 
+ 12 typedef struct {
+ 13   char *string;
+ 14 } TStrPrivate;
+ 15 
+ 16 static void t_comparable_interface_init (TComparableInterface *iface);
  17 
- 18   char *s, *o;
- 19   int result;
- 20 
- 21   s = t_str_get_string (T_STR (self));
- 22   o = t_str_get_string (T_STR (other));
- 23 
- 24   if (strcmp (s, o) > 0)
- 25     result = 1;
- 26   else if (strcmp (s, o) == 0)
- 27     result = 0;
- 28   else if (strcmp (s, o) < 0)
- 29     result = -1;
- 30   else /* This can't happen. */
- 31     result = -2;
- 32   g_free (s);
- 33   g_free (o);
- 34   return result;
- 35 }
- 36 
- 37 static void
- 38 t_comparable_interface_init (TComparableInterface *iface) {
- 39   iface->cmp = t_str_comparable_cmp;
- 40 }
- 41 
- 42 static void
- 43 t_str_init (TStr *inst) {
- 44 }
- 45 
- 46 static void
- 47 t_str_finalize (GObject *object) {
- 48   char *s = (char *) t_ptr_get_pointer (T_PTR (object));
- 49 
- 50   if (s)
- 51     g_free (s);
- 52   G_OBJECT_CLASS (t_str_parent_class)->finalize (object);
- 53 }
- 54 
- 55 static void
- 56 t_str_class_init (TStrClass *class) {
- 57   GObjectClass *gobject_class = G_OBJECT_CLASS (class);
- 58 
- 59   gobject_class->finalize = t_str_finalize;
- 60 }
+ 18 G_DEFINE_TYPE_WITH_CODE (TStr, t_str, G_TYPE_OBJECT,
+ 19                          G_ADD_PRIVATE (TStr)
+ 20                          G_IMPLEMENT_INTERFACE (T_TYPE_COMPARABLE, t_comparable_interface_init))
+ 21 
+ 22 static void
+ 23 t_str_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
+ 24   TStr *self = T_STR (object);
+ 25   TStrPrivate *priv = t_str_get_instance_private (self);
+ 26 
+ 27 
+ 28   if (property_id == PROP_STRING) {
+ 29     if (priv->string)
+ 30       g_free (priv->string);
+ 31     priv->string = g_strdup (g_value_get_string (value));
+ 32   } else
+ 33     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+ 34 }
+ 35 
+ 36 static void
+ 37 t_str_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
+ 38   TStr *self = T_STR (object);
+ 39   TStrPrivate *priv = t_str_get_instance_private (self);
+ 40 
+ 41   if (property_id == PROP_STRING)
+ 42     g_value_set_string (value, g_strdup (priv->string));
+ 43   else
+ 44     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+ 45 }
+ 46 
+ 47 static void
+ 48 t_str_finalize (GObject *object) {
+ 49   TStr *self = T_STR (object);
+ 50   TStrPrivate *priv = t_str_get_instance_private (self);
+ 51 
+ 52   if (priv->string)
+ 53     g_free (priv->string);
+ 54   G_OBJECT_CLASS (t_str_parent_class)->finalize (object);
+ 55 }
+ 56 
+ 57 static int
+ 58 t_str_comparable_cmp (TComparable *self, TComparable *other) {
+ 59   g_return_val_if_fail (T_IS_STR (self), -2);
+ 60   g_return_val_if_fail (T_IS_STR (other), -2);
  61 
- 62 /* setter and getter */
- 63 void
- 64 t_str_set_string (TStr *self, const char *s) {
- 65   char *t = g_strdup (s);
- 66 
- 67   t_ptr_set_pointer (T_PTR (self), t);
- 68 }
- 69 
- 70 char *
- 71 t_str_get_string (TStr *self) {
- 72   char *s;
- 73 
- 74   s = (char *) t_ptr_get_pointer (T_PTR (self));
- 75   if (s)
- 76     return g_strdup (s);
- 77   else
- 78     return s; /* NULL */
+ 62   char *s, *o;
+ 63   int result;
+ 64 
+ 65   s = t_str_get_string (T_STR (self));
+ 66   o = t_str_get_string (T_STR (other));
+ 67 
+ 68   if (strcmp (s, o) > 0)
+ 69     result = 1;
+ 70   else if (strcmp (s, o) == 0)
+ 71     result = 0;
+ 72   else if (strcmp (s, o) < 0)
+ 73     result = -1;
+ 74   else /* This can't happen. */
+ 75     result = -2;
+ 76   g_free (s);
+ 77   g_free (o);
+ 78   return result;
  79 }
  80 
- 81 TStr *
- 82 t_str_concat (TStr *self, TStr *other) {
- 83   char *s1, *s2, *s3;
- 84   TStr *str;
+ 81 static void
+ 82 t_comparable_interface_init (TComparableInterface *iface) {
+ 83   iface->cmp = t_str_comparable_cmp;
+ 84 }
  85 
- 86   s1 = t_str_get_string (self);
- 87   s2 = t_str_get_string (other);
- 88   if (s1 && s2)
- 89     s3 = g_strconcat (s1, s2, NULL);
- 90   else if (s1)
- 91     s3 = g_strdup (s1);
- 92   else if (s2)
- 93     s3 = g_strdup (s2);
- 94   else
- 95     s3 = NULL;
- 96   str = t_str_new_with_string (s3);
- 97   if (s1) g_free (s1);
- 98   if (s2) g_free (s2);
- 99   if (s3) g_free (s3);
-100   return str;
-101 }
-102 
-103 TStr *
-104 t_str_new_with_string (const char *s) {
-105   TStr *str;
-106 
-107   str = g_object_new (T_TYPE_STR, NULL);
-108   t_str_set_string (str,s);
-109   return str;
+ 86 static void
+ 87 t_str_init (TStr *self) {
+ 88   TStrPrivate *priv = t_str_get_instance_private (self);
+ 89 
+ 90   priv->string = NULL;
+ 91 }
+ 92 
+ 93 static void
+ 94 t_str_class_init (TStrClass *class) {
+ 95   GObjectClass *gobject_class = G_OBJECT_CLASS (class);
+ 96 
+ 97   gobject_class->finalize = t_str_finalize;
+ 98   gobject_class->set_property = t_str_set_property;
+ 99   gobject_class->get_property = t_str_get_property;
+100   str_properties[PROP_STRING] = g_param_spec_string ("string", "str", "string", "", G_PARAM_READWRITE);
+101   g_object_class_install_properties (gobject_class, N_PROPERTIES, str_properties);
+102 }
+103 
+104 /* setter and getter */
+105 void
+106 t_str_set_string (TStr *self, const char *s) {
+107   g_return_if_fail (T_IS_STR (self));
+108 
+109   g_object_set (self, "string", s, NULL);
 110 }
 111 
-112 TStr *
-113 t_str_new (void) {
-114   TStr *str;
+112 char *
+113 t_str_get_string (TStr *self) {
+114   g_return_val_if_fail (T_IS_STR (self), NULL);
 115 
-116   str = g_object_new (T_TYPE_STR, NULL);
-117   return str;
-118 }
-119 
+116   char *s;
+117 
+118   g_object_get (self, "string", &s, NULL);
+119   return s;
+120 }
+121 
+122 TStr *
+123 t_str_concat (TStr *self, TStr *other) {
+124   g_return_val_if_fail (T_IS_STR (self), NULL);
+125   g_return_val_if_fail (T_IS_STR (other), NULL);
+126 
+127   char *s1, *s2, *s3;
+128   TStr *str;
+129 
+130   s1 = t_str_get_string (self);
+131   s2 = t_str_get_string (other);
+132   if (s1 && s2)
+133     s3 = g_strconcat (s1, s2, NULL);
+134   else if (s1)
+135     s3 = g_strdup (s1);
+136   else if (s2)
+137     s3 = g_strdup (s2);
+138   else
+139     s3 = NULL;
+140   str = t_str_new_with_string (s3);
+141   if (s1) g_free (s1);
+142   if (s2) g_free (s2);
+143   if (s3) g_free (s3);
+144   return str;
+145 }
+146 
+147 /* create a new TStr instance */
+148 TStr *
+149 t_str_new_with_string (const char *s) {
+150   return T_STR (g_object_new (T_TYPE_STR, "string", s, NULL));
+151 }
+152 
+153 TStr *
+154 t_str_new (void) {
+155   return T_STR (g_object_new (T_TYPE_STR, NULL));
+156 }
+157 
 ~~~
 
-- 13-35: `t_str_comparable_cmp`.
-First, strings are got from TStr objects.
-They are `s` and `o`.
-It uses the C standard function `strcmp` to compare strings.
+- 16: Declares `t_comparable_interface_init` function.
+This needs to be declared before `G_DEFINE_TYPE_WITH_CODE` macro.
+- 18-20: `G_DEFINE_TYPE_WITH_CODE` macro.
+Because TStr is derivable type, its private area (TStrPrivate) is needed.
+`G_ADD_PRIVATE` macro makes the private area.
+Be careful that there's no comma after `G_ADD_PRIVATE` macro.
+- 57-79: `t_str_comparable_cmp`.
+First, strings `s` and `o` are got from TStr objects `self` and `other`.
+Then, the C standard function `strcmp` is used to compare strings.
 After that, `s` and `o` are freed.
 
 TStr can be compared with TStr, but not with TInt nor TDouble.
 Generally, comparison is available between two same type instances.
-It is possible that TNumber would implement TComparable instead of TInt and TDouble so far.
-But, if you make TComplex, which is an object of complex number, as a child of TNumber, it is impossible for TNumber to implement TComarable.
-Because complex numbers cannot be ordered linearly.
+
+TNumStr implements TComparable.
+The program `tnumstr.c` is similar to `tint.c`.
+Its `cmp` function compares two numeric strings based on their numbers.
+Therefore, "100" is bigger than "50".
+(If you compare them as TStr, "100" is smaller than "50".)
+The source file is in the `src/tcomparable` directory.
+If you want to know the details, see [`src/tcomparable/tnumstr.c](../src/tcomparable/tnumstr.c).
+
+## Test program.
 
 `main.c` is a test program.
 
@@ -642,8 +698,8 @@ Because complex numbers cannot be ordered linearly.
   3 #include "tnumber.h"
   4 #include "tint.h"
   5 #include "tdouble.h"
-  6 #include "../tptr/tptr.h"
-  7 #include "tstr.h"
+  6 #include "tstr.h"
+  7 #include "tnumstr.h"
   8 
   9 
  10 static void
@@ -660,8 +716,8 @@ Because complex numbers cannot be ordered linearly.
  21   } else if (T_IS_DOUBLE (gobject) && strcmp (name, "value") == 0) {
  22     g_object_get (T_DOUBLE (gobject), "value", &d, NULL);
  23     g_print ("Property \"%s\" is set to %lf.\n", name, d);
- 24   } else if (T_IS_STR (gobject) && strcmp (name, "pointer") == 0) {
- 25     g_object_get (T_PTR (gobject), "pointer", &s, NULL);
+ 24   } else if (T_IS_STR (gobject) && strcmp (name, "string") == 0) {
+ 25     s = t_str_get_string (T_STR (gobject));
  26     g_print ("Property \"%s\" is set to %s.\n", name, s);
  27   }
  28 }
@@ -672,7 +728,7 @@ Because complex numbers cannot be ordered linearly.
  33 
  34   if (T_IS_NUMBER (c1))
  35     s1 = t_number_to_s (T_NUMBER (c1));
- 36   else if (T_IS_STR (T_STR (c1)))
+ 36   else if (T_IS_STR (c1))
  37     s1 = t_str_get_string (T_STR (c1));
  38   else {
  39     g_print ("c1 isn't TInt, TDouble nor TStr.\n");
@@ -686,78 +742,104 @@ Because complex numbers cannot be ordered linearly.
  47     g_print ("c2 isn't TInt, TDouble nor TStr.\n");
  48     return;
  49   }
- 50   g_print ("%s %s %s.\n", s1, cmp, s2);
- 51   g_free (s1);
- 52   g_free (s2);
- 53 }    
- 54 
- 55 static void
- 56 compare (TComparable *c1, TComparable *c2) {
- 57   if (t_comparable_eq (c1, c2))
- 58     t_print ("equals", c1, c2);
- 59   if (t_comparable_gt (c1, c2))
- 60     t_print ("is greater than", c1, c2);
- 61   if (t_comparable_lt (c1, c2))
- 62     t_print ("is less than", c1, c2);
- 63   if (t_comparable_ge (c1, c2))
- 64     t_print ("is greater than or equal to", c1, c2);
- 65   if (t_comparable_le (c1, c2))
- 66     t_print ("is less than or equal to", c1, c2);
- 67 }
- 68 
- 69 int
- 70 main (int argc, char **argv) {
- 71   const char *one = "one";
- 72   const char *two = "two";
- 73   TInt *i;
- 74   TDouble *d;
- 75   TStr *str1, *str2;
- 76   gpointer obj;
- 77 
- 78   i = t_int_new ();
- 79   d = t_double_new ();
- 80   str1 = t_str_new ();
- 81   str2 = t_str_new ();
- 82   obj = g_object_new (G_TYPE_OBJECT, NULL);
- 83 
- 84   g_signal_connect (G_OBJECT (i), "notify::value", G_CALLBACK (notify_cb), NULL);
- 85   g_signal_connect (G_OBJECT (d), "notify::value", G_CALLBACK (notify_cb), NULL);
- 86   g_signal_connect (G_OBJECT (str1), "notify::pointer", G_CALLBACK (notify_cb), NULL);
- 87   g_signal_connect (G_OBJECT (str2), "notify::pointer", G_CALLBACK (notify_cb), NULL);
- 88 
- 89   g_object_set (i, "value", 124, NULL);
- 90   g_object_set (d, "value", 123.45, NULL);
- 91   t_str_set_string (str1, one);
- 92   t_str_set_string (str2, two);
- 93 
- 94   compare (T_COMPARABLE (i), T_COMPARABLE (d));
- 95   compare (T_COMPARABLE (str1), T_COMPARABLE (str2));
- 96   t_comparable_eq (T_COMPARABLE (d), obj);
- 97 
- 98   g_object_unref (i);
- 99   g_object_unref (d);
-100   g_object_unref (str1);
-101   g_object_unref (str2);
-102   g_object_unref (obj);
+ 50   if (T_IS_STR (c1))
+ 51     g_print ("\"%s\" %s \"%s\".\n", s1, cmp, s2);
+ 52   else
+ 53     g_print ("%s %s %s.\n", s1, cmp, s2);
+ 54   g_free (s1);
+ 55   g_free (s2);
+ 56 }    
+ 57 
+ 58 static void
+ 59 compare (TComparable *c1, TComparable *c2) {
+ 60   if (t_comparable_eq (c1, c2))
+ 61     t_print ("equals", c1, c2);
+ 62   if (t_comparable_gt (c1, c2))
+ 63     t_print ("is greater than", c1, c2);
+ 64   if (t_comparable_lt (c1, c2))
+ 65     t_print ("is less than", c1, c2);
+ 66   if (t_comparable_ge (c1, c2))
+ 67     t_print ("is greater than or equal to", c1, c2);
+ 68   if (t_comparable_le (c1, c2))
+ 69     t_print ("is less than or equal to", c1, c2);
+ 70 }
+ 71 
+ 72 int
+ 73 main (int argc, char **argv) {
+ 74   const char *one = "one";
+ 75   const char *two = "two";
+ 76   TInt *i;
+ 77   TDouble *d;
+ 78   TStr *str1, *str2;
+ 79   TNumStr *numstr1, *numstr2;
+ 80   gpointer obj;
+ 81 
+ 82   i = t_int_new ();
+ 83   d = t_double_new ();
+ 84   str1 = t_str_new ();
+ 85   str2 = t_str_new ();
+ 86   numstr1 = t_num_str_new ();
+ 87   numstr2 = t_num_str_new ();
+ 88   obj = g_object_new (G_TYPE_OBJECT, NULL);
+ 89 
+ 90   g_signal_connect (G_OBJECT (i), "notify::value", G_CALLBACK (notify_cb), NULL);
+ 91   g_signal_connect (G_OBJECT (d), "notify::value", G_CALLBACK (notify_cb), NULL);
+ 92   g_signal_connect (G_OBJECT (str1), "notify::string", G_CALLBACK (notify_cb), NULL);
+ 93   g_signal_connect (G_OBJECT (str2), "notify::string", G_CALLBACK (notify_cb), NULL);
+ 94   g_signal_connect (G_OBJECT (numstr1), "notify::string", G_CALLBACK (notify_cb), NULL);
+ 95   g_signal_connect (G_OBJECT (numstr2), "notify::string", G_CALLBACK (notify_cb), NULL);
+ 96 
+ 97   g_object_set (i, "value", 124, NULL);
+ 98   g_object_set (d, "value", 123.45, NULL);
+ 99   t_str_set_string (str1, one);
+100   t_str_set_string (str2, two);
+101   t_num_str_set (numstr1, T_NUMBER (i));
+102   t_num_str_set (numstr2, T_NUMBER (d));
 103 
-104   return 0;
-105 }
-106 
+104   compare (T_COMPARABLE (i), T_COMPARABLE (d));
+105   compare (T_COMPARABLE (str1), T_COMPARABLE (str2));
+106   compare (T_COMPARABLE (numstr1), T_COMPARABLE (numstr2));
+107   t_comparable_eq (T_COMPARABLE (d), obj);
+108 
+109   g_print ("\n");
+110   t_str_set_string (str1, "100");
+111   t_str_set_string (str2, "50");
+112   t_str_set_string (T_STR (numstr1), "100");
+113   t_str_set_string (T_STR (numstr2), "50");
+114   compare (T_COMPARABLE (str1), T_COMPARABLE (str2));
+115   compare (T_COMPARABLE (numstr1), T_COMPARABLE (numstr2));
+116 
+117   g_object_unref (i);
+118   g_object_unref (d);
+119   g_object_unref (str1);
+120   g_object_unref (str2);
+121   g_object_unref (numstr1);
+122   g_object_unref (numstr2);
+123   g_object_unref (obj);
+124 
+125   return 0;
+126 }
+127 
 ~~~
 
 - 10-28: "notify" signal handler is extended to support three types of objects: TInt, TDouble and TStr.
-- 30-53: This function uses `to_s` function to convert TInt and/or TDouble to a string.
+Because TNumStr is a child of TStr, TNumStr instance is also supported.
+- 30-56: This function `t_print` uses `to_s` function to convert TInt and/or TDouble to a string.
 Then, displays the result of the comparison of two TComparable objects.
-- 55-67: `compare` compares two TComparable objects and calls `t_print` to display the result.
-- 69-105: `main` function.
-- 78-92: Creates TInt, TDouble, two TStr and GObject.
-Connects "notify" signal.
-Set values and strings of TInt, TDouble and TStr.
-- 94: Compares TInt and TDouble.
-- 95: Compares two TStr.
-- 96: Check equality between TDouble and GObject.
+- 58-70: `compare` compares two TComparable objects and calls `t_print` to display the result.
+- 72-125: `main` function.
+- 82-88: Creates TInt, TDouble, two TStr, two TNumStr and GObject instances.
+- 90-95: Connects "notify" signal.
+- 97-102: Set values and strings of TInt, TDouble, TStr and TNumStr.
+- 104: Compares TInt and TDouble.
+- 105: Compares two TStr.
+- 106: Compares two TNumStr.
+- 107: Check equality between TDouble and GObject.
 This makes an error because GObject doesn't implement TComparable.
-- 98-102: Frees objects.
+- 109-115: Compare "100" and "50" as TStr first, then as TNumStr.
+"100" is smaller than "50" if they are TStr.
+"100" is bigger than "50" if they are TNumStr.
+- 117-123: Frees objects.
 
 ## Compilation and execution
 
@@ -774,19 +856,46 @@ Then execute it.
 $ cd tcomparable; _build/tcomparable
 Property "value" is set to 124.
 Property "value" is set to 123.450000.
-Property "pointer" is set to one.
-Property "pointer" is set to two.
+Property "string" is set to one.
+Property "string" is set to two.
+Property "string" is set to 124.
+Property "string" is set to 123.450000.
 124 is greater than 123.450000.
 124 is greater than or equal to 123.450000.
-one is less than two.
-one is less than or equal to two.
+"one" is less than "two".
+"one" is less than or equal to "two".
+"124" is greater than "123.450000".
+"124" is greater than or equal to "123.450000".
 
 TComparable: argument error.
 
-** (process:164961): CRITICAL **: 17:01:40.850: t_comparable_eq: assertion 'T_IS_COMPARABLE (other)' failed
+** (process:7737): CRITICAL **: 13:08:42.673: t_comparable_eq: assertion 'T_IS_COMPARABLE (other)' failed
+
+Property "string" is set to 100.
+Property "string" is set to 50.
+Property "string" is set to 100.
+Property "string" is set to 50.
+"100" is less than "50".
+"100" is less than or equal to "50".
+"100" is greater than "50".
+"100" is greater than or equal to "50".
 ~~~
 
-The last two lines show that the comparison with TDouble and GObject fails.
+The lines from `TComparable: argument error.` to `** (process:7737)...` show that the comparison with TDouble and GObject fails.
+
+## Build an interface without macros
+
+We used macros such as `G_DECLARE_INTERFACE`, `G_DEFINE_INTERFACE` to build an interface.
+We can also build it without macros.
+There are two files in the `tcomparable` directory.
+
+- `tcomparable_without_macro.h`
+- `tcomparable_without_macro.c`
+
+These two files don't use the macros.
+Instead, they register the interface to the type system directly.
+If you want to know that, see the source files in [src/tcomparable](../src/tcomparable).
+
 
 ## GObject system and object oriented languages
 

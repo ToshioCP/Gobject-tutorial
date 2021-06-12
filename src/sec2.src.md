@@ -3,24 +3,79 @@
 ## Class and instance
 
 GObject instance is created with `g_object_new` function.
-GObject has not only instance but class.
-It is GObjectClass.
+GObject has not only instances but also a class.
 
-- GObjectClass is created at the first call of `g_object_new`.
-And only one GObjectClass exists.
+- The class of GObject is created at the first call of `g_object_new`.
+And the class exists only one.
 - GObject instance is created whenever `g_object_new` is called.
-So, two or more GObject can exist.
+So, two or more GObject instances can exist.
 
-GObject and GObjectClass are C structures.
-They are declared in `gobject.h`, which is one of the glib source files.
-You can download the source file from [Gnome download page](https://download.gnome.org/sources/glib/).
+In a broad sense, GObject means the object which includes its class and instances.
+Ina narrow sense, GObject is a definition of a C structure.
 
 ~~~C
-typedef struct _GObject                  GObject;
-typedef struct _GObjectClass             GObjectClass;
+typedef struct _GObject  GObject;
+struct  _GObject
+{
+  GTypeInstance  g_type_instance;
+  
+  /*< private >*/
+  guint          ref_count;  /* (atomic) */
+  GData         *qdata;
+};
 ~~~
 
-The members of the structures are also declared in `gobject.h`, but it is not important now.
+The `g_object_new` function allocates GObject-sized memory, initializes the memory and returns the pointer to the memory.
+The memory is a GObject instance.
+
+In the same way, the class of GObject is memory allocated by `g_object_new` and its structure is defined with GObjectClass.
+The following is extracted from `gobhect.h`.
+But you don't need to know the details of the structure now.
+
+~~~C
+typedef struct _GObjectClass  GObjectClass;
+struct  _GObjectClass
+{
+  GTypeClass   g_type_class;
+
+  /*< private >*/
+  GSList      *construct_properties;
+
+  /*< public >*/
+  /* seldom overridden */
+  GObject*   (*constructor)     (GType                  type,
+                                 guint                  n_construct_properties,
+                                 GObjectConstructParam *construct_properties);
+  /* overridable methods */
+  void       (*set_property)		(GObject        *object,
+                                         guint           property_id,
+                                         const GValue   *value,
+                                         GParamSpec     *pspec);
+  void       (*get_property)		(GObject        *object,
+                                         guint           property_id,
+                                         GValue         *value,
+                                         GParamSpec     *pspec);
+  void       (*dispose)			(GObject        *object);
+  void       (*finalize)		(GObject        *object);
+  /* seldom overridden */
+  void       (*dispatch_properties_changed) (GObject      *object,
+					     guint	   n_pspecs,
+					     GParamSpec  **pspecs);
+  /* signals */
+  void	     (*notify)			(GObject	*object,
+					 GParamSpec	*pspec);
+
+  /* called when done constructing */
+  void	     (*constructed)		(GObject	*object);
+
+  /*< private >*/
+  gsize		flags;
+
+  /* padding */
+  gpointer	pdummy[6];
+};~~~
+
+You can download the source file from [Gnome download page](https://download.gnome.org/sources/glib/).
 
 There are sample programs in [src/misc](misc) directory.
 You can compile them by:
@@ -38,10 +93,10 @@ Its code is as follows.
 misc/example1.c
 @@@
 
-- 5: `instance1` and `instance2` are pointers that points GObject instance.
-`class1` and `class2` points GObjecectClass.
+- 5-6: `instance1` and `instance2` are pointers that points GObject instances.
+`class1` and `class2` points a class of GObject.
 - 8-11: A function `g_object_new` creates a GObject instance.
-GObject instance is a chunk of memory which is GObject structure (`struct _GObject`).
+GObject instance is a chunk of memory of which the structure is GObject (`struct _GObject`).
 The argument `G_TYPE_OBJECT` represents the type of GObject.
 This type is different from C language type like `char`  or `int`.
 There is *type system* which is a base system of gobject system.
@@ -49,10 +104,10 @@ Every data type such as GObject must be registered to the type system.
 The type system has series of functions for the registration.
 If one of the functions is called, then the type system determines `GType` type value for the object and returns it to the caller.
 `GType` is an unsigned long integer on my computer but it depends on the hardware.
-`g_object_new` allocates necessary memory to GObject instance and returns the pointer to the top address of the memory.
+`g_object_new` allocates GObject-sized memory and returns the pointer to the top address of the memory.
 After the creation, this program displays the addresses of instances.
 - 13-16: A macro `G_OBJECT_GET_CLASS` returns the pointer to the class of the argument.
-Therefore, `class1` points the class (GObjectClass) of `instance1` and `class2` points the class of `instance2` respectively.
+Therefore, `class1` points the class of `instance1` and `class2` points the class of `instance2` respectively.
 The addresses of the two classes are displayed.
 - 18-19: `g_object_unref` will be explained in the next subsection.
 It destroys the objects and the memory are freed.
@@ -66,7 +121,7 @@ cd misc; _build/example1
 The locations of two instances `instance1` and `instance2` are different.
 Each instance has its own memory.
 The locations of two classes `class1` and `class2` are the same.
-Two GObject instances share the same GObjectClass.
+Two GObject instances share the same class.
 
 ![Class and Instance](../image/class_instance.png){width=10cm height=7.5cm}
 
@@ -120,7 +175,7 @@ If the reference count drops to zero, the instance destroys itself.
 
 ## Initialization and destruction process
 
-The actual process of GObject initialization and destruction process is very complex.
+The actual process of GObject initialization and destruction is very complex.
 The following is simplified description without details.
 
 Initialization
@@ -130,15 +185,18 @@ This is done in the glib initialization process before the function `main` is ca
 (If the compiler is gcc, then `__attribute__ ((constructor))` is used to qualify the initialization function.
 Refer to [GCC manual](https://gcc.gnu.org/onlinedocs/gcc-10.2.0/gcc/Common-Function-Attributes.html#Common-Function-Attributes).)
 2. Allocates memory for GObjectClass and GObject structure.
-3. Initializes GObjectClass structure.
-4. Initializes GObject structure.
+3. Initializes the GObjectClass structure memory.
+This memory will be the class of GObject.
+4. Initializes the GObject structure memory.
+This memory will be the instance of GObject.
 
 This initialization process is carried out when `g_object_new` function is called for the first time.
-At the second and subsequent call for `g_object_new`, it performs only two processes: (1) memory allocation for GObject structure (2) initialization for GObject structure.
+At the second and subsequent call for `g_object_new`, it performs only two processes: (1) memory allocation for GObject structure (2) initialization for the memory.
+`g_object_new` returns the pointer that points the instance (the memory allocated for the GObject structure).
 
 Destruction
 
-1. Destroys GObject structure. The memory for GObject is freed.
+1. Destroys GObject instance. The memory for the instance is freed.
 
 GObject type is a static type.
 Static type never destroys its class.

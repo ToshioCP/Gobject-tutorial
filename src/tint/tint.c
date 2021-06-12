@@ -51,8 +51,8 @@ t_int_class_init (TIntClass *class) {
                               NULL /* accumulator data */,
                               NULL /* C marshaller */,
                               G_TYPE_NONE /* return_type */,
-                              0     /* n_params */,
-                              NULL  /* param_types */);
+                              0     /* n_params */
+                              );
 
   gobject_class->set_property = t_int_set_property;
   gobject_class->get_property = t_int_get_property;
@@ -110,6 +110,7 @@ t_int_div (TInt *self, TInt *other) {
   }
   return t_int_new_with_value (self->value / value);
 }
+
 TInt *
 t_int_uminus (TInt *self) {
   g_return_val_if_fail (T_IS_INT (self), NULL);

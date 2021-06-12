@@ -25,8 +25,8 @@ t_double_class_init (TDoubleClass *class) {
                               NULL /* accumulator data */,
                               NULL /* C marshaller */,
                               G_TYPE_NONE /* return_type */,
-                              0     /* n_params */,
-                              NULL  /* param_types */);
+                              0     /* n_params */
+                              );
 }
 
 static void
@@ -97,6 +97,7 @@ t_double_div (TDouble *self, TDouble *other) {
   }
   return t_double_new (self->value / value);
 }
+
 TDouble *
 t_double_uminus (TDouble *self) {
   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);

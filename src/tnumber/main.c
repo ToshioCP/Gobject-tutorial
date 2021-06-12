@@ -55,7 +55,7 @@ main (int argc, char **argv) {
 
   g_object_set (T_DOUBLE (d), "value", 0.0, NULL);
   sd = t_number_to_s (d);
-  if (num = t_number_div(i, d)) {
+  if ((num = t_number_div(i, d)) != NULL) {
     snum = t_number_to_s (num);
     g_print ("%s / %s is %s.\n", si, sd, snum);
     g_object_unref (num);

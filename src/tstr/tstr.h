@@ -2,10 +2,13 @@
 #define __T_STR_H__
 
 #include <glib-object.h>
-#include "../tptr/tptr.h"
 
 #define T_TYPE_STR  (t_str_get_type ())
-G_DECLARE_FINAL_TYPE (TStr, t_str, T, STR, TPtr)
+G_DECLARE_DERIVABLE_TYPE (TStr, t_str, T, STR, GObject)
+
+struct _TStrClass {
+  GObjectClass parent_class;
+};
 
 TStr *
 t_str_concat (TStr *self, TStr *other);
