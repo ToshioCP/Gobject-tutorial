@@ -262,8 +262,8 @@ Execute it.
 
 ~~~
 $ cd misc; _build/example3
-Registration was a success. The type is 558aade0e430.
-Instantiation was a success. The instance address is 0x558aade10c00.
+Registration was a success. The type is 55f8a6d88430.
+Instantiation was a success. The instance address is 0x55f8a6d8ac00.
 ~~~
 
 ## G_DEFINE_TYPE macro
@@ -348,8 +348,8 @@ Execute it.
 
 ~~~
 $ cd misc; _build/example4
-Registration was a success. The type is 55ae0a49a430.
-Instantiation was a success. The instance address is 0x55ae0a49bc00.
+Registration was a success. The type is 55aff69af430.
+Instantiation was a success. The instance address is 0x55aff69b0c00.
 ~~~
 
 ## G_DECLARE_FINAL_TYPE macro
@@ -452,8 +452,8 @@ Execute it.
 
 ~~~
 $ cd misc; _build/example5
-Registration was a success. The type is 55c8aaebd430.
-Instantiation was a success. The instance address is 0x55c8aaebec00.
+Registration was a success. The type is 56470da00430.
+Instantiation was a success. The instance address is 0x56470da01c00.
 d is TDouble instance.
 d is GObject instance.
 ~~~

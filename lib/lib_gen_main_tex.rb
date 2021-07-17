@@ -73,7 +73,7 @@ EOS
 main = <<'EOS'
 \documentclass[a4paper]{article}
 \include{helper.tex}
-\title{Gtk4 tutorial for beginners}
+\title{GObject tutorial for beginners}
 \author{Toshio Sekiya}
 \date{}
 \begin{document}
@@ -87,14 +87,14 @@ main = <<'EOS'
 EOS
 
   texfilenames.each do |filename|
+    filename = filename.sub(/^#{directory}\//, "")
     main += "  \\input{#{filename}}\n"
   end
   main += "\\newpage\n"
-  if appendixfilenames
-    main += "\\appendix\n"
-    appendixfilenames.each do |filename|
-      main += "  \\input{#{filename}}\n"
-    end
+  main += "\\appendix\n"
+  appendixfilenames.each do |filename|
+    filename = filename.sub(/^#{directory}\//, "")
+    main += "  \\input{#{filename}}\n"
   end
   main += "\\end{document}\n"
   IO.write("#{directory}/main.tex", main)

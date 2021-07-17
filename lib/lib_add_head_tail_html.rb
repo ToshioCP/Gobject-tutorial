@@ -5,7 +5,7 @@ def add_head_tail_html html_file
 
 sample_md = <<'EOS'
 ---
-title: 'GObject tutorial for beginners'
+title: 'Gtk4 tutorial for beginners'
 ---
 
 # sample header

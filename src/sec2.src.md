@@ -6,12 +6,12 @@ GObject instance is created with `g_object_new` function.
 GObject has not only instances but also a class.
 
 - The class of GObject is created at the first call of `g_object_new`.
-And the class exists only one.
+And there exists only one GObject class.
 - GObject instance is created whenever `g_object_new` is called.
 So, two or more GObject instances can exist.
 
 In a broad sense, GObject means the object which includes its class and instances.
-Ina narrow sense, GObject is a definition of a C structure.
+In a narrow sense, GObject is a definition of a C structure.
 
 ~~~C
 typedef struct _GObject  GObject;
@@ -73,9 +73,11 @@ struct  _GObjectClass
 
   /* padding */
   gpointer	pdummy[6];
-};~~~
+};
+~~~
 
-You can download the source file from [Gnome download page](https://download.gnome.org/sources/glib/).
+The programs for GObject are included in GLib source files.
+You can download the GLib source files from [Gnome download page](https://download.gnome.org/sources/glib/).
 
 There are sample programs in [src/misc](misc) directory.
 You can compile them by:
