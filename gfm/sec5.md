@@ -109,7 +109,7 @@ For further information, refer to GObject API reference, [Parameters and Values]
 
 When GObject property is registered, GParamSpec is used.
 This is extracted from tdouble.c in [src/tdouble6](../src/tdouble6).
- 
+
 ~~~C
 #define PROP_DOUBLE 1
 static GParamSpec *double_property = NULL;
@@ -153,7 +153,7 @@ Look at the diagram below.
 ![Overriding `set_property` class method](../image/class_property1.png)
 
 `set_property` in GObjectClass class points `g_object_do_set_property` in gobject program, which is made by compiling `gobject.c`.
-The GObjectClass part of the TDoubleClass structure (it is the same as TDoubleClass because TDoubleClass doesn't have its own area) is initialized by copying from the contents of GObjectlass.
+The GObjectClass part of the TDoubleClass structure (it is the same as TDoubleClass because TDoubleClass doesn't have its own area) is initialized by copying from the contents of GObjectClass.
 Therefore, `set_property` in TDoubleClass class points `g_object_do_set_property` in gobject program.
 But `g_object_do_set_property` doesn't store the value to the TDouble instance.
 The writer of TDouble object makes `t_double_set_property` function in `tdouble.c`.
@@ -189,7 +189,7 @@ If the type of a GValue `value` is `G_TYPE_DOUBLE`, `value` can be get with `g_v
 GValue value;
 value = ... ... ... (a GValue object is assigned. Its type is double.)
 double v;
-v = g_value_get_double (value);
+v = g_value_get_double (&value);
 ~~~
 
 Conversely, you can set Gvalue `value` with `g_value_set_double`.

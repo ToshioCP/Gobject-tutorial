@@ -165,7 +165,7 @@ t_double_div (TDouble *self, TDouble *other) {
 ~~~
 
 If the divisor is zero, the signal is emitted.
-`g_sigmal_emit` has three parameters.
+`g_signal_emit` has three parameters.
 
 - The first parameter is the instance that emits the signal.
 - The second parameter is the signal id.
