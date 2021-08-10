@@ -97,7 +97,7 @@ The suffix of the function name, `double` in `g_param_spec_double`, implies the 
 - The description is "Double value".
 - The minimum value is -MAXDOUBLE.
 MAXDOUBLE is the maximum value which can be held in a double.
-It is described in [GLib API reference](https://developer.gnome.org/glib/stable/glib-Basic-Types.html#G-MINDOUBLE:CAPS).
+It is described in [GLib manual, MAXDOUBLE and MINDOUBLE](https://developer-old.gnome.org/glib/stable/glib-Basic-Types.html#G-MINDOUBLE:CAPS).
 You might think the lowest value of double is MINDOUBLE, but it's not.
 MINDOUBLE is the minimum positive value which can be held in a double.
 - The maximum value is MAXDOUBLE.
@@ -105,7 +105,9 @@ MINDOUBLE is the minimum positive value which can be held in a double.
 - `G_PARAM_READWRITE` is a flag.
 `G_PARAM_READWRITE` means that the parameter is readable and writable.
 
-For further information, refer to GObject API reference, [Parameters and Values](https://developer.gnome.org/gobject/stable/gobject-Standard-Parameter-and-Value-Types.html#) and [GParamSpec](https://developer.gnome.org/gobject/stable/gobject-GParamSpec.html#).
+For further information, refer to GObject API reference,
+ [GObject manual, Parameters and Values](https://developer-old.gnome.org/gobject/stable/gobject-Standard-Parameter-and-Value-Types.html)
+ and [GObject manual, GParamSpec](https://developer-old.gnome.org/gobject/stable/gobject-GParamSpec.html).
 
 When GObject property is registered, GParamSpec is used.
 This is extracted from tdouble.c in [src/tdouble6](../src/tdouble6).
@@ -200,8 +202,8 @@ g_value_set_double (value, 123.45);
 
 Refer to GObject API reference for further information.
 
-- [II API reference, Generic values](https://developer.gnome.org/gobject/stable/gobject-Generic-values.html)
-- [II API reference, Parameters and Values](https://developer.gnome.org/gobject/stable/gobject-Standard-Parameter-and-Value-Types.html)
+- [GObject manual, Generic values](https://developer-old.gnome.org/gobject/stable/gobject-Generic-values.html)
+- [GObject manual, Parameters and Values](https://developer-old.gnome.org/gobject/stable/gobject-Standard-Parameter-and-Value-Types.html)
 
 ## t\_double\_set\_property and t\_double\_get\_property
 

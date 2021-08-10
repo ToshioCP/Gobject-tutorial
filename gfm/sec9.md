@@ -490,7 +490,7 @@ This function includes `g_type_register_static_simple ()` and `g_type_add_interf
 `g_type_register_static_simple ()` is a convenient version of `g_type_register_static ()`.
 It registers TInt type to the type system.
 `g_type_add_interface_static ()` adds an interface type to an instance type.
-There is a good example in [GObject API reference](https://developer.gnome.org/gobject/stable/gtype-non-instantiatable-classed.html).
+There is a good example in [GObject manual, Interfaces](https://developer-old.gnome.org/gobject/stable/gtype-non-instantiatable-classed.html).
 - 18-41: `t_int_comparable_cmp` is a function to compare TInt instances.
 - 26: Gets the value of `self` and cast it to double.
 - 27-32: Gets the value of `other` and if it is TInt then the value is casted to double.

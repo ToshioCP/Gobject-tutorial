@@ -228,7 +228,7 @@ This section has shown a simple example of derivable and abstract class.
 You can define your derivable object like this.
 If your object isn't abstract, use `G_DEFINE_TYPE` instead of `G_DEFINE_ABSTRACT_TYPE`.
 And you need one more thing, how to manage private data in your derivable object.
-There is a tutorial in [GObject API reference](https://developer.gnome.org/gobject/stable/howto-gobject.html).
+There is a tutorial in [GObject API reference](https://developer-old.gnome.org/gobject/stable/howto-gobject.html).
 See the tutorial for learning derivable object.
 
 It is also good to see source files in Gtk.

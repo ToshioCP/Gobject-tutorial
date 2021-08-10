@@ -1,24 +1,42 @@
-This tutorial is aimed at beginners who is learning Gobject system.
+#### About this tutorial
+
+This tutorial is aimed at beginners who are learning Gobject system.
 One of the biggest difficulty to learn GObject system is to understand its object oriented strategy.
-All the necessary topics is described in [GObject API reference](https://developer.gnome.org/gobject/stable/).
+All the necessary topics are described in [GObject reference manual](https://developer-old.gnome.org/gobject/stable/).
 But it is probably difficult especially for beginners.
 
-The contents of this tutorial is not beyond the API reference.
-It just gives the readers some example codes and diagrams to help them.
-Readers should refer to the API reference when learning this tutorial.
+The contents of this tutorial are not beyond the reference manual.
+It just gives you some example codes and diagrams to help you.
+Readers should refer to the reference manual when learning this tutorial.
+
+#### GObject reference manual has been changed
+
+I have to point out that the GObject reference manual above is the old version.
+The Gnome documentation website is revised and the GObject reference manual is also changed recently (Aug/2021).
+The new version of the manual is [here](https://docs.gtk.org/gobject/).
+It is pure API reference manual and doesn't include concepts and tutorials.
+Therefore, if you want to know the concepts of GObject, you need to refer to the old version of the reference manual.
+
+#### Generating GFM, HTML and PDF
 
 The table of contents is below and you can see all the tutorials by following the link.
-However, you can make html or pdf by the following steps.
+However, you can make GFM, HTML or PDF by the following steps.
+GFM is 'GitHub Flavored Markdown', which is used in the document files in the GitHub. 
 
-1. You need linux operationg system, ruby, rake, pandoc and latex system.
+1. You need Linux operating system, ruby, rake, pandoc and LaTeX system.
 2. download this repository and uncompress the files.
 3. change your current directory to the top directory of the source files.
-4. type `rake html` to produce html files. The files are generated under `html` directory.
-5. type `rake pdf` to produce a pdf file. The file is generated under `latex` directory.
+4. type `rake` to produce GFM files. The files are generated under `gfm` directory.
+5. type `rake html` to produce HTML files. The files are generated under `html` directory.
+6. type `rake pdf` to produce a PDF file. The file is generated under `latex` directory.
 
 This system is the same as the one in the `gtk4 tutorial` repository.
 There's a document `Readme_for_developers.md` in `gfm` directory of the repository.
-The document describes the details.
+It describes the details.
+
+#### Contribution
 
 If you have any questions, feel free to post an issue.
-
+If you find any mistakes in the tutorial, post an issue or pull-request.
+When you give a pull-request, correct the source files, which are under the 'src' directory, and run rake.
+Then GFM files under the 'gfm' directory are automatically updated.
