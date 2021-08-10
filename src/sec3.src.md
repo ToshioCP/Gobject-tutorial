@@ -147,7 +147,7 @@ For example, TDouble's class size is `sizeof (TDoubleClass)`.
 In many cases, they aren't necessary, and are assigned NULL.
 For further information, see [GObject API reference](https://developer.gnome.org/gobject/stable/gobject-Type-Information.html#GClassInitFunc).
 - class_init: Initializes static members of the class.
-Assign your class initialization function to `clas_init`member.
+Assign your class initialization function to `class_init`member.
 By convention, the name is `<name space>_<name>_class_init`, for example, `t_double_class_init`.
 - class_finalize: Finalizes the class.
 Because descendant type of GObjec is static, it doesn't have a finalize function.
