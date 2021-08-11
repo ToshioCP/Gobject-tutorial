@@ -147,8 +147,8 @@ This structure needs to be created before the registration.
 For example, TDouble's class size is `sizeof (TDoubleClass)`.
 - base_init, base_finalize: These function initialize/finalize the dynamic members of the class.
 In many cases, they aren't necessary, and are assigned NULL.
-For further information, see [GObject manual, BaseInitFunc](https://docs.gtk.org/gobject/callback.BaseInitFunc.html)
-and [GObject manual, ClassInitFunc](https://docs.gtk.org/gobject/callback.ClassInitFunc.html).
+For further information, see [GObject API Reference, BaseInitFunc](https://docs.gtk.org/gobject/callback.BaseInitFunc.html)
+and [GObject API Reference, ClassInitFunc](https://docs.gtk.org/gobject/callback.ClassInitFunc.html).
 - class_init: Initializes static members of the class.
 Assign your class initialization function to `class_init`member.
 By convention, the name is `<name space>_<name>_class_init`, for example, `t_double_class_init`.
@@ -263,8 +263,8 @@ Execute it.
 
 ~~~
 $ cd misc; _build/example3
-Registration was a success. The type is 55ec19c42430.
-Instantiation was a success. The instance address is 0x55ec19c44c00.
+Registration was a success. The type is 55e39978c430.
+Instantiation was a success. The instance address is 0x55e39978ec00.
 ~~~
 
 ## G_DEFINE_TYPE macro
@@ -349,8 +349,8 @@ Execute it.
 
 ~~~
 $ cd misc; _build/example4
-Registration was a success. The type is 55840f97b430.
-Instantiation was a success. The instance address is 0x55840f97cc00.
+Registration was a success. The type is 55cefec0f430.
+Instantiation was a success. The instance address is 0x55cefec10c00.
 ~~~
 
 ## G_DECLARE_FINAL_TYPE macro
@@ -453,8 +453,8 @@ Execute it.
 
 ~~~
 $ cd misc; _build/example5
-Registration was a success. The type is 55ca562b3430.
-Instantiation was a success. The instance address is 0x55ca562b4c00.
+Registration was a success. The type is 55c0a77f1430.
+Instantiation was a success. The instance address is 0x55c0a77f2c00.
 d is TDouble instance.
 d is GObject instance.
 ~~~
@@ -555,7 +555,7 @@ If it succeeds, it returns TRUE.
 If the argument `d` is not TDouble type, it outputs error to the log and immediately returns FALSE.
 This function is used to report a programmer's error.
 You shouldn't use it for a runtime error.
-See [Glib manual, Error Reporting](https://docs.gtk.org/glib/error-reporting.html) for further information.
+See [Glib API Reference, Error Reporting](https://docs.gtk.org/glib/error-reporting.html) for further information.
 `g_return_val_if_fail` isn't used in static class functions, they are private, because static functions are called only from functions in the same file.
 Such functions know the parameters type well.
 `g_return_val_if_fail` is used in public functions.
@@ -626,7 +626,7 @@ This example is very simple.
 But any object has header file and C source file as the example above has.
 And they follow the convention.
 You probably aware of the importance of the convention.
-For the further information refer to [GObject manual, Conventions](https://developer-old.gnome.org/gobject/stable/gtype-conventions.html).
+For the further information refer to [GObject API Reference, Conventions](https://docs.gtk.org/gobject/concepts.html#conventions).
 
 ## Functions
 

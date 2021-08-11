@@ -16,19 +16,19 @@ If you want to try to compile the examples in the tutorial, you need:
 - pkg-config
 - meson and ninja
 
-Linux distributions has Glib, which is enough for you to compile the examples in this repository.
+Common Linux distributions has GLib, which is enough for you to compile the examples in this repository.
 
 ### Software
 
 This repository includes ruby programs.
-They are used to generate markdown files, html files, latex files and a pdf file.
+They are used to generate Markdown files, HTML files, LaTeX files and a PDF file.
 
 You need:
 
 - Linux distribution like Ubuntu.
 - Ruby programming language.
 There are two ways to install it.
-One is install the distribution's package.
+One is installing the distribution's package.
 The other is using rbenv and ruby-build.
 If you want to use the latest version of ruby, use rbenv and ruby-build.
 - Rake.

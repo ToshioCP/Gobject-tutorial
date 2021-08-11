@@ -25,9 +25,9 @@ The contents of this section is limited to the minimum things to write a simple 
 If you need an accurate information, refer to GObject API reference.
 There are three parts which describe signals.
 
-- [I Concepts, signals](https://developer-old.gnome.org/gobject/stable/signal.html)
-- [II API reference, Signals](https://developer-old.gnome.org/gobject/stable/gobject-Signals.html)
-- [IV Tutorial, How to create and use signals](https://developer-old.gnome.org/gobject/stable/howto-signals.html)
+- [Type System Concepts, signals](https://docs.gtk.org/gobject/concepts.html#signals)
+- [Old GObject Reference Manual, Signals](https://developer-old.gnome.org/gobject/stable/gobject-Signals.html)
+- [GObject Tutorial, How to create and use signals](https://docs.gtk.org/gobject/tutorial.html#how-to-create-and-use-signals)
 
 ## Signal registration
 
@@ -80,7 +80,7 @@ It is set the signal id.
 Lots of pages are necessary to explain this flag.
 So, I want leave them out now.
 The argument above can be used in many cases.
-The definition is described in the [GObject manual, SignalFlags](https://docs.gtk.org/gobject/flags.SignalFlags.html).
+The definition is described in the [GObject API Reference, SignalFlags](https://docs.gtk.org/gobject/flags.SignalFlags.html).
 - The return type is G_TYPE_NONE which means no value is returned by the signal handler.
 - `n_params` is a number of parameters.
 This signal doesn't have parameters, so it is zero.
@@ -88,7 +88,7 @@ This signal doesn't have parameters, so it is zero.
 This function call is in the class initialization function.
 
 You can use other functions such as `g_signal_newv`.
-See [GObject API reference](https://docs.gtk.org/gobject/func.signal_newv.html) for details.
+See [GObject API Reference](https://docs.gtk.org/gobject/func.signal_newv.html) for details.
 
 ## Signal handler
 
@@ -173,7 +173,7 @@ Signal id has been set with `g_signal_new` function.
 - The third parameter is detail.
 "dev-by-zero" signal doesn't have a detail, so the argument is zero.
 Detail isn't explained in this section.
-If you want to know details, refer to [GObject manual, Signal Detail](https://developer-old.gnome.org/gobject/stable/signal.html#signal-detail).
+If you want to know details, refer to [GObject API Reference, Signal Detail](https://docs.gtk.org/gobject/concepts.html#the-detail-argument).
 
 If a signal has parameters, they are fourth and subsequent arguments.
 
@@ -536,7 +536,7 @@ The source files are in [src/tdouble5](../src/tdouble5).
 
 ## Signal flag
 
-The order that handlers are called is described in [GObject API reference](https://developer-old.gnome.org/gobject/stable/gobject-Signals.html#gobject-Signals.description).
+The order that handlers are called is described in [GObject API Reference, Sigmal emission](https://docs.gtk.org/gobject/concepts.html#signal-emission).
 
 The order depends on the signal flag which is set in `g_signal_new` or `g_signal_new_class_handler`.
 There are three flags which relate to the order of handlers' invocation.
@@ -547,7 +547,7 @@ There are three flags which relate to the order of handlers' invocation.
 
 `G_SIGNAL_RUN_LAST` is the most appropriate in many cases.
 
-Other signal flags are described in [GObject API reference](https://docs.gtk.org/gobject/flags.SignalFlags.html).
+Other signal flags are described in [GObject API Rreference](https://docs.gtk.org/gobject/flags.SignalFlags.html).
 
 
 Up: [Readme.md](../Readme.md),  Prev: [Section 3](sec3.md), Next: [Section 5](sec5.md)

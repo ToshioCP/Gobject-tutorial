@@ -4,20 +4,20 @@
 
 This tutorial is aimed at beginners who are learning Gobject system.
 One of the biggest difficulty to learn GObject system is to understand its object oriented strategy.
-All the necessary topics are described in [GObject reference manual](https://developer-old.gnome.org/gobject/stable/).
+All the necessary topics are described in [GObject API Reference](https://docs.gtk.org/gobject/).
 But it is probably difficult especially for beginners.
 
-The contents of this tutorial are not beyond the reference manual.
+The contents of this tutorial are not beyond the documentation.
 It just gives you some example codes and diagrams to help you.
-Readers should refer to the reference manual when learning this tutorial.
+Readers should refer to the GObject documentation when learning this tutorial.
 
 #### GObject reference manual has been changed
 
-I have to point out that the GObject reference manual above is the old version.
+I have to point out that the GObject documentation above is the new version.
 The Gnome documentation website is revised and the GObject reference manual is also changed recently (Aug/2021).
-The new version of the manual is [here](https://docs.gtk.org/gobject/).
-It is pure API reference manual and doesn't include concepts and tutorials.
-Therefore, if you want to know the concepts of GObject, you need to refer to the old version of the reference manual.
+The old version of the reference manual is [here](https://developer-old.gnome.org/gobject/stable/).
+Making new version of the documentation is in progress.
+So, you might need to refer to the old version of the reference manual.
 
 #### Generating GFM, HTML and PDF
 
