@@ -1,6 +1,6 @@
-# Prerequisite and License
+# Prerequisites and License
 
-## Prerequisite
+## Prerequisites
 
 ### Tutorial document
 

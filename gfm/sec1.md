@@ -1,8 +1,8 @@
 Up: [Readme.md](../Readme.md),  Next: [Section 2](sec2.md)
 
-# Prerequisite and License
+# Prerequisites and License
 
-## Prerequisite
+## Prerequisites
 
 ### Tutorial document
 

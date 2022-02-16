@@ -1,7 +1,7 @@
 #### About this tutorial
 
-This tutorial is aimed at beginners who are learning Gobject system.
-One of the biggest difficulty to learn GObject system is to understand its object oriented strategy.
+This tutorial is aimed at beginners who are learning the Gobject system.
+One of the biggest difficulties in learning the GObject system is understanding its fundamental object oriented strategy.
 All the necessary topics are described in [GObject API Reference](https://docs.gtk.org/gobject/).
 But it is probably difficult especially for beginners.
 

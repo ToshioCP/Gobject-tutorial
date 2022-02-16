@@ -2,8 +2,8 @@
 
 #### About this tutorial
 
-This tutorial is aimed at beginners who are learning Gobject system.
-One of the biggest difficulty to learn GObject system is to understand its object oriented strategy.
+This tutorial is aimed at beginners who are learning the Gobject system.
+One of the biggest difficulties in learning the GObject system is understanding its fundamental object oriented strategy.
 All the necessary topics are described in [GObject API Reference](https://docs.gtk.org/gobject/).
 But it is probably difficult especially for beginners.
 
@@ -45,7 +45,7 @@ Then GFM files under the 'gfm' directory are automatically updated.
 
 ## Table of contents
 
-1. [Prerequisite and License](gfm/sec1.md)
+1. [Prerequisites and License](gfm/sec1.md)
 1. [GObject](gfm/sec2.md)
 1. [Type system and registration process](gfm/sec3.md)
 1. [Signals](gfm/sec4.md)
