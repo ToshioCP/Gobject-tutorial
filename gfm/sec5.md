@@ -197,7 +197,7 @@ v = g_value_get_double (&value);
 Conversely, you can set Gvalue `value` with `g_value_set_double`.
 
 ~~~C
-g_value_set_double (value, 123.45); 
+g_value_set_double (value, 123.45);
 ~~~
 
 Refer to GObject API reference for further information.
@@ -326,6 +326,5 @@ It is like TDouble but the value type is int.
 Define "div-by-zero" signal and "value" property.
 
 Compare your answer to the files in [src/tint](../src/tint) directory.
-
 
 Up: [Readme.md](../Readme.md),  Prev: [Section 4](sec4.md), Next: [Section 6](sec6.md)

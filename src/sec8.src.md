@@ -76,7 +76,7 @@ The input characters are:
 
 The state diagram is as follows.
 
-![state diagram of a numeric string](../image/state_diagram.png)
+![state diagram of a numeric string](../image/state_diagram.png){width=12cm height=9cm}
 
 The state matrix is:
 
@@ -205,7 +205,7 @@ It calls its own finalize function and finalizes the TStr private data (TStrPriv
 And at the end of the function, it calls its parent's finalize method.
 At last, GObject finalize method finalizes the GObject part of the TNumStr instance.
 
-![Chaining up process](../image/chainup.png)
+![Chaining up process](../image/chainup.png){width=12cm height=9cm}
 
 ## Compilation and execution
 
@@ -220,4 +220,3 @@ $ meson _build
 $ ninja -C _build
 $ _build/tstr
 ~~~
-

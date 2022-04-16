@@ -108,7 +108,7 @@ For further information, refer to GObject API reference,
  and [GObject Reference Manual, GParamSpec](https://developer-old.gnome.org/gobject/stable/gobject-GParamSpec.html).
 
 When GObject property is registered, GParamSpec is used.
-This is extracted from tdouble.c in [src/tdouble6](tdouble6).
+This is extracted from tdouble.c in src/tdouble6.
 
 ~~~C
 #define PROP_DOUBLE 1
@@ -150,7 +150,7 @@ That part needs to be programmed by the writer of the object with overriding.
 And it calls a function pointed by `set_property` in the class.
 Look at the diagram below.
 
-![Overriding `set_property` class method](../image/class_property1.png){width=10cm height=7.5cm}
+![Overriding `set_property` class method](image/class_property1.png)
 
 `set_property` in GObjectClass class points `g_object_do_set_property` in gobject program, which is made by compiling `gobject.c`.
 The GObjectClass part of the TDoubleClass structure (it is the same as TDoubleClass because TDoubleClass doesn't have its own area) is initialized by copying from the contents of GObjectClass.
@@ -195,7 +195,7 @@ v = g_value_get_double (&value);
 Conversely, you can set Gvalue `value` with `g_value_set_double`.
 
 ~~~C
-g_value_set_double (value, 123.45);
+g_value_set_double (value, 123.45); 
 ~~~
 
 Refer to GObject API reference for further information.
@@ -230,9 +230,17 @@ struct  _GObjectClass
 
 `t_double_set_property` just get the value from GValue `value` and store it to the TDouble instance.
 
-@@@include
-tdouble6/tdouble.c t_double_set_property
-@@@
+~~~{.C .numberLines}
+static void
+t_double_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
+  TDouble *self = T_DOUBLE (object);
+
+  if (property_id == PROP_DOUBLE) {
+    self->value = g_value_get_double (value);
+  } else
+    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+}
+~~~
 
 - 3: Casts `object` to TDouble object `self`.
 - 6: Set `self->value`.
@@ -240,9 +248,18 @@ The assigned value is got with `g_value_get_double` function.
 
 In the same way, `t_double_get_property` stores `self->value` to GValue.
 
-@@@include
-tdouble6/tdouble.c t_double_get_property
-@@@
+~~~{.C .numberLines}
+static void
+t_double_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
+  TDouble *self = T_DOUBLE (object);
+
+  if (property_id == PROP_DOUBLE)
+    g_value_set_double (value, self->value);
+  else
+    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+
+}
+~~~
 
 ## Notify signal
 
@@ -298,7 +315,7 @@ If you define more than one property, use an array of property id.
 It is good for you to see Gtk source files such as `gtklabel.c`.
 GtkLabel has 18 properties.
 
-The source files are in [src/tdouble6](tdouble6) directory.
+The source files are in src/tdouble6 directory.
 
 ## Exercise
 
@@ -306,4 +323,5 @@ Make TInt object.
 It is like TDouble but the value type is int.
 Define "div-by-zero" signal and "value" property.
 
-Compare your answer to the files in [src/tint](tint) directory.
+Compare your answer to the files in src/tint directory.
+

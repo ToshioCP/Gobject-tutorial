@@ -522,5 +522,4 @@ $ ninja -C _build
 $ _build/tstr
 ~~~
 
-
 Up: [Readme.md](../Readme.md),  Prev: [Section 7](sec7.md), Next: [Section 9](sec9.md)

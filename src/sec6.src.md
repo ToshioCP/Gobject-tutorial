@@ -252,7 +252,7 @@ This includes initializing pointers to class method handlers and a default signa
 
 The diagram below shows the process.
 
-![TNumberClass initialization](../image/tnumberclass_init.png)
+![TNumberClass initialization](../image/tnumberclass_init.png){width=12cm height=9cm}
 
 ### Initialization process of TIntClass
 
@@ -268,5 +268,4 @@ This includes overriding class methods, set\_property and get\_property.
 
 The diagram below shows the process.
 
-![TIntClass initialization](../image/tintclass_init.png)
-
+![TIntClass initialization](../image/tintclass_init.png){width=12cm height=9cm}
