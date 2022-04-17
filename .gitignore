@@ -1,7 +1,5 @@
 # .gitignore
 
-sample.html
-sample.md
 src/misc/_build
 src/tdouble1/_build
 src/tdouble2/_build

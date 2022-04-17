@@ -1,3 +1,6 @@
+The github page of this tutorial is available.
+Click [here](https://toshiocp.github.io/Gobject-tutorial/) to see it.
+
 #### About this tutorial
 
 This tutorial is aimed at beginners who are learning the GObject system.
