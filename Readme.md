@@ -1,5 +1,8 @@
 # GObject Tutorial for beginners
 
+The github page of this tutorial is available.
+Click [here](https://toshiocp.github.io/Gobject-tutorial/) to see it.
+
 #### About this tutorial
 
 This tutorial is aimed at beginners who are learning the GObject system.
@@ -21,9 +24,9 @@ So, you might need to refer to the old version of the reference manual.
 
 #### Generating GFM, HTML and PDF
 
-The table of contents is below and you can see all the tutorials by following the link.
+The table of contents are below and you can see all the tutorials by following the link.
 However, you can make GFM, HTML or PDF by the following steps.
-GFM is 'GitHub Flavored Markdown', which is used in the document files in the GitHub. 
+GFM is 'GitHub Flavored Markdown', which is used in the document files in the GitHub.
 
 1. You need Linux operating system, ruby, rake, pandoc and LaTeX system.
 2. download this repository and uncompress the files.
