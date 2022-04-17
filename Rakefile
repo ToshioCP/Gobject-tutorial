@@ -19,6 +19,11 @@ abstract_tex = "latex/"+abstract.to_tex
 CLEAN.append(*mdfiles)
 CLEAN << "Readme.md"
 
+def pair array1, array2
+  n = [array1.size, array2.size].max
+  (0...n).map{|i| [array1[i], array2[i], i]}
+end
+
 # tasks
 
 task default: :md
@@ -32,17 +37,17 @@ file "Readme.md" => [abstract] + secfiles do
         + File.readlines(abstract.to_md)\
         + ["\n", "## Table of contents\n", "\n"]
   File.delete(abstract.to_md)
-  secfiles.each_with_index do |secfile, i|
+  secfiles.each do |secfile|
     h = File.open(secfile.path){|file| file.readline}.sub(/^#* */,"").chomp
     buf << "1. [#{h}](gfm/#{secfile.to_md})\n"
   end
   File.write("Readme.md", buf.join)
 end
 
-srcfiles.each_with_index do |srcfile, i|
-  file mdfiles[i] => [srcfile] + srcfile.c_files do
-    src2md srcfile, mdfiles[i], "gfm"
-    if srcfile.instance_of? Sec_file
+pair(srcfiles, mdfiles).each do |src, dst, i|
+  file dst => [src] + src.c_files do
+    src2md src, dst, "gfm"
+    if src.instance_of? Sec_file
       if secfiles.size == 1
         nav = "Up: [Readme.md](../Readme.md)\n"
       elsif i == 0
@@ -52,7 +57,7 @@ srcfiles.each_with_index do |srcfile, i|
       else
         nav = "Up: [Readme.md](../Readme.md),  Prev: [Section #{i}](#{secfiles[i-1].to_md}), Next: [Section #{i+2}](#{secfiles[i+1].to_md})\n"
       end
-      File.write(mdfiles[i], nav + "\n" + File.read(mdfiles[i]) + "\n" + nav)
+      File.write(dst, nav + "\n" + File.read(dst) + "\n" + nav)
     end
   end
 end
@@ -66,7 +71,7 @@ file "html/index.html" => [abstract] + secfiles do
         + File.readlines(abstract_md)\
         + ["\n", "## Table of contents\n", "\n"]
   File.delete(abstract_md)
-  secfiles.each_with_index do |secfile, i|
+  secfiles.each do |secfile|
     h = File.open(secfile.path){|file| file.readline}.sub(/^#* */,"").chomp
     buf << "1. [#{h}](#{secfile.to_html})\n"
   end
@@ -76,11 +81,11 @@ file "html/index.html" => [abstract] + secfiles do
   add_head_tail_html "html/index.html"
 end
 
-srcfiles.each_with_index do |srcfile, i|
-  file htmlfiles[i] => [srcfile] + srcfile.c_files do
-    html_md = "html/" + srcfile.to_md
-    src2md srcfile, html_md, "html"
-    if srcfile.instance_of? Sec_file
+pair(srcfiles, htmlfiles).each do |src, dst, i|
+  file dst => [src] + src.c_files do
+    html_md = "html/" + src.to_md
+    src2md src, html_md, "html"
+    if src.instance_of? Sec_file
       if secfiles.size == 1
         nav = "Up: [index.html](index.html)\n"
       elsif i == 0
@@ -92,9 +97,9 @@ srcfiles.each_with_index do |srcfile, i|
       end
       File.write(html_md, nav + "\n" + File.read(html_md) + "\n" + nav)
     end
-    sh "pandoc -o #{htmlfiles[i]} #{html_md}"
+    sh "pandoc -o #{dst} #{html_md}"
     File.delete(html_md)
-    add_head_tail_html htmlfiles[i]
+    add_head_tail_html dst
   end
 end
 
@@ -115,14 +120,14 @@ file abstract_tex => abstract do
   File.delete(abstract_md)
 end
 
-srcfiles.each_with_index do |srcfile, i|
-  file texfiles[i] => [srcfile] + srcfile.c_files do
-    tex_md = "latex/" + srcfile.to_md
-    src2md srcfile, tex_md, "latex"
-    if srcfile == "src/Readme_for_developers.src.md"
-      sh "pandoc -o #{texfiles[i]} #{tex_md}"
+pair(srcfiles, texfiles).each do |src, dst, i|
+  file dst => [src] + src.c_files do
+    tex_md = "latex/" + src.to_md
+    src2md src, tex_md, "latex"
+    if src == "src/Readme_for_developers.src.md"
+      sh "pandoc -o #{dst} #{tex_md}"
     else
-      sh "pandoc --listings -o #{texfiles[i]} #{tex_md}"
+      sh "pandoc --listings -o #{dst} #{tex_md}"
     end
     File.delete(tex_md)
   end
