@@ -1,5 +1,7 @@
 # GObject Tutorial for beginners
 
+The github page of this tutorial is also available. Click [here](https://toshiocp.github.io/Gobject-tutorial/).
+
 The github page of this tutorial is available.
 Click [here](https://toshiocp.github.io/Gobject-tutorial/) to see it.
 

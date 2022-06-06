@@ -1,6 +1,8 @@
 # lib_src2md.rb
+require 'fileutils'
 require 'pathname'
 include Math
+include FileUtils
 
 # The method 'src2md' converts .src.md file into .md file.
 # The .md file is the final format for GFM, or intermediate markdown file for html and/or latex.
@@ -93,20 +95,20 @@ class String
   end
 end
 
-def src2md src_path, dst_path, type
+def src2md src_path, type
+  dst_dir = {"gfm"=>"gfm","html"=>"docs","latex"=>"latex"}[type]
+  dst_path = "#{dst_dir}/#{File.basename(src_path, ".src.md")}.md"
   src_dir = File.dirname src_path
-  dst_dir = File.dirname dst_path
   src = File.read(src_path)
   src = at_if_else(src, type)
   buf = src.partitions(/^@@@table\n.*?@@@\n/m)
-  buf = buf.map{|chunk| chunk=~/\A@@@table/ ? at_table(chunk) : chunk}.join
+  src = buf.map{|chunk| chunk=~/\A@@@table/ ? at_table(chunk) : chunk}.join
   buf = src.partitions(/^@@@include\s*(-(N|n))?.*?@@@\n/m)
-  buf = buf.map{|chunk| chunk=~/\A@@@include/ ? at_include(chunk, src_dir, type) : chunk}
-  src = buf.join
+  src = buf.map{|chunk| chunk=~/\A@@@include/ ? at_include(chunk, src_dir, type) : chunk}.join
   buf = src.partitions(/^@@@shell.*?@@@\n/m)
-  buf = buf.map{|chunk| chunk=~/\A@@@shell.*?@@@\n/m ? at_shell(chunk, src_dir) : chunk}
-  src = buf.join
+  src = buf.map{|chunk| chunk=~/\A@@@shell.*?@@@\n/m ? at_shell(chunk, src_dir) : chunk}.join
   src = change_link(src, src_dir, type, dst_dir)
+  mkdir_p(dst_dir) unless Dir.exist?(dst_dir)
   File.write(dst_path, src)
 end
 
@@ -300,46 +302,65 @@ def change_link src, old_dir, type, new_dir=nil
   raise "Illegal type." unless type == "gfm" || type == "html" || type == "latex"
   new_dir = type if new_dir == nil
   p_new_dir = Pathname.new(new_dir)
-  buf = src.partitions(/!?\[.*?\]\(.*?\)(\{.*?\})?/)
+  buf = src.partitions(/^~~~.*?^~~~\n/m)
+  buf = buf.map{|chunk| chunk =~ /\A~~~.*?^~~~\n\z/m ? chunk : chunk.partitions(/(^    .*\n)+/)}.flatten
+  # buf = buf.inject([]){|b,e| b.append(*e)}
   buf = buf.map do |chunk|
-    m = chunk.match(/(!?\[.*?\])\((.*?)\)(\{.*?\})?/)
-    if m == nil
+    if (chunk =~ /\A~~~.*?^~~~\n\z/m || chunk =~ /\A(^    .*\n)+\z/)
       chunk
     else
-      name = m[1]
-      target = m[2]
-      size = m[3]
-      if target =~ /\.src\.md$/
-        case type
-        when "gfm"
-          "#{name}(#{File.basename(target).sub(/\.src\.md$/,'.md')})"
-        when "html"
-          "#{name}(#{File.basename(target).sub(/\.src\.md$/,'.html')})"
-        when "latex"
-          name.match(/!?\[(.*?)\]/)[1]
-        end
-      elsif m[2] =~ /^(http|\/)/
-        chunk
-      elsif size != nil
-        p_target = Pathname.new "#{old_dir}/#{target}"
-        target = p_target.relative_path_from(p_new_dir).to_s
-        case type
-        when "gfm"
-          "#{name}(#{target})"
-        when "html"
-          "#{name}(#{target})"
-        when "latex"
-          "#{name}(#{target})#{size}"
-        end
-      else
-        p_target = Pathname.new "#{old_dir}/#{target}"
-        target = p_target.relative_path_from(p_new_dir).to_s
-        if type == "latex" && name[0] != '!'
-          name.match(/!?\[(.*?)\]/)[1]
+      # change inline codes (`...`) to escape char ("\e"=0x1B) in the link change procedure temporarily.
+      # This avoids the influence of the change in the inline codes.
+      # So, .src.md files must not include escape code (0x1B).
+      codes = chunk.scan(/`.*?`/)
+      chunk = chunk.gsub(/`.*?`/,"\e")
+      b = chunk.partitions(/!?\[.*?\]\(.*?\)(\{.*?\})?/)
+      b = b.map do |c|
+        m = c.match(/(!?\[.*?\])\((.*?)\)(\{.*?\})?/)
+        if m == nil
+          c
         else
-          "#{name}(#{target})"
+          name = m[1]
+          target = m[2]
+          size = m[3]
+          if target.include?("\e")
+            c
+          elsif target =~ /\.src\.md$/
+            case type
+            when "gfm"
+              "#{name}(#{File.basename(target).sub(/\.src\.md$/,'.md')})"
+            when "html"
+              "#{name}(#{File.basename(target).sub(/\.src\.md$/,'.html')})"
+            when "latex"
+              name.match(/!?\[(.*?)\]/)[1]
+            end
+          elsif target =~ /^(http|\/)/
+            c
+          elsif name =~ /^!/ # link to an image file
+            n_target = Pathname.new("#{old_dir}/#{target}").relative_path_from(p_new_dir).to_s
+            b_target = File.basename(target)
+            case type
+            when "gfm"
+              "#{name}(#{n_target})"
+            when "html"
+              "#{name}(image/#{b_target})"
+            when "latex"
+              size ? "#{name}(#{n_target})#{size}" : "#{name}(#{target})"
+            end
+          else
+            n_target = Pathname.new("#{old_dir}/#{target}").relative_path_from(p_new_dir).to_s
+            if type == "gfm"
+              "#{name}(#{n_target})"
+            else # remove link
+              name.match(/\[(.*?)\]/)[1]
+            end
+          end
         end
       end
+      c = b.join
+      a = c.split("\e")
+      i = 0
+      codes.inject([a[0]]){|b, code| i+=1; b.append(code, a[i])}.join
     end
   end
   buf.join
