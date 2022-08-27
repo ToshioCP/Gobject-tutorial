@@ -277,8 +277,8 @@
 <p><code>example3.c</code> is in the src/misc directory.</p>
 <p>Execute it.</p>
 <pre><code>$ cd misc; _build/example3
-Registration was a success. The type is 55e32e21f430.
-Instantiation was a success. The instance address is 0x55e32e221c00.</code></pre>
+Registration was a success. The type is 55efb6dae430.
+Instantiation was a success. The instance address is 0x55efb6db0c00.</code></pre>
 <h2 id="g_define_type-macro">G_DEFINE_TYPE macro</h2>
 <p>The registration above is always done with the same algorithm. Therefore, it can be defined as a macro such as <code>G_DEFINE_TYPE</code>.</p>
 <p><code>G_DEFINE_TYPE</code> does the following:</p>
@@ -336,8 +336,8 @@ Instantiation was a success. The instance address is 0x55e32e221c00.</code></pre
 <p>Thanks to <code>G_DEFINE_TYPE</code>, we are freed from writing bothersome code like <code>GTypeInfo</code> and <code>g_type_register_static</code>. One important thing to be careful is to follow the convention of the naming of init functions.</p>
 <p>Execute it.</p>
 <pre><code>$ cd misc; _build/example4
-Registration was a success. The type is 55f15dbd2430.
-Instantiation was a success. The instance address is 0x55f15dbd3c00.</code></pre>
+Registration was a success. The type is 5611d94e3430.
+Instantiation was a success. The instance address is 0x5611d94e4c00.</code></pre>
 <h2 id="g_declare_final_type-macro">G_DECLARE_FINAL_TYPE macro</h2>
 <p>Another useful macro is <code>G_DECLARE_FINAL_TYPE</code> macro. This macro can be used for a final type. A final type doesn’t have any children. If a type has children, it is a derivable type. If you want to define a derivable type object, use <code>G_DECLARE_DERIVABLE_TYPE</code> instead. However, you probably write final type objects in most cases.</p>
 <p><code>G_DECLARE_FINAL_TYPE</code> does the following:</p>
@@ -403,8 +403,8 @@ Instantiation was a success. The instance address is 0x55f15dbd3c00.</code></pre
 <span id="cb10-49"><a href="#cb10-49"></a>}</span></code></pre></div>
 <p>Execute it.</p>
 <pre><code>$ cd misc; _build/example5
-Registration was a success. The type is 5608538b4430.
-Instantiation was a success. The instance address is 0x5608538b5c00.
+Registration was a success. The type is 559eb8a12430.
+Instantiation was a success. The instance address is 0x559eb8a13c00.
 d is TDouble instance.
 d is GObject instance.</code></pre>
 <h2 id="separate-the-file-into-main.c-tdouble.h-and-tdouble.c">Separate the file into main.c, tdouble.h and tdouble.c</h2>
