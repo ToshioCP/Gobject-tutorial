@@ -122,7 +122,7 @@
 <h2 id="abstract-type">Abstract type</h2>
 <p>Abstract type doesn’t have any instance. This type of object is derivable and its children can use functions and signals of the abstract object.</p>
 <p>The example of this section is TNumber, TInt and TDouble object. TInt and TDouble have already made in the previous section. They represent integer and floating point respectively. Numbers are more abstract than integer and floating point.</p>
-<p>TNumber is an abstract object which represents numbers. TNumber is a parent object of TInt and TDouble. TNumber isn’t instantiated because it’s abstract type. When an instance is TNumber type, it is an instance of TInt or TDouble as well.</p>
+<p>TNumber is an abstract object which represents numbers. TNumber is a parent object of TInt and TDouble. TNumber isn’t instantiated because it’s abstract type. When an instance has TInt or TDouble type, it is an instance of TNumber as well.</p>
 <p>TInt and TDouble have five operations: addition, subtraction, multiplication, division and unary minus operation. Those operations can be defined on TNumber object.</p>
 <p>In this section we will define TNumber object and five functions above. In addition <code>to_s</code> function will be added. It converts the value of TNumber into a string. It is like sprintf function. And we will rewrite TInt and TDouble to implement the functions.</p>
 <h2 id="tnumber-object">TNumber object</h2>

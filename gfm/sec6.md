@@ -36,7 +36,7 @@ Numbers are more abstract than integer and floating point.
 TNumber is an abstract object which represents numbers.
 TNumber is a parent object of TInt and TDouble.
 TNumber isn't instantiated because it's abstract type.
-When an instance is TNumber type, it is an instance of TInt or TDouble as well.
+When an instance has TInt or TDouble type, it is an instance of TNumber as well.
 
 TInt and TDouble have five operations: addition, subtraction, multiplication, division and unary minus operation.
 Those operations can be defined on TNumber object.
