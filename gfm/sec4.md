@@ -101,13 +101,13 @@ The handler has two parameters.
 The "div-by-zero" signal doesn't need user data.
 
 ~~~C
-void dev_by_zero_cb (TDouble *d, gpointer user_data) { ... ... ...};
+void div_by_zero_cb (TDouble *d, gpointer user_data) { ... ... ...};
 ~~~
 
 Or, you can leave out the second parameter.
 
 ~~~C
-void dev_by_zero_cb (TDouble *d) { ... ... ...};
+void div_by_zero_cb (TDouble *d) { ... ... ...};
 ~~~
 
 If a signal has parameters, the parameters are between the instance and user data.
