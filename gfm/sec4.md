@@ -171,7 +171,7 @@ If the divisor is zero, the signal is emitted.
 - The second parameter is the signal id.
 Signal id has been set with `g_signal_new` function.
 - The third parameter is detail.
-"dev-by-zero" signal doesn't have a detail, so the argument is zero.
+"div-by-zero" signal doesn't have a detail, so the argument is zero.
 Detail isn't explained in this section.
 If you want to know details, refer to [GObject API Reference, Signal Detail](https://docs.gtk.org/gobject/concepts.html#the-detail-argument).
 
