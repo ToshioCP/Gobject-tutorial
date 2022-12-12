@@ -38,7 +38,7 @@ main (int argc, char **argv) {
   }
 
   if ((d3 = t_double_div (d1, d2)) != NULL) {
-    t_print ("+", d1, d2, d3);
+    t_print ("/", d1, d2, d3);
     g_object_unref (d3);
   }
 

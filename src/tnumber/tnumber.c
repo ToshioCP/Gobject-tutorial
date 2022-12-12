@@ -6,7 +6,7 @@ G_DEFINE_ABSTRACT_TYPE (TNumber, t_number, G_TYPE_OBJECT)
 
 static void
 div_by_zero_default_cb (TNumber *self) {
-  g_print ("\nError: division by zero.\n\n");
+  g_printerr ("\nError: division by zero.\n\n");
 }
 
 static void

@@ -3,9 +3,9 @@
 ## Class and instance
 
 GObject instance is created with `g_object_new` function.
-GObject has not only instances but also a class.
+GObject has not only instances but also classes.
 
-- The class of GObject is created at the first call of `g_object_new`.
+- A class of GObject is created at the first call of `g_object_new`.
 And there exists only one GObject class.
 - GObject instance is created whenever `g_object_new` is called.
 So, two or more GObject instances can exist.
@@ -29,11 +29,10 @@ The `g_object_new` function allocates GObject-sized memory, initializes the memo
 The memory is a GObject instance.
 
 In the same way, the class of GObject is memory allocated by `g_object_new` and its structure is defined with GObjectClass.
-The following is extracted from `gobhect.h`.
+The following is extracted from `gobject.h`.
 But you don't need to know the details of the structure now.
 
 ~~~C
-typedef struct _GObjectClass  GObjectClass;
 struct  _GObjectClass
 {
   GTypeClass   g_type_class;
@@ -71,15 +70,20 @@ struct  _GObjectClass
   /*< private >*/
   gsize		flags;
 
+  gsize         n_construct_properties;
+
+  gpointer pspecs;
+  gsize n_pspecs;
+
   /* padding */
-  gpointer	pdummy[6];
+  gpointer	pdummy[3];
 };
 ~~~
 
 The programs for GObject are included in GLib source files.
-You can download the GLib source files from [Gnome download page](https://download.gnome.org/sources/glib/).
+You can download the GLib source files from [GNOME download page](https://download.gnome.org/sources/glib/).
 
-There are sample programs in [src/misc](misc) directory.
+There are sample programs in [src/misc](misc) directory in the GObject tutorial repository.
 You can compile them by:
 
 ~~~
@@ -96,12 +100,12 @@ misc/example1.c
 @@@
 
 - 5-6: `instance1` and `instance2` are pointers that points GObject instances.
-`class1` and `class2` points a class of GObject.
+`class1` and `class2` points a class of the instances.
 - 8-11: A function `g_object_new` creates a GObject instance.
-GObject instance is a chunk of memory of which the structure is GObject (`struct _GObject`).
-The argument `G_TYPE_OBJECT` represents the type of GObject.
+GObject instance is a chunk of memory which has GObject structure (`struct _GObject`).
+The argument `G_TYPE_OBJECT` is the type of GObject.
 This type is different from C language type like `char`  or `int`.
-There is *type system* which is a base system of gobject system.
+There is *Type System* which is a base system of GObject system.
 Every data type such as GObject must be registered to the type system.
 The type system has series of functions for the registration.
 If one of the functions is called, then the type system determines `GType` type value for the object and returns it to the caller.
@@ -112,7 +116,7 @@ After the creation, this program displays the addresses of instances.
 Therefore, `class1` points the class of `instance1` and `class2` points the class of `instance2` respectively.
 The addresses of the two classes are displayed.
 - 18-19: `g_object_unref` will be explained in the next subsection.
-It destroys the objects and the memory are freed.
+It destroys the objects and the memory is freed.
 
 Now, execute it.
 
@@ -135,10 +139,10 @@ If it becomes useless, the memory must be freed.
 However, how can we determine whether it is useless?
 GObject system provides reference count to solve the problem.
 
-Instance is created and used by someone (some other objects, some functions or something like that).
-We say someone refers to the instance.
+Instance is created and used by other objects or main program.
+That is to say, the instance is referred.
 If the instance is referred by A and B, then the number of the reference is two.
-This is reference count.
+This number is called *reference count*.
 Let's think about a scenario like this: 
 
 - A calls `g_object_new` and owns an instance G.
@@ -154,7 +158,7 @@ B calls `g_object_unref` and decreases the reference count by 1.
 Now the reference count is 0.
 - Because the reference count is zero, G knows that no one refers to it.
 G begins finalizing process by itself.
-G disappears and the memory are freed.
+G disappears and the memory is freed.
 
 A program `example2.c` is based on the scenario above.
 
@@ -183,7 +187,7 @@ The following is simplified description without details.
 Initialization
 
 1. Registers GObject type with the type system.
-This is done in the glib initialization process before the function `main` is called.
+This is done in the GLib initialization process before the function `main` is called.
 (If the compiler is gcc, then `__attribute__ ((constructor))` is used to qualify the initialization function.
 Refer to [GCC manual](https://gcc.gnu.org/onlinedocs/gcc-10.2.0/gcc/Common-Function-Attributes.html#Common-Function-Attributes).)
 2. Allocates memory for GObjectClass and GObject structure.
@@ -206,4 +210,3 @@ So, even if the destroyed instance is the last instance, the class still remains
 
 When you write code to define a child object of GObject, It is important to understand the process above.
 The detailed process will be explained in the later sections.
-

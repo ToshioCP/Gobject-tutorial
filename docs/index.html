@@ -89,7 +89,7 @@
     <div class="container">
     <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
       <div class="container-fluid">
-        <span class="navbar-brand">Gtk4 tutorial</span>
+        <span class="navbar-brand">GObject tutorial</span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -104,7 +104,7 @@
     </nav>
 <h1 id="gobject-tutorial-for-beginners">GObject Tutorial for
 beginners</h1>
-<p>The github page of this tutorial is available. Click <a
+<p>The GitHub page of this tutorial is available. Click <a
 href="https://toshiocp.github.io/Gobject-tutorial/">here</a> to see
 it.</p>
 <h4 id="about-this-tutorial">About this tutorial</h4>
@@ -121,40 +121,40 @@ tutorial.</p>
 <h4 id="gobject-reference-manual-has-been-changed">GObject reference
 manual has been changed</h4>
 <p>I have to point out that the GObject documentation above is the new
-version. The Gnome documentation website is revised and the GObject
-reference manual is also changed recently (Aug/2021). The old version of
-the reference manual is <a
-href="https://developer-old.gnome.org/gobject/stable/">here</a>. Making
-new version of the documentation is in progress. So, you might need to
-refer to the old version of the reference manual.</p>
+version. The GNOME documentation website is revised and the GObject
+reference manual is also changed in August 2021. The old version of the
+reference manual is <a
+href="https://developer-old.gnome.org/gobject/stable/">here</a>.</p>
 <h4 id="generating-gfm-html-and-pdf">Generating GFM, HTML and PDF</h4>
 <p>The table of contents are below and you can see all the tutorials by
 following the link. However, you can make GFM, HTML or PDF by the
 following steps. GFM is ‘GitHub Flavored Markdown’, which is used in the
-document files in the GitHub.</p>
+document files in the GitHub repository.</p>
 <ol type="1">
 <li>You need Linux operating system, ruby, rake, pandoc and LaTeX
 system.</li>
-<li>download this repository and uncompress the files.</li>
+<li>download the <a
+href="https://github.com/ToshioCP/Gobject-tutorial">GObject-tutorial
+repository</a> and uncompress the files.</li>
 <li>change your current directory to the top directory of the source
 files.</li>
 <li>type <code>rake</code> to produce GFM files. The files are generated
 under <code>gfm</code> directory.</li>
 <li>type <code>rake html</code> to produce HTML files. The files are
-generated under <code>html</code> directory.</li>
+generated under <code>docs</code> directory.</li>
 <li>type <code>rake pdf</code> to produce a PDF file. The file is
 generated under <code>latex</code> directory.</li>
 </ol>
-<p>This system is the same as the one in the <code>gtk4 tutorial</code>
+<p>This system is the same as the one in the <code>GTK 4 tutorial</code>
 repository. There’s a document <code>Readme_for_developers.md</code> in
-<code>gfm</code> directory of the repository. It describes the
+<code>gfm</code> directory in the repository. It describes the
 details.</p>
 <h4 id="contribution">Contribution</h4>
 <p>If you have any questions, feel free to post an issue. If you find
 any mistakes in the tutorial, post an issue or pull-request. When you
 give a pull-request, correct the source files, which are under the ‘src’
-directory, and run rake. Then GFM files under the ‘gfm’ directory are
-automatically updated.</p>
+directory, and run <code>rake</code> and <code>rake html</code>. Then
+GFM and HTML files are automatically updated.</p>
 <h2 id="table-of-contents">Table of contents</h2>
 <ol type="1">
 <li><a href="sec1.html">Prerequisites and License</a></li>
@@ -164,8 +164,7 @@ automatically updated.</p>
 <li><a href="sec5.html">Properties</a></li>
 <li><a href="sec6.html">Derivable type and abstract type</a></li>
 <li><a href="sec7.html">Derivable and non-abstract type</a></li>
-<li><a href="sec8.html">Overriding a property and chaining up the
-finalize process</a></li>
+<li><a href="sec8.html">Child class extends parent’s function</a></li>
 <li><a href="sec9.html">Interface</a></li>
 </ol>
 <p>This website uses <a

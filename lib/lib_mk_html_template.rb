@@ -93,7 +93,7 @@ def mk_html_template(home, sec_prev, sec_next)
     <div class="container">
     <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
       <div class="container-fluid">
-        <span class="navbar-brand">Gtk4 tutorial</span>
+        <span class="navbar-brand">GObject tutorial</span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>

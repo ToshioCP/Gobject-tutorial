@@ -75,6 +75,7 @@ t_double_div (TDouble *self, TDouble *other) {
     return NULL;
   return t_double_new (self->value / value);
 }
+
 TDouble *
 t_double_uminus (TDouble *self) {
   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
@@ -90,4 +91,3 @@ t_double_new (double value) {
   d->value = value;
   return d;
 }
-

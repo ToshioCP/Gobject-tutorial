@@ -1,12 +1,18 @@
-# Overriding a property and chaining up the finalize process
+# Child class extends parent's function
 
 The example in this section is TNumStr object.
 TNumStr is a child of TStr object.
-TNumStr holds a string and the string is a numeric string.
+TNumStr holds a string and the string type, which is one of `t_int`, `t_double` or `t_none`.
 
-A numeric string is a string that expresses a number.
+- t\_int: the string expresses an integer
+- t\_double: the string expresses a double (floating point)
+- t\_none: the string doesn't express the two numbers above.
+
+A t\_int or t\_double type string is called a numeric string.
+It is not a common terminology and it is used only in this tutorial.
+In short, a numeric string is a string that expresses a number.
 For example, "0", "-100" and "123.456" are numeric strings.
-They are string and expresses numbers.
+They are strings and express numbers.
 
 - "0" is a string.
 It is a character array and its elements are '0' and '\0'.
@@ -35,7 +41,7 @@ The type of "0" is integer and the type of "0.0" is double.
 In the same way, "1" is an integer and "1." is a double.
 
 ".5" and "0.5" are the same.
-Both are double and their value is 0.5.
+Both are double and their values are 0.5.
 
 Verification of a numeric string is a kind of lexical analysis.
 A state diagram and state matrix is often used for lexical analysis.
@@ -43,9 +49,9 @@ A state diagram and state matrix is often used for lexical analysis.
 A numeric string is a sequence of characters that satisfies:
 
 1. '+' or '-' can be the first character. It can be left out.
-2. a sequence of digits follows.
-3. a period follows.
-4. a sequence of digits follows.
+2. followed by a sequence of digits.
+3. followed by a period.
+4. followed by a sequence of digits.
 
 The second part can be left out.
 For example, ".56" or "-.56" are correct.
@@ -87,6 +93,10 @@ The state matrix is:
 |2           |6 |2 |3 |4 |6 |
 |3           |6 |3 |6 |5 |6 |
 
+This state diagram doesn't support "1.23e5" style double (decimal floating point).
+If it is supported, the state diagram will be more complicated.
+(However, it will be a good practice for your programming skill.)
+
 ## Header file
 
 The header file of TNumStr is [`tnumstr.h`](tstr/tnumstr.h).
@@ -98,15 +108,14 @@ tstr/tnumstr.h
 
 - 9: TNumStr is a child object of TStr.
 It is a final type object.
-- 12-16: These three integers define the type of TNumStr string.
+- 12-16: These three enum data define the type of TNumStr string.
   - `t_none`: No string is stored or the string isn't a numeric string.
   - `t_int`: Integer
   - `t_double`: Double
-- 18-19: `t_num_str_is_numerc_string` returns the type of the string.
+- 19-20: `t_num_str_get_string_type` returns the type of the string TStrNum object has.
 The returned value is `t_none`, `t_int` or `t_double`.
-- 22-26: Setter and getter with TNumber object.
-- 28-29: `t_num_str_get_num_type` returns the type of the numeric string.
-- 31-42: Functions to create new TNumStr objects.
+- 23-31: Setter and getter from/to a TNumber object.
+- 34-38: Functions to create new TNumStr objects.
 
 ## C file
 
@@ -117,100 +126,74 @@ It is in the `src/tstr` directory.
 tstr/tnumstr.c
 @@@
 
-- 10-14: Defines a property id `PROP_STRING`.
-This id is used for a overriding property "string".
-It will be explained in the next subsection.
-- 16-22: Definition of TNumStr.
-  - string: the numeric string held by TNumStr instance.
-  - type: the type of the numeric string. `t_int` or `t_double`.
-If It is `t_none`, the string member is NULL or non-numeric string (it isn't expected though).
-  ivalue: If the type is `t_int`, the value is assigned to it.
-  dvalue: If the type is `t_double`, the value is assigned to it.
-- 24: `G_DEFINE_TYPE` macro. the parent object is TStr.
-- 26- 62: `t_num_str_is_numeric_string` function checks the given string and returns `t_int`, `t_double` or `t_none`.
-If the string isn't a numeric string, `t_none` will be returned.
+- 10-13: Definition of TNumStr type C structure.
+TNumStr instance holds a string and type.
+The string is placed in the parent's (TStr) private area, so the structure doesn't have it.
+The type is stored in the `type` element of the structure.
+- 15: `G_DEFINE_TYPE` macro.
+- 17- 55: `t_num_str_string_type` function checks the given string and returns `t_int`, `t_double` or `t_none`.
+If the string is NULL or an non-numeric string, `t_none` will be returned.
 The check algorithm is explained in the first subsection "Verification of a numeric string".
-- 64-104: Implements overriding "string" property.
-This will be explained in the next subsection.
-- 106-113: Finalize method.
-This method and the "chain up to its parent" process will be explained later.
-- 115-119: Initializes an instance.
-- 121-129: Initializes the class.
-First, the finalize method is overridden by `t_new_str_finalize`.
-The next three lines overrides the "string" property.
-It will be explained in the next subsection.
-- 132-160: Setter and getter.
+- 57-61: `t_num_str_real_set_string` function.
+It sets TNumStr's string and type with the parameter `s`.
+- 63-66: Initializes an instance.
+When the TNumStr instance is created, it has no string (NULL).
+So, the type is set with t\_none.
+- 68-73: Initializes the class.
+The class method `set_string` is replaced by `t_num_str_real_set_string`.
+So `t_str_set_string` and `t_str_set_property` (in tstr.c) sets not only the string but also the type.
+-75-80: `t_num_str_get_string_type` returns the type.
+- 83-110: Setter and getter.
 The setter sets the numeric string with a TNumber object.
 And the getter returns a TNumber object.
-- 162-167: `t_num_str_get_num_type` returns the type of the numeric string held by the TNumStr instance.
-It is `t_int`, `t_double` or `t_none`.
-- 170- 208: Four functions for creating a new TNumStr instance.
+- 114-128: TNumStr instance creating functions.
 
-## Overriding a property
+## Child class extends parent's function.
 
-TStr has a "string" property.
-Because TNumStr is a child of TStr, TNumStr also has the property.
-It is natural to think that TNumStr uses the property for its numeric string.
-But TStr's string is a general string.
-It allows any string even if it is not a numeric string.
-Therefore, it is not appropriate to use the "string" property as it is.
+TNumStr is a child class of TStr, so it has all the TStr's public funftions.
 
-TNumStr overrides the property and it restricts it to a numeric string.
-See the class initialization function again.
+- `TStr *t_str_concat (TStr *self, TStr *other)`
+- `void t_str_set_string (TStr *self, const char *s)`
+- `char *t_str_get_string (TStr *self)`
 
-@@@include
-tstr/tnumstr.c t_num_str_class_init
-@@@
+When you want to set a string to a TNumStr instance, you can use `t_str_set_string` function.
 
-- 6-7: set\_property and get\_property methods are overridden by TNumStr's set/get functions.
-- 8: `g_object_class_override_property` overrides the "string" property.
-The arguments are TNumStr class, new property id and the property name.
-Now, the property can be set/get with the TNumStr's own functions.
+```c
+TNumStr *ns = t_num_str_new ();
+t_str_set_string (T_STR (ns), "123.456");
+```
 
-The set/get functions are shown below.
+TNumStr extends the function of `t_str_set_string`.
+It sets not only a string but also its type for a TNumStr instance.
 
-@@@include
-tstr/tnumstr.c t_num_str_set_string_property t_num_str_set_property t_num_str_get_property
-@@@
+```c
+int t;
+t = t_num_str_get_string_type (ns);
+if (t == t_none) g_print ("t_none\n");
+if (t == t_int) g_print ("t_int\n");
+if (t == t_double) g_print ("t_double\n");
+// => t_double appears on your display
+```
 
-- 23-31: `t_num_str_set_property` overrides the set\_property method.
-If the property id is the same as the id set with `g_object_class_override_property`, then `t_num_str_set_string_property` is called.
-- 1-21: `t_num_str_set_string_property` function.
-If the string type is `t_int`, the string expresses an integer.
-The previous string has been stored in `self->string`.
-If it isn't NULL, free the string, first.
-Then, duplicates the new string and stores it in`self->string`.
-Updates `self->type` and `self->ivalue`.
-If the string type is `t_double` the previous string is freed and the new string is duplicated and stored in `self->string`.
-Updates `self->type` and `self->dvalue`.
-If the string type is neither `t_int` nor `t_double`, then nothing happens.
-Notice that even if the string isn't updated, notify signal will be emitted.
-Therefore, if you want to know the change of the numeric string, you need to check the string is really changed.
-- 33-41: `t_num_str_get_property` overrides the get\_property method.
-It just retrieve the numeric string from `self->string` and set the GValue with the copy of the string.
+TNumStr adds some public functions.
 
-The functions above uses `self->string` to save the numeric string.
-It is a member of TNumStr structure.
-Therefore, a `string` member of TStr (parent instance member) isn't used to save the property value.
+- `int t_num_str_get_string_type (TNumStr *self)`
+- `void t_num_str_set_from_t_number (TNumStr *self, TNumber *num)`
+- `TNumber *t_num_str_get_t_number (TNumStr *self)`
 
-## Chaining up to its parent
-
-The "chain up to its parent" process is illustrated with the diagram below.
-There are three classes, GObjectCLass, TStrClass and TNumStrClass.
-Each class has a finalize method pointer which points finalize functions in the corresponding program (GObject, TStr or TNumStr program).
-The finalize method of TNumStrClass finalizes its own part of the TNumStr instance.
-At the end of the function, it calls its parent's finalize method.
-It is the finalize method of TStrClass.
-It calls its own finalize function and finalizes the TStr private data (TStrPrivate) of the TNumStr instance.
-And at the end of the function, it calls its parent's finalize method.
-At last, GObject finalize method finalizes the GObject part of the TNumStr instance.
-
-![Chaining up process](../image/chainup.png){width=12cm height=9cm}
+A child class extends the parent class.
+So, a child is more specific and richer than the parent.
 
 ## Compilation and execution
 
-There's `main.c` in `src/tstr` directory.
-It just tests `tstr.c` and `tnumstr.c` program.
+There are `main.c`, `test1.c` and `test2.c` in `src/tstr` directory.
+Two programs `test1.c` and `test2.c` generates `_build/test1` and `_build/test2` respectively.
+They test `tstr.c` and `tnumstr.c`.
+If there are errors, messages will appear.
+Otherwise nothing appears.
+
+The program `main.c` generates `_build/tnumstr`.
+It shows how TStr and TNumStr work.
 
 Compilation is done by usual way.
 First, change your current directory to `src/tstr`.
@@ -218,5 +201,19 @@ First, change your current directory to `src/tstr`.
 ~~~
 $ meson _build
 $ ninja -C _build
-$ _build/tstr
+$ _build/test1
+$ _build/test2
+$ _build/tnumstr
 ~~~
+
+The last part of `main.c` is conversion between TNumStr and TNumber.
+There are some difference between them because of the following two reasons.
+
+- floating point is rounded.
+It is not an exact value when the value has long figures.
+TNumStr "123.4567890123456789" is converted to TNumber 123.456789.
+- There are two or more string expression in floating points.
+TNumStr ".456" is converted to TNumber x, and x is converted to TNumStr "0.456000".
+
+It is difficult to compare two TNumStr instances.
+The best way is to compare TNumber instances converted from TNumStr.

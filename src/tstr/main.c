@@ -5,15 +5,16 @@
 #include "../tnumber/tint.h"
 #include "../tnumber/tdouble.h"
 
+
 static void
 notify_cb (GObject *gobject, GParamSpec *pspec, gpointer user_data) {
   const char *name;
   char *s;
 
   name = g_param_spec_get_name (pspec);
-  if (T_IS_STR (gobject) && strcmp (name, "string") == 0) {
-    s = t_str_get_string (T_STR (gobject));
-    g_print ("String is set to %s.\n", s);
+  if (strcmp (name, "string") == 0) {
+    g_print ("String property is set to %s.\n", (s = t_str_get_string(T_STR (gobject))));
+    if (s) g_free (s);
   }
 }
 
@@ -22,157 +23,67 @@ main (int argc, char **argv) {
   const char *one = "one";
   const char *two = "two";
   TStr *str1, *str2, *str3;
-  char *s1, *s2, *s3;
-
-  g_print ("Test program for TStr and TStrNum.\n\n");
+  char *s;
 
   str1 = t_str_new ();
-  str2 = t_str_new ();
-
   g_signal_connect (G_OBJECT (str1), "notify::string", G_CALLBACK (notify_cb), NULL);
-  g_signal_connect (G_OBJECT (str2), "notify::string", G_CALLBACK (notify_cb), NULL);
-
-  t_str_set_string (str1, one);
-  t_str_set_string (str2, two);
-
+  g_object_set (G_OBJECT (str1), "string", one, NULL);
+  str2 = t_str_new ();
+  g_object_set (G_OBJECT (str2), "string", two, NULL);
   str3 = t_str_concat (str1, str2);
-   s1 = t_str_get_string (str1);
-   s2 = t_str_get_string (str2);
-   s3 = t_str_get_string (str3);
-  if (s1)
-    g_print ("str1 is \"%s\".\n", s1);
-  else
-    g_print ("str1 is NULL.\n");
-  if (s2)
-    g_print ("str2 is \"%s\".\n", s2);
-  else
-    g_print ("str2 is NULL.\n");
-  if (s3)
-    g_print ("str3 is \"%s\".\n", s3);
-  else
-    g_print ("str3 is NULL.\n");
+  s = t_str_get_string (str3);
+  g_print ("\"%s\" and \"%s\" is \"%s\".\n", one, two, s);
+  if (s) g_free (s);
+  if (str1) g_object_unref (str1);
+  if (str2) g_object_unref (str2);
+  if (str3) g_object_unref (str3);
 
-  g_object_unref (str1);
-  g_object_unref (str2);
-  g_object_unref (str3);
-  if (s1) g_free (s1);
-  if (s2) g_free (s2);
-  if (s3) g_free (s3);
+  TNumStr *numstr[3];
+  TNumber *num[3], *sum, *temp;
+  const char *str[] = {"123", "456", "789"};
+  int i;
 
-/* ---------- */
-
-  TNumStr *numstr;
-  TNumber *num;
-  char *s;
-  int a;
-  double x;
-
-  char *t_name[] = {
-    "t_none",
-    "t_int",
-    "t_double"
-  };
-  struct {
-    char *s;
-    int type;
-  } sample [10] = {
-    {"123", t_int},
-    {"-45", t_int},
-    {"+0", t_int},
-    {"123.456", t_double},
-    {"+123.456", t_double},
-    {"-123.456", t_double},
-    {".456", t_double},
-    {"123.", t_double},
-    {"0.0", t_double},
-    {"abc", t_none}
-  };
-  int j;
-
-  for (j=0; j<10; ++j) {
-    if ((a = t_num_str_is_numeric_string (sample[j].s)) != sample[j].type)
-      g_print ("%s is %s, but t_num_str_is_numeric_string returns %s.", sample[j].s, t_name[sample[j].type], t_name[a]);
+  for (i=0; i<3; ++i) {
+    numstr[i] = t_num_str_new ();
+    t_str_set_string (T_STR (numstr[i]), str[i]);
+    num[i] = t_num_str_get_t_number (numstr[i]);
   }
-  numstr = t_num_str_new ();
-  for (j=0; j<9; ++j) {
-    t_str_set_string (T_STR (numstr), sample[j].s);
-    if ((a = t_num_str_get_num_type (numstr)) != sample[j].type)
-      g_print ("%s is %s, but t_num_str_get_num_type returns %s.", sample[j].s, t_name[sample[j].type], t_name[a]);
-  }
-  g_object_unref (numstr);
-
-  g_print ("\n");
-
-  numstr = t_num_str_new_with_int (100);
-  g_signal_connect (G_OBJECT (numstr), "notify::string", G_CALLBACK (notify_cb), NULL);
-  if (!numstr)
-    g_print ("Numstr is NULL.\n");
-  if (t_num_str_get_num_type (numstr) != t_int)
-    g_print ("Numstr is not an integer.\n");
-  g_object_get (T_STR (numstr), "string", &s, NULL);
-  if (strcmp (s, "100") != 0)
-    g_print ("property of numstr is not \"100\", it is %s\n", s);
-  g_free (s);
-  num = t_num_str_get (numstr);
-  if (! T_IS_INT (num))
-    g_print ("t_num_str_get doesn't return TInt.\n");
-  else {
-    g_object_get (T_INT (num), "value", &a, NULL);
-    if (a != 100) {
-      g_print ("t_num_str_get returns TInt but its value isn't 100.\n");
-      g_print ("It is %d\n", a);
-    }
-  }
-  g_object_unref (num);
-
-  g_print ("\n");
-
-  t_str_set_string (T_STR (numstr), "123.456");
-  if (t_num_str_get_num_type (numstr) != t_double)
-    g_print ("Numstr is not a double.\n");
-  g_object_get (T_STR (numstr), "string", &s, NULL);
-  if (strcmp (s, "123.456") != 0)
-    g_print ("property of numstr is not \"123.456\", it is %s\n", s);
-  g_free (s);
-  num = t_num_str_get (numstr);
-  if (! T_IS_DOUBLE (num))
-    g_print ("t_num_str_get doesn't return TDouble.\n");
-  else {
-    g_object_get (T_DOUBLE (num), "value", &x, NULL);
-    if (x != 123.456) {
-      g_print ("t_num_str_get returns TDouble but its value isn't 123.456.\n");
-      g_print ("It is %f\n", x);
-    }
+  temp = t_number_add (num[0], num[1]);
+  sum = t_number_add (temp, num[2]);
+  s = t_number_to_s (sum);
+  g_print ("%s + %s + %s = %s\n", str[0], str[1], str[2], s);
+  if (temp) g_object_unref (temp);
+  if (sum) g_object_unref (sum);
+  if (s) g_free (s);
+  for (i=0; i<3; ++i) {
+    if (numstr[i])
+      g_object_unref (numstr[i]);
+    if (num[i])
+      g_object_unref (num[i]);
   }
 
-  g_print ("\n");
+  char *string[] = {"123", "-45", "+0", "123.456", "+123.456", "-123.456", ".456", "123.", "0.0", "123.4567890123456789", "abc", NULL};
+  int max = sizeof(string)/sizeof(char*);
+  TNumStr *ns = t_num_str_new();
+  TNumber *n;
+  char *s1;
 
-  t_str_set_string (T_STR (numstr), "abc.def"); /* This string is illegal, so it will be ignored. */
-  /* Notify signal will be emitted though "abc.def" is ignored. */
-  /* The signal handler prints "123.456". Not "abc.def". */
-
-  g_print ("\n");
-
-  t_str_set_string (T_STR (numstr), "-.789"); /* This string is illegal, so it will be ignored. */
-  if (t_num_str_get_num_type (numstr) != t_double)
-    g_print ("Numstr is not a double.\n");
-  g_object_get (T_STR (numstr), "string", &s, NULL);
-  if (strcmp (s, "-.789") != 0)
-    g_print ("property of numstr is not \"-.789\", it is %s\n", s);
-  g_free (s);
-  num = t_num_str_get (numstr);
-  if (! T_IS_DOUBLE (num))
-    g_print ("t_num_str_get doesn't return TDouble.\n");
-  else {
-    g_object_get (T_DOUBLE (num), "value", &x, NULL);
-    if (x != -0.789) {
-      g_print ("t_num_str_get returns TDouble but its value isn't -0.789.\n");
-      g_print ("It is %f\n", x);
-    }
+  g_print ("TNumStr => TNumber => TNumStr\n");
+  for (i=0; i<max; ++i) {
+    t_str_set_string (T_STR (ns), string[i]);
+    n = t_num_str_get_t_number (ns);
+    if (n) {
+      t_num_str_set_from_t_number (ns, n);
+      s = t_number_to_s (n);
+    } else
+      s = NULL;
+    s1 = t_str_get_string (T_STR (ns));
+    g_print ("%s => %s => %s\n", string[i], s, s1);
+    if (n) g_object_unref (n);
+    if (s) g_free (s);
+    if (s1) g_free (s1);
   }
-  g_object_unref (numstr);
-  g_object_unref (num);
+  g_object_unref (ns);
 
   return 0;
 }
-

@@ -3,12 +3,12 @@
 
 char *
 string_toupper (const char *s) {
-  char *t;
+  char *t, *t1;
 
-  t = g_strdup (s);
-  for (; *t != '\0'; ++t)
-    if (islower (*t))
-      *t = (char) toupper ((int) *t);
+  t1 = t = g_strdup (s);
+  for (; *t1 != '\0'; ++t1)
+    if (islower (*t1))
+      *t1 = (char) toupper ((int) *t1);
   return t;
 }
 
@@ -17,7 +17,7 @@ main (int argc, char **argv) {
   char *s, *t;
 
   s = "abc123";
-  t = string_toupper (t);
+  t = string_toupper (s);
   g_print ("s is %s\n", s);
   g_print ("t is %s\n", t);
   g_free (t);

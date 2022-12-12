@@ -18,12 +18,14 @@ G_DEFINE_TYPE_WITH_CODE (TDouble, t_double, T_TYPE_NUMBER,
 static int
 t_double_comparable_cmp (TComparable *self, TComparable *other) {
   g_return_val_if_fail (T_IS_DOUBLE (self), -2);
-  g_return_val_if_fail (T_IS_INT (other) || T_IS_DOUBLE (other), -2);
+  if (! T_IS_NUMBER (other))
+    g_signal_emit_by_name (self, "arg-error");
+  g_return_val_if_fail (T_IS_NUMBER (other), -2);
 
   int i;
   double s, o;
 
-  g_object_get (self, "value", &s, NULL);
+  s = T_DOUBLE (self)->value;
   if (T_IS_INT (other)) {
     g_object_get (other, "value", &i, NULL);
     o = (double) i;

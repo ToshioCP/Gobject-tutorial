@@ -21,11 +21,12 @@ Step three is usually done outside the object.
 The process of signals is complicated and it takes long to explain all the features.
 The contents of this section is limited to the minimum things to write a simple signal and not necessarily accurate.
 If you need an accurate information, refer to GObject API reference.
-There are three parts which describe signals.
+There are four parts which describe signals.
 
-- [Type System Concepts, signals](https://docs.gtk.org/gobject/concepts.html#signals)
-- [Old GObject Reference Manual, Signals](https://developer-old.gnome.org/gobject/stable/gobject-Signals.html)
-- [GObject Tutorial, How to create and use signals](https://docs.gtk.org/gobject/tutorial.html#how-to-create-and-use-signals)
+- [Type System Concepts -- signals](https://docs.gtk.org/gobject/concepts.html#signals)
+- [Funcions (g\_signal\_XXX series)](https://docs.gtk.org/gobject/#functions)
+- [Funcions Macros (g\_signal\_XXX series)](https://docs.gtk.org/gobject/#function_macros)
+- [GObject Tutorial -- How to create and use signals](https://docs.gtk.org/gobject/tutorial.html#how-to-create-and-use-signals)
 
 ## Signal registration
 
@@ -33,10 +34,10 @@ An example in this section is a signal emitted when division-by-zero happens.
 First, we need to determine the name of the signal.
 Signal name consists of letters, digits, dash (`-`) and underscore (`_`).
 The first character of the name must be a letter.
-So, a string "div-by-zero"is appropriate for the signal name.
+So, a string "div-by-zero" is appropriate for the signal name.
 
 There are four functions to register a signal.
-We will use `g_signal_new` for "div-by-zero" signal.
+We will use [`g_signal_new`](https://docs.gtk.org/gobject/func.signal_new.html) for "div-by-zero" signal.
 
 ~~~C
 guint
@@ -70,20 +71,20 @@ g_signal_new ("div-by-zero",
 ~~~
 
 - `t_double_signal` is a static guint variable.
-Guint type is the same as unsigned int.
-It is set the signal id.
+The type guint is the same as unsigned int.
+It is set the with the signal id.
 - The second parameter is the type (GType) of the object the signal belongs to.
 `G_TYPE_FROM_CLASS (class)` returns the type corresponds to the class (`class` is a pointer to the class of the object).
 - The third parameter is a signal flag.
 Lots of pages are necessary to explain this flag.
 So, I want leave them out now.
 The argument above can be used in many cases.
-The definition is described in the [GObject API Reference, SignalFlags](https://docs.gtk.org/gobject/flags.SignalFlags.html).
+The definition is described in the [GObject API Reference -- SignalFlags](https://docs.gtk.org/gobject/flags.SignalFlags.html).
 - The return type is G_TYPE_NONE which means no value is returned by the signal handler.
 - `n_params` is a number of parameters.
 This signal doesn't have parameters, so it is zero.
 
-This function call is in the class initialization function.
+This function is located in the class initialization function (`t_double_class_init`).
 
 You can use other functions such as `g_signal_newv`.
 See [GObject API Reference](https://docs.gtk.org/gobject/func.signal_newv.html) for details.
@@ -99,13 +100,13 @@ The handler has two parameters.
 The "div-by-zero" signal doesn't need user data.
 
 ~~~C
-void div_by_zero_cb (TDouble *d, gpointer user_data) { ... ... ...};
+void div_by_zero_cb (TDouble *d, gpointer user_data) { ... ... ...}
 ~~~
 
 Or, you can leave out the second parameter.
 
 ~~~C
-void div_by_zero_cb (TDouble *d) { ... ... ...};
+void div_by_zero_cb (TDouble *d) { ... ... ...}
 ~~~
 
 If a signal has parameters, the parameters are between the instance and user data.
@@ -130,7 +131,7 @@ div_by_zero_cb (TDouble *d, gpointer user_data) {
 
 ## Signal connection
 
-A signal and a handler are connected with the function `g_signal_connect`.
+A signal and a handler are connected with the function [`g_signal_connect`](https://docs.gtk.org/gobject/func.signal_connect.html).
 
 ~~~C
 g_signal_connect (d1, "div-by-zero", G_CALLBACK (div_by_zero_cb), NULL);
@@ -163,19 +164,19 @@ t_double_div (TDouble *self, TDouble *other) {
 ~~~
 
 If the divisor is zero, the signal is emitted.
-`g_signal_emit` has three parameters.
+[`g_signal_emit`](https://docs.gtk.org/gobject/func.signal_emit.html) has three parameters.
 
 - The first parameter is the instance that emits the signal.
 - The second parameter is the signal id.
-Signal id has been set with `g_signal_new` function.
-- The third parameter is detail.
+Signal id is the value returned by the function `g_signal_new`.
+- The third parameter is a detail.
 "div-by-zero" signal doesn't have a detail, so the argument is zero.
-Detail isn't explained in this section.
-If you want to know details, refer to [GObject API Reference, Signal Detail](https://docs.gtk.org/gobject/concepts.html#the-detail-argument).
+Detail isn't explained in this section but usually you can put zero as a third argument.
+If you want to know the details, refer to [GObject API Reference -- Signal Detail](https://docs.gtk.org/gobject/concepts.html#the-detail-argument).
 
 If a signal has parameters, they are fourth and subsequent arguments.
 
-## Example code
+## Example
 
 A sample program is in [src/tdouble3](tdouble3).
 
@@ -191,18 +192,18 @@ main.c
 tdouble3/main.c
 @@@
 
-To compile, change your current directory to src/tdouble3 and type as follows.
+Change your current directory to src/tdouble3 and type as follows.
 
 ~~~
 $ meson _build
 $ ninja -C _build
 ~~~
 
-Then, Executable file `tdouble` is created in `_build` directory.
+Then, Executable file `tdouble` is created in the `_build` directory.
 Execute it.
 
 @@@shell
-cd tdouble3; _build/tdouble
+cd tdouble3; _build/tdouble 2>&1
 @@@
 
 ## Default signal handler
@@ -249,7 +250,7 @@ tdouble4/tdouble.c div_by_zero_default_cb t_double_class_init
 Compile and execute it.
 
 @@@shell
-cd tdouble4; _build/tdouble
+cd tdouble4; _build/tdouble 2>&1
 @@@
 
 The source file is in the directory [src/tdouble4](tdouble4).
@@ -326,7 +327,7 @@ The source files are in [src/tdouble5](tdouble5).
 
 ## Signal flag
 
-The order that handlers are called is described in [GObject API Reference, Sigmal emission](https://docs.gtk.org/gobject/concepts.html#signal-emission).
+The order that handlers are called is described in [GObject API Reference -- Sigmal emission](https://docs.gtk.org/gobject/concepts.html#signal-emission).
 
 The order depends on the signal flag which is set in `g_signal_new` or `g_signal_new_class_handler`.
 There are three flags which relate to the order of handlers' invocation.

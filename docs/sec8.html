@@ -89,7 +89,7 @@
     <div class="container">
     <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
       <div class="container-fluid">
-        <span class="navbar-brand">Gtk4 tutorial</span>
+        <span class="navbar-brand">GObject tutorial</span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -111,40 +111,65 @@
         </div>
       </div>
     </nav>
-<h1 id="overriding-a-property-and-chaining-up-the-finalize-process">Overriding a property and chaining up the finalize process</h1>
-<p>The example in this section is TNumStr object. TNumStr is a child of TStr object. TNumStr holds a string and the string is a numeric string.</p>
-<p>A numeric string is a string that expresses a number. For example, “0”, “-100” and “123.456” are numeric strings. They are string and expresses numbers.</p>
+<h1 id="child-class-extends-parents-function">Child class extends
+parent’s function</h1>
+<p>The example in this section is TNumStr object. TNumStr is a child of
+TStr object. TNumStr holds a string and the string type, which is one of
+<code>t_int</code>, <code>t_double</code> or <code>t_none</code>.</p>
 <ul>
-<li>“0” is a string. It is a character array and its elements are ‘0’ and ‘\0’. It expresses 0, which is an integer zero.</li>
-<li>“-100” is a string that consists of ‘-’, ‘1’, ‘0’, ‘0’ and ‘\0’. It expresses an integer -100.</li>
-<li>“123.456” consists of ‘1’, ‘2’, ‘3’, ‘.’, ‘4’, ‘5’, ‘6’ and ‘\0’. It expresses a real number (double type) 123.456.</li>
+<li>t_int: the string expresses an integer</li>
+<li>t_double: the string expresses a double (floating point)</li>
+<li>t_none: the string doesn’t express the two numbers above.</li>
+</ul>
+<p>A t_int or t_double type string is called a numeric string. It is not
+a common terminology and it is used only in this tutorial. In short, a
+numeric string is a string that expresses a number. For example, “0”,
+“-100” and “123.456” are numeric strings. They are strings and express
+numbers.</p>
+<ul>
+<li>“0” is a string. It is a character array and its elements are ‘0’
+and ‘\0’. It expresses 0, which is an integer zero.</li>
+<li>“-100” is a string that consists of ‘-’, ‘1’, ‘0’, ‘0’ and ‘\0’. It
+expresses an integer -100.</li>
+<li>“123.456” consists of ‘1’, ‘2’, ‘3’, ‘.’, ‘4’, ‘5’, ‘6’ and ‘\0’. It
+expresses a real number (double type) 123.456.</li>
 </ul>
 <p>A numeric string is such a specific string.</p>
-<h2 id="verification-of-a-numeric-string">Verification of a numeric string</h2>
-<p>Before defining TNumStr, we need a way to verify a numeric string.</p>
+<h2 id="verification-of-a-numeric-string">Verification of a numeric
+string</h2>
+<p>Before defining TNumStr, we need a way to verify a numeric
+string.</p>
 <p>Numeric string includes:</p>
 <ul>
 <li>Integer. For example, “0”, “100”, “-10” and “+20”.</li>
-<li>Double. For example, “0.1”, “-10.3”, “+3.14”, “.05” “1.” and “0.0”.</li>
+<li>Double. For example, “0.1”, “-10.3”, “+3.14”, “.05” “1.” and
+“0.0”.</li>
 </ul>
-<p>We need to be careful that “0” and “0.0” are different. Because their type are different. The type of “0” is integer and the type of “0.0” is double. In the same way, “1” is an integer and “1.” is a double.</p>
-<p>“.5” and “0.5” are the same. Both are double and their value is 0.5.</p>
-<p>Verification of a numeric string is a kind of lexical analysis. A state diagram and state matrix is often used for lexical analysis.</p>
+<p>We need to be careful that “0” and “0.0” are different. Because their
+type are different. The type of “0” is integer and the type of “0.0” is
+double. In the same way, “1” is an integer and “1.” is a double.</p>
+<p>“.5” and “0.5” are the same. Both are double and their values are
+0.5.</p>
+<p>Verification of a numeric string is a kind of lexical analysis. A
+state diagram and state matrix is often used for lexical analysis.</p>
 <p>A numeric string is a sequence of characters that satisfies:</p>
 <ol type="1">
 <li>‘+’ or ‘-’ can be the first character. It can be left out.</li>
-<li>a sequence of digits follows.</li>
-<li>a period follows.</li>
-<li>a sequence of digits follows.</li>
+<li>followed by a sequence of digits.</li>
+<li>followed by a period.</li>
+<li>followed by a sequence of digits.</li>
 </ol>
-<p>The second part can be left out. For example, “.56” or “-.56” are correct.</p>
-<p>The third and fourth parts can be left out. For example, “12” or “-23” are correct.</p>
+<p>The second part can be left out. For example, “.56” or “-.56” are
+correct.</p>
+<p>The third and fourth parts can be left out. For example, “12” or
+“-23” are correct.</p>
 <p>The fourth part can be left out. For example, “100.” is correct.</p>
 <p>There are six state.</p>
 <ul>
 <li>0 is the start point.</li>
 <li>1 is the state after ‘+’ or ‘-’.</li>
-<li>2 is at the middle of the first sequence of digits (integer part).</li>
+<li>2 is at the middle of the first sequence of digits (integer
+part).</li>
 <li>3 is the state after the decimal point.</li>
 <li>4 is the end of the string and the string is int.</li>
 <li>5 is the end of the string and the string is double.</li>
@@ -160,7 +185,10 @@
 </ul>
 <p>The state diagram is as follows.</p>
 <figure>
-<img src="image/state_diagram.png" alt="" /><figcaption>state diagram of a numeric string</figcaption>
+<img src="image/state_diagram.png"
+alt="state diagram of a numeric string" />
+<figcaption aria-hidden="true">state diagram of a numeric
+string</figcaption>
 </figure>
 <p>The state matrix is:</p>
 <table>
@@ -209,9 +237,15 @@
 </tr>
 </tbody>
 </table>
+<p>This state diagram doesn’t support “1.23e5” style double (decimal
+floating point). If it is supported, the state diagram will be more
+complicated. (However, it will be a good practice for your programming
+skill.)</p>
 <h2 id="header-file">Header file</h2>
-<p>The header file of TNumStr is <code>tnumstr.h</code>. It is in the <code>src/tstr</code> directory.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a><span class="pp">#ifndef __T_NUM_STR_H__</span></span>
+<p>The header file of TNumStr is <code>tnumstr.h</code>. It is in the
+<code>src/tstr</code> directory.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a><span class="pp">#ifndef __T_NUM_STR_H__</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="pp">#define __T_NUM_STR_H__</span></span>
 <span id="cb1-3"><a href="#cb1-3"></a></span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
@@ -219,356 +253,268 @@
 <span id="cb1-6"><a href="#cb1-6"></a><span class="pp">#include </span><span class="im">&quot;../tnumber/tnumber.h&quot;</span></span>
 <span id="cb1-7"><a href="#cb1-7"></a></span>
 <span id="cb1-8"><a href="#cb1-8"></a><span class="pp">#define T_TYPE_NUM_STR  (t_num_str_get_type ())</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a>G_DECLARE_FINAL_TYPE (TNumStr, t_num_str, T, NUM_STR, TStr)</span>
+<span id="cb1-9"><a href="#cb1-9"></a>G_DECLARE_FINAL_TYPE <span class="op">(</span>TNumStr<span class="op">,</span> t_num_str<span class="op">,</span> T<span class="op">,</span> NUM_STR<span class="op">,</span> TStr<span class="op">)</span></span>
 <span id="cb1-10"><a href="#cb1-10"></a></span>
 <span id="cb1-11"><a href="#cb1-11"></a><span class="co">/* type of the numeric string */</span></span>
-<span id="cb1-12"><a href="#cb1-12"></a><span class="kw">enum</span> {</span>
-<span id="cb1-13"><a href="#cb1-13"></a>  t_none,</span>
-<span id="cb1-14"><a href="#cb1-14"></a>  t_int,</span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="kw">enum</span> <span class="op">{</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a>  t_none<span class="op">,</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a>  t_int<span class="op">,</span></span>
 <span id="cb1-15"><a href="#cb1-15"></a>  t_double</span>
-<span id="cb1-16"><a href="#cb1-16"></a>};</span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="op">};</span></span>
 <span id="cb1-17"><a href="#cb1-17"></a></span>
-<span id="cb1-18"><a href="#cb1-18"></a><span class="dt">int</span></span>
-<span id="cb1-19"><a href="#cb1-19"></a>t_num_str_is_numeric_string (<span class="dt">const</span> <span class="dt">char</span> *string);</span>
-<span id="cb1-20"><a href="#cb1-20"></a></span>
-<span id="cb1-21"><a href="#cb1-21"></a><span class="co">/* setter and getter */</span></span>
-<span id="cb1-22"><a href="#cb1-22"></a><span class="dt">void</span></span>
-<span id="cb1-23"><a href="#cb1-23"></a>t_num_str_set (TNumStr *self, TNumber *num);</span>
-<span id="cb1-24"><a href="#cb1-24"></a></span>
-<span id="cb1-25"><a href="#cb1-25"></a>TNumber *</span>
-<span id="cb1-26"><a href="#cb1-26"></a>t_num_str_get (TNumStr *self);</span>
-<span id="cb1-27"><a href="#cb1-27"></a></span>
-<span id="cb1-28"><a href="#cb1-28"></a><span class="dt">int</span></span>
-<span id="cb1-29"><a href="#cb1-29"></a>t_num_str_get_num_type (TNumStr *self);</span>
-<span id="cb1-30"><a href="#cb1-30"></a></span>
-<span id="cb1-31"><a href="#cb1-31"></a><span class="co">/* create a new TNumStr instance */</span></span>
-<span id="cb1-32"><a href="#cb1-32"></a>TNumStr *</span>
-<span id="cb1-33"><a href="#cb1-33"></a>t_num_str_new_with_int (<span class="dt">int</span> i);</span>
-<span id="cb1-34"><a href="#cb1-34"></a></span>
-<span id="cb1-35"><a href="#cb1-35"></a>TNumStr *</span>
-<span id="cb1-36"><a href="#cb1-36"></a>t_num_str_new_with_double (<span class="dt">double</span> d);</span>
-<span id="cb1-37"><a href="#cb1-37"></a></span>
-<span id="cb1-38"><a href="#cb1-38"></a>TNumStr *</span>
-<span id="cb1-39"><a href="#cb1-39"></a>t_num_str_new_with_tnumber (TNumber *num);</span>
-<span id="cb1-40"><a href="#cb1-40"></a></span>
-<span id="cb1-41"><a href="#cb1-41"></a>TNumStr *</span>
-<span id="cb1-42"><a href="#cb1-42"></a>t_num_str_new (<span class="dt">void</span>);</span>
-<span id="cb1-43"><a href="#cb1-43"></a><span class="pp">#endif </span><span class="co">/* __T_NUM_STR_H__ */</span></span></code></pre></div>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="co">/* get the type of the TNumStr object */</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="dt">int</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a>t_num_str_get_string_type <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">);</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a></span>
+<span id="cb1-22"><a href="#cb1-22"></a><span class="co">/* setter and getter */</span></span>
+<span id="cb1-23"><a href="#cb1-23"></a><span class="dt">void</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a>t_num_str_set_from_t_number <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>num<span class="op">);</span></span>
+<span id="cb1-25"><a href="#cb1-25"></a></span>
+<span id="cb1-26"><a href="#cb1-26"></a><span class="co">// TNumStr can have any string, which is t_none, t_int or t_double type.</span></span>
+<span id="cb1-27"><a href="#cb1-27"></a><span class="co">// If the type is t_none, t_num_str_get_t_number returns NULL.</span></span>
+<span id="cb1-28"><a href="#cb1-28"></a><span class="co">// It is good idea to call t_num_str_get_string_type and check the type in advance. </span></span>
+<span id="cb1-29"><a href="#cb1-29"></a></span>
+<span id="cb1-30"><a href="#cb1-30"></a>TNumber <span class="op">*</span></span>
+<span id="cb1-31"><a href="#cb1-31"></a>t_num_str_get_t_number <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">);</span></span>
+<span id="cb1-32"><a href="#cb1-32"></a></span>
+<span id="cb1-33"><a href="#cb1-33"></a><span class="co">/* create a new TNumStr instance */</span></span>
+<span id="cb1-34"><a href="#cb1-34"></a>TNumStr <span class="op">*</span></span>
+<span id="cb1-35"><a href="#cb1-35"></a>t_num_str_new_with_tnumber <span class="op">(</span>TNumber <span class="op">*</span>num<span class="op">);</span></span>
+<span id="cb1-36"><a href="#cb1-36"></a></span>
+<span id="cb1-37"><a href="#cb1-37"></a>TNumStr <span class="op">*</span></span>
+<span id="cb1-38"><a href="#cb1-38"></a>t_num_str_new <span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
+<span id="cb1-39"><a href="#cb1-39"></a><span class="pp">#endif </span><span class="co">/* __T_NUM_STR_H__ */</span></span></code></pre></div>
 <ul>
-<li>9: TNumStr is a child object of TStr. It is a final type object.</li>
-<li>12-16: These three integers define the type of TNumStr string.
+<li>9: TNumStr is a child object of TStr. It is a final type
+object.</li>
+<li>12-16: These three enum data define the type of TNumStr string.
 <ul>
-<li><code>t_none</code>: No string is stored or the string isn’t a numeric string.</li>
+<li><code>t_none</code>: No string is stored or the string isn’t a
+numeric string.</li>
 <li><code>t_int</code>: Integer</li>
 <li><code>t_double</code>: Double</li>
 </ul></li>
-<li>18-19: <code>t_num_str_is_numerc_string</code> returns the type of the string. The returned value is <code>t_none</code>, <code>t_int</code> or <code>t_double</code>.</li>
-<li>22-26: Setter and getter with TNumber object.</li>
-<li>28-29: <code>t_num_str_get_num_type</code> returns the type of the numeric string.</li>
-<li>31-42: Functions to create new TNumStr objects.</li>
+<li>19-20: <code>t_num_str_get_string_type</code> returns the type of
+the string TStrNum object has. The returned value is
+<code>t_none</code>, <code>t_int</code> or <code>t_double</code>.</li>
+<li>23-31: Setter and getter from/to a TNumber object.</li>
+<li>34-38: Functions to create new TNumStr objects.</li>
 </ul>
 <h2 id="c-file">C file</h2>
-<p>The C file of TNumStr is <code>tnumstr.c</code>. It is in the <code>src/tstr</code> directory.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
+<p>The C file of TNumStr is <code>tnumstr.c</code>. It is in the
+<code>src/tstr</code> directory.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="pp">#include </span><span class="im">&lt;ctype.h&gt;</span></span>
 <span id="cb2-3"><a href="#cb2-3"></a><span class="pp">#include </span><span class="im">&quot;tnumstr.h&quot;</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="pp">#include </span><span class="im">&quot;../tnumber/tnumber.h&quot;</span></span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="pp">#include </span><span class="im">&quot;../tnumber/tint.h&quot;</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="pp">#include </span><span class="im">&quot;../tnumber/tdouble.h&quot;</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a></span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="co">/* override string property */</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="pp">#include </span><span class="im">&quot;tstr.h&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="pp">#include </span><span class="im">&quot;../tnumber/tnumber.h&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="pp">#include </span><span class="im">&quot;../tnumber/tint.h&quot;</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="pp">#include </span><span class="im">&quot;../tnumber/tdouble.h&quot;</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a></span>
 <span id="cb2-9"><a href="#cb2-9"></a></span>
-<span id="cb2-10"><a href="#cb2-10"></a><span class="kw">enum</span> {</span>
-<span id="cb2-11"><a href="#cb2-11"></a>  PROP_0,</span>
-<span id="cb2-12"><a href="#cb2-12"></a>  PROP_STRING,</span>
-<span id="cb2-13"><a href="#cb2-13"></a>  N_PROPERTIES</span>
-<span id="cb2-14"><a href="#cb2-14"></a>};</span>
-<span id="cb2-15"><a href="#cb2-15"></a></span>
-<span id="cb2-16"><a href="#cb2-16"></a><span class="kw">struct</span> _TNumStr {</span>
-<span id="cb2-17"><a href="#cb2-17"></a>  TStr parent;</span>
-<span id="cb2-18"><a href="#cb2-18"></a>  <span class="dt">char</span> *string;</span>
-<span id="cb2-19"><a href="#cb2-19"></a>  <span class="dt">int</span> type;</span>
-<span id="cb2-20"><a href="#cb2-20"></a>  <span class="dt">int</span> ivalue;</span>
-<span id="cb2-21"><a href="#cb2-21"></a>  <span class="dt">double</span> dvalue;</span>
-<span id="cb2-22"><a href="#cb2-22"></a>};</span>
-<span id="cb2-23"><a href="#cb2-23"></a></span>
-<span id="cb2-24"><a href="#cb2-24"></a>G_DEFINE_TYPE(TNumStr, t_num_str, T_TYPE_STR)</span>
-<span id="cb2-25"><a href="#cb2-25"></a></span>
-<span id="cb2-26"><a href="#cb2-26"></a><span class="dt">int</span></span>
-<span id="cb2-27"><a href="#cb2-27"></a>t_num_str_is_numeric_string (<span class="dt">const</span> <span class="dt">char</span> *string) {</span>
-<span id="cb2-28"><a href="#cb2-28"></a>  <span class="dt">const</span> <span class="dt">char</span> *t;</span>
-<span id="cb2-29"><a href="#cb2-29"></a>  <span class="dt">int</span> stat, input;</span>
-<span id="cb2-30"><a href="#cb2-30"></a>  <span class="co">/* state matrix */</span></span>
-<span id="cb2-31"><a href="#cb2-31"></a>  <span class="dt">int</span> m[<span class="dv">4</span>][<span class="dv">5</span>] = {</span>
-<span id="cb2-32"><a href="#cb2-32"></a>    {<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">6</span>},</span>
-<span id="cb2-33"><a href="#cb2-33"></a>    {<span class="dv">6</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">6</span>},</span>
-<span id="cb2-34"><a href="#cb2-34"></a>    {<span class="dv">6</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">6</span>},</span>
-<span id="cb2-35"><a href="#cb2-35"></a>    {<span class="dv">6</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">5</span>, <span class="dv">6</span>}</span>
-<span id="cb2-36"><a href="#cb2-36"></a>  };</span>
-<span id="cb2-37"><a href="#cb2-37"></a></span>
-<span id="cb2-38"><a href="#cb2-38"></a>  stat = <span class="dv">0</span>;</span>
-<span id="cb2-39"><a href="#cb2-39"></a>  <span class="cf">for</span> (t = string; ; ++t) {</span>
-<span id="cb2-40"><a href="#cb2-40"></a>    <span class="cf">if</span> (*t == <span class="ch">&#39;+&#39;</span> || *t == <span class="ch">&#39;-&#39;</span>)      </span>
-<span id="cb2-41"><a href="#cb2-41"></a>      input = <span class="dv">0</span>;</span>
-<span id="cb2-42"><a href="#cb2-42"></a>    <span class="cf">else</span> <span class="cf">if</span> (isdigit (*t))</span>
-<span id="cb2-43"><a href="#cb2-43"></a>      input = <span class="dv">1</span>;</span>
-<span id="cb2-44"><a href="#cb2-44"></a>    <span class="cf">else</span> <span class="cf">if</span> (*t == <span class="ch">&#39;.&#39;</span>)</span>
-<span id="cb2-45"><a href="#cb2-45"></a>      input = <span class="dv">2</span>;</span>
-<span id="cb2-46"><a href="#cb2-46"></a>    <span class="cf">else</span> <span class="cf">if</span> (*t == <span class="ch">&#39;\0&#39;</span>)</span>
-<span id="cb2-47"><a href="#cb2-47"></a>      input = <span class="dv">3</span>;</span>
-<span id="cb2-48"><a href="#cb2-48"></a>    <span class="cf">else</span></span>
-<span id="cb2-49"><a href="#cb2-49"></a>      input = <span class="dv">4</span>;</span>
-<span id="cb2-50"><a href="#cb2-50"></a></span>
-<span id="cb2-51"><a href="#cb2-51"></a>    stat = m[stat][input];</span>
-<span id="cb2-52"><a href="#cb2-52"></a></span>
-<span id="cb2-53"><a href="#cb2-53"></a>    <span class="cf">if</span> (stat &gt;= <span class="dv">4</span> || *t == <span class="ch">&#39;\0&#39;</span>)</span>
-<span id="cb2-54"><a href="#cb2-54"></a>      <span class="cf">break</span>;</span>
-<span id="cb2-55"><a href="#cb2-55"></a>  }</span>
-<span id="cb2-56"><a href="#cb2-56"></a>  <span class="cf">if</span> (stat == <span class="dv">4</span>)</span>
-<span id="cb2-57"><a href="#cb2-57"></a>    <span class="cf">return</span> t_int;</span>
-<span id="cb2-58"><a href="#cb2-58"></a>  <span class="cf">else</span> <span class="cf">if</span> (stat == <span class="dv">5</span>)</span>
-<span id="cb2-59"><a href="#cb2-59"></a>    <span class="cf">return</span> t_double;</span>
-<span id="cb2-60"><a href="#cb2-60"></a>  <span class="cf">else</span></span>
-<span id="cb2-61"><a href="#cb2-61"></a>    <span class="cf">return</span> t_none;</span>
-<span id="cb2-62"><a href="#cb2-62"></a>}</span>
-<span id="cb2-63"><a href="#cb2-63"></a></span>
-<span id="cb2-64"><a href="#cb2-64"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb2-65"><a href="#cb2-65"></a>t_num_str_set_string_property (TNumStr *self, <span class="dt">const</span> <span class="dt">char</span> *string) {</span>
-<span id="cb2-66"><a href="#cb2-66"></a>  <span class="dt">int</span> type;</span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="kw">struct</span> _TNumStr <span class="op">{</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a>  TStr parent<span class="op">;</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a>  <span class="dt">int</span> type<span class="op">;</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="op">};</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a></span>
+<span id="cb2-15"><a href="#cb2-15"></a>G_DEFINE_TYPE<span class="op">(</span>TNumStr<span class="op">,</span> t_num_str<span class="op">,</span> T_TYPE_STR<span class="op">)</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a></span>
+<span id="cb2-17"><a href="#cb2-17"></a><span class="dt">static</span> <span class="dt">int</span></span>
+<span id="cb2-18"><a href="#cb2-18"></a>t_num_str_string_type <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>string<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-19"><a href="#cb2-19"></a>  <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>t<span class="op">;</span></span>
+<span id="cb2-20"><a href="#cb2-20"></a>  <span class="dt">int</span> stat<span class="op">,</span> input<span class="op">;</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a>  <span class="co">/* state matrix */</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a>  <span class="dt">int</span> m<span class="op">[</span><span class="dv">4</span><span class="op">][</span><span class="dv">5</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb2-23"><a href="#cb2-23"></a>    <span class="op">{</span><span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">6</span><span class="op">},</span></span>
+<span id="cb2-24"><a href="#cb2-24"></a>    <span class="op">{</span><span class="dv">6</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">6</span><span class="op">},</span></span>
+<span id="cb2-25"><a href="#cb2-25"></a>    <span class="op">{</span><span class="dv">6</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">6</span><span class="op">},</span></span>
+<span id="cb2-26"><a href="#cb2-26"></a>    <span class="op">{</span><span class="dv">6</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">6</span><span class="op">}</span></span>
+<span id="cb2-27"><a href="#cb2-27"></a>  <span class="op">};</span></span>
+<span id="cb2-28"><a href="#cb2-28"></a></span>
+<span id="cb2-29"><a href="#cb2-29"></a>  <span class="cf">if</span> <span class="op">(</span>string <span class="op">==</span> NULL<span class="op">)</span></span>
+<span id="cb2-30"><a href="#cb2-30"></a>    <span class="cf">return</span> t_none<span class="op">;</span></span>
+<span id="cb2-31"><a href="#cb2-31"></a>  stat <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-32"><a href="#cb2-32"></a>  <span class="cf">for</span> <span class="op">(</span>t <span class="op">=</span> string<span class="op">;</span> <span class="op">;</span> <span class="op">++</span>t<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-33"><a href="#cb2-33"></a>    <span class="cf">if</span> <span class="op">(*</span>t <span class="op">==</span> <span class="ch">&#39;+&#39;</span> <span class="op">||</span> <span class="op">*</span>t <span class="op">==</span> <span class="ch">&#39;-&#39;</span><span class="op">)</span>      </span>
+<span id="cb2-34"><a href="#cb2-34"></a>      input <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-35"><a href="#cb2-35"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>isdigit <span class="op">(*</span>t<span class="op">))</span></span>
+<span id="cb2-36"><a href="#cb2-36"></a>      input <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb2-37"><a href="#cb2-37"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(*</span>t <span class="op">==</span> <span class="ch">&#39;.&#39;</span><span class="op">)</span></span>
+<span id="cb2-38"><a href="#cb2-38"></a>      input <span class="op">=</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb2-39"><a href="#cb2-39"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(*</span>t <span class="op">==</span> <span class="ch">&#39;\0&#39;</span><span class="op">)</span></span>
+<span id="cb2-40"><a href="#cb2-40"></a>      input <span class="op">=</span> <span class="dv">3</span><span class="op">;</span></span>
+<span id="cb2-41"><a href="#cb2-41"></a>    <span class="cf">else</span></span>
+<span id="cb2-42"><a href="#cb2-42"></a>      input <span class="op">=</span> <span class="dv">4</span><span class="op">;</span></span>
+<span id="cb2-43"><a href="#cb2-43"></a></span>
+<span id="cb2-44"><a href="#cb2-44"></a>    stat <span class="op">=</span> m<span class="op">[</span>stat<span class="op">][</span>input<span class="op">];</span></span>
+<span id="cb2-45"><a href="#cb2-45"></a></span>
+<span id="cb2-46"><a href="#cb2-46"></a>    <span class="cf">if</span> <span class="op">(</span>stat <span class="op">&gt;=</span> <span class="dv">4</span> <span class="op">||</span> <span class="op">*</span>t <span class="op">==</span> <span class="ch">&#39;\0&#39;</span><span class="op">)</span></span>
+<span id="cb2-47"><a href="#cb2-47"></a>      <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb2-48"><a href="#cb2-48"></a>  <span class="op">}</span></span>
+<span id="cb2-49"><a href="#cb2-49"></a>  <span class="cf">if</span> <span class="op">(</span>stat <span class="op">==</span> <span class="dv">4</span><span class="op">)</span></span>
+<span id="cb2-50"><a href="#cb2-50"></a>    <span class="cf">return</span> t_int<span class="op">;</span></span>
+<span id="cb2-51"><a href="#cb2-51"></a>  <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>stat <span class="op">==</span> <span class="dv">5</span><span class="op">)</span></span>
+<span id="cb2-52"><a href="#cb2-52"></a>    <span class="cf">return</span> t_double<span class="op">;</span></span>
+<span id="cb2-53"><a href="#cb2-53"></a>  <span class="cf">else</span></span>
+<span id="cb2-54"><a href="#cb2-54"></a>    <span class="cf">return</span> t_none<span class="op">;</span></span>
+<span id="cb2-55"><a href="#cb2-55"></a><span class="op">}</span></span>
+<span id="cb2-56"><a href="#cb2-56"></a></span>
+<span id="cb2-57"><a href="#cb2-57"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb2-58"><a href="#cb2-58"></a>t_num_str_real_set_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-59"><a href="#cb2-59"></a>  T_STR_CLASS <span class="op">(</span>t_num_str_parent_class<span class="op">)-&gt;</span>set_string <span class="op">(</span>self<span class="op">,</span> s<span class="op">);</span></span>
+<span id="cb2-60"><a href="#cb2-60"></a>  T_NUM_STR <span class="op">(</span>self<span class="op">)-&gt;</span>type <span class="op">=</span> t_num_str_string_type<span class="op">(</span>s<span class="op">);</span></span>
+<span id="cb2-61"><a href="#cb2-61"></a><span class="op">}</span></span>
+<span id="cb2-62"><a href="#cb2-62"></a></span>
+<span id="cb2-63"><a href="#cb2-63"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb2-64"><a href="#cb2-64"></a>t_num_str_init <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-65"><a href="#cb2-65"></a>  self<span class="op">-&gt;</span>type <span class="op">=</span> t_none<span class="op">;</span></span>
+<span id="cb2-66"><a href="#cb2-66"></a><span class="op">}</span></span>
 <span id="cb2-67"><a href="#cb2-67"></a></span>
-<span id="cb2-68"><a href="#cb2-68"></a>  type = t_num_str_is_numeric_string (string);</span>
-<span id="cb2-69"><a href="#cb2-69"></a>  <span class="cf">if</span> (type == t_int) {</span>
-<span id="cb2-70"><a href="#cb2-70"></a>    <span class="cf">if</span> (self-&gt;string)</span>
-<span id="cb2-71"><a href="#cb2-71"></a>      g_free (self-&gt;string);</span>
-<span id="cb2-72"><a href="#cb2-72"></a>    self-&gt;string = g_strdup (string);</span>
-<span id="cb2-73"><a href="#cb2-73"></a>    self-&gt;type = t_int;</span>
-<span id="cb2-74"><a href="#cb2-74"></a>    self-&gt;ivalue = atoi (self-&gt;string);</span>
-<span id="cb2-75"><a href="#cb2-75"></a>  } <span class="cf">else</span> <span class="cf">if</span> (type == t_double) {</span>
-<span id="cb2-76"><a href="#cb2-76"></a>    <span class="cf">if</span> (self-&gt;string)</span>
-<span id="cb2-77"><a href="#cb2-77"></a>      g_free (self-&gt;string);</span>
-<span id="cb2-78"><a href="#cb2-78"></a>    self-&gt;string = g_strdup (string);</span>
-<span id="cb2-79"><a href="#cb2-79"></a>    self-&gt;type = t_double;</span>
-<span id="cb2-80"><a href="#cb2-80"></a>    self-&gt;dvalue = atof (self-&gt;string);</span>
-<span id="cb2-81"><a href="#cb2-81"></a>  } <span class="cf">else</span> <span class="co">/* type == NS_OTHER */</span></span>
-<span id="cb2-82"><a href="#cb2-82"></a>    <span class="co">/* The string is not a number. No update. */</span></span>
-<span id="cb2-83"><a href="#cb2-83"></a>    ;</span>
-<span id="cb2-84"><a href="#cb2-84"></a>}</span>
-<span id="cb2-85"><a href="#cb2-85"></a></span>
-<span id="cb2-86"><a href="#cb2-86"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb2-87"><a href="#cb2-87"></a>t_num_str_set_property (GObject *object, guint property_id, <span class="dt">const</span> GValue *value, GParamSpec *pspec) {</span>
-<span id="cb2-88"><a href="#cb2-88"></a>  TNumStr *self = T_NUM_STR (object);</span>
+<span id="cb2-68"><a href="#cb2-68"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb2-69"><a href="#cb2-69"></a>t_num_str_class_init <span class="op">(</span>TNumStrClass <span class="op">*</span>class<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-70"><a href="#cb2-70"></a>  TStrClass <span class="op">*</span>t_str_class <span class="op">=</span> T_STR_CLASS <span class="op">(</span>class<span class="op">);</span></span>
+<span id="cb2-71"><a href="#cb2-71"></a></span>
+<span id="cb2-72"><a href="#cb2-72"></a>  t_str_class<span class="op">-&gt;</span>set_string <span class="op">=</span> t_num_str_real_set_string<span class="op">;</span></span>
+<span id="cb2-73"><a href="#cb2-73"></a><span class="op">}</span></span>
+<span id="cb2-74"><a href="#cb2-74"></a></span>
+<span id="cb2-75"><a href="#cb2-75"></a><span class="dt">int</span></span>
+<span id="cb2-76"><a href="#cb2-76"></a>t_num_str_get_string_type <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-77"><a href="#cb2-77"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUM_STR <span class="op">(</span>self<span class="op">),</span> <span class="op">-</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb2-78"><a href="#cb2-78"></a></span>
+<span id="cb2-79"><a href="#cb2-79"></a>  <span class="cf">return</span> self<span class="op">-&gt;</span>type<span class="op">;</span></span>
+<span id="cb2-80"><a href="#cb2-80"></a><span class="op">}</span></span>
+<span id="cb2-81"><a href="#cb2-81"></a></span>
+<span id="cb2-82"><a href="#cb2-82"></a><span class="co">/* setter and getter */</span></span>
+<span id="cb2-83"><a href="#cb2-83"></a><span class="dt">void</span></span>
+<span id="cb2-84"><a href="#cb2-84"></a>t_num_str_set_from_t_number <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>num<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-85"><a href="#cb2-85"></a>  g_return_if_fail <span class="op">(</span>T_IS_NUM_STR <span class="op">(</span>self<span class="op">));</span></span>
+<span id="cb2-86"><a href="#cb2-86"></a>  g_return_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>num<span class="op">));</span></span>
+<span id="cb2-87"><a href="#cb2-87"></a></span>
+<span id="cb2-88"><a href="#cb2-88"></a>  <span class="dt">char</span> <span class="op">*</span>s<span class="op">;</span></span>
 <span id="cb2-89"><a href="#cb2-89"></a></span>
-<span id="cb2-90"><a href="#cb2-90"></a>  <span class="cf">if</span> (property_id == PROP_STRING)</span>
-<span id="cb2-91"><a href="#cb2-91"></a>    t_num_str_set_string_property (self, g_value_get_string (value));</span>
-<span id="cb2-92"><a href="#cb2-92"></a>  <span class="cf">else</span></span>
-<span id="cb2-93"><a href="#cb2-93"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);</span>
-<span id="cb2-94"><a href="#cb2-94"></a>}</span>
-<span id="cb2-95"><a href="#cb2-95"></a></span>
-<span id="cb2-96"><a href="#cb2-96"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb2-97"><a href="#cb2-97"></a>t_num_str_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {</span>
-<span id="cb2-98"><a href="#cb2-98"></a>  TNumStr *self = T_NUM_STR (object);</span>
-<span id="cb2-99"><a href="#cb2-99"></a></span>
-<span id="cb2-100"><a href="#cb2-100"></a>  <span class="cf">if</span> (property_id == PROP_STRING)</span>
-<span id="cb2-101"><a href="#cb2-101"></a>    g_value_set_string (value, g_strdup (self-&gt;string));</span>
-<span id="cb2-102"><a href="#cb2-102"></a>  <span class="cf">else</span></span>
-<span id="cb2-103"><a href="#cb2-103"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);</span>
-<span id="cb2-104"><a href="#cb2-104"></a>}</span>
-<span id="cb2-105"><a href="#cb2-105"></a></span>
-<span id="cb2-106"><a href="#cb2-106"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb2-107"><a href="#cb2-107"></a>t_num_str_finalize (GObject *object) {</span>
-<span id="cb2-108"><a href="#cb2-108"></a>  TNumStr *self = T_NUM_STR (object);</span>
-<span id="cb2-109"><a href="#cb2-109"></a></span>
-<span id="cb2-110"><a href="#cb2-110"></a>  <span class="cf">if</span> (self-&gt;string)</span>
-<span id="cb2-111"><a href="#cb2-111"></a>    g_free (self-&gt;string);</span>
-<span id="cb2-112"><a href="#cb2-112"></a>  G_OBJECT_CLASS (t_num_str_parent_class)-&gt;finalize (object);</span>
-<span id="cb2-113"><a href="#cb2-113"></a>}</span>
-<span id="cb2-114"><a href="#cb2-114"></a></span>
-<span id="cb2-115"><a href="#cb2-115"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb2-116"><a href="#cb2-116"></a>t_num_str_init (TNumStr *self) {</span>
-<span id="cb2-117"><a href="#cb2-117"></a>  self-&gt;type = t_none;</span>
-<span id="cb2-118"><a href="#cb2-118"></a>  self-&gt;string = NULL;</span>
-<span id="cb2-119"><a href="#cb2-119"></a>}</span>
-<span id="cb2-120"><a href="#cb2-120"></a></span>
-<span id="cb2-121"><a href="#cb2-121"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb2-122"><a href="#cb2-122"></a>t_num_str_class_init (TNumStrClass *class) {</span>
-<span id="cb2-123"><a href="#cb2-123"></a>  GObjectClass *gobject_class = G_OBJECT_CLASS (class);</span>
+<span id="cb2-90"><a href="#cb2-90"></a>  s <span class="op">=</span> t_number_to_s <span class="op">(</span>T_NUMBER <span class="op">(</span>num<span class="op">));</span></span>
+<span id="cb2-91"><a href="#cb2-91"></a>  t_str_set_string <span class="op">(</span>T_STR <span class="op">(</span>self<span class="op">),</span> s<span class="op">);</span></span>
+<span id="cb2-92"><a href="#cb2-92"></a>  g_free <span class="op">(</span>s<span class="op">);</span></span>
+<span id="cb2-93"><a href="#cb2-93"></a><span class="op">}</span></span>
+<span id="cb2-94"><a href="#cb2-94"></a></span>
+<span id="cb2-95"><a href="#cb2-95"></a>TNumber <span class="op">*</span></span>
+<span id="cb2-96"><a href="#cb2-96"></a>t_num_str_get_t_number <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-97"><a href="#cb2-97"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUM_STR <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb2-98"><a href="#cb2-98"></a></span>
+<span id="cb2-99"><a href="#cb2-99"></a>  <span class="dt">char</span> <span class="op">*</span>s <span class="op">=</span> t_str_get_string<span class="op">(</span>T_STR <span class="op">(</span>self<span class="op">));</span></span>
+<span id="cb2-100"><a href="#cb2-100"></a>  TNumber <span class="op">*</span>tnum<span class="op">;</span></span>
+<span id="cb2-101"><a href="#cb2-101"></a></span>
+<span id="cb2-102"><a href="#cb2-102"></a>  <span class="cf">if</span> <span class="op">(</span>self<span class="op">-&gt;</span>type <span class="op">==</span> t_int<span class="op">)</span></span>
+<span id="cb2-103"><a href="#cb2-103"></a>    tnum <span class="op">=</span> T_NUMBER <span class="op">(</span>t_int_new_with_value <span class="op">(</span>atoi <span class="op">(</span>s<span class="op">)));</span></span>
+<span id="cb2-104"><a href="#cb2-104"></a>  <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>self<span class="op">-&gt;</span>type <span class="op">==</span> t_double<span class="op">)</span></span>
+<span id="cb2-105"><a href="#cb2-105"></a>    tnum <span class="op">=</span> T_NUMBER <span class="op">(</span>t_double_new_with_value <span class="op">(</span>atof <span class="op">(</span>s<span class="op">)));</span></span>
+<span id="cb2-106"><a href="#cb2-106"></a>  <span class="cf">else</span></span>
+<span id="cb2-107"><a href="#cb2-107"></a>    tnum <span class="op">=</span> NULL<span class="op">;</span></span>
+<span id="cb2-108"><a href="#cb2-108"></a>  g_free <span class="op">(</span>s<span class="op">);</span></span>
+<span id="cb2-109"><a href="#cb2-109"></a>  <span class="cf">return</span> tnum<span class="op">;</span></span>
+<span id="cb2-110"><a href="#cb2-110"></a><span class="op">}</span></span>
+<span id="cb2-111"><a href="#cb2-111"></a></span>
+<span id="cb2-112"><a href="#cb2-112"></a><span class="co">/* create a new TNumStr instance */</span></span>
+<span id="cb2-113"><a href="#cb2-113"></a></span>
+<span id="cb2-114"><a href="#cb2-114"></a>TNumStr <span class="op">*</span></span>
+<span id="cb2-115"><a href="#cb2-115"></a>t_num_str_new_with_tnumber <span class="op">(</span>TNumber <span class="op">*</span>num<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-116"><a href="#cb2-116"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>num<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb2-117"><a href="#cb2-117"></a></span>
+<span id="cb2-118"><a href="#cb2-118"></a>  TNumStr <span class="op">*</span>numstr<span class="op">;</span></span>
+<span id="cb2-119"><a href="#cb2-119"></a></span>
+<span id="cb2-120"><a href="#cb2-120"></a>  numstr <span class="op">=</span> t_num_str_new <span class="op">();</span></span>
+<span id="cb2-121"><a href="#cb2-121"></a>  t_num_str_set_from_t_number <span class="op">(</span>numstr<span class="op">,</span> num<span class="op">);</span></span>
+<span id="cb2-122"><a href="#cb2-122"></a>  <span class="cf">return</span> numstr<span class="op">;</span></span>
+<span id="cb2-123"><a href="#cb2-123"></a><span class="op">}</span></span>
 <span id="cb2-124"><a href="#cb2-124"></a></span>
-<span id="cb2-125"><a href="#cb2-125"></a>  gobject_class-&gt;finalize = t_num_str_finalize;</span>
-<span id="cb2-126"><a href="#cb2-126"></a>  gobject_class-&gt;set_property = t_num_str_set_property;</span>
-<span id="cb2-127"><a href="#cb2-127"></a>  gobject_class-&gt;get_property = t_num_str_get_property;</span>
-<span id="cb2-128"><a href="#cb2-128"></a>  g_object_class_override_property (gobject_class, PROP_STRING, <span class="st">&quot;string&quot;</span>);</span>
-<span id="cb2-129"><a href="#cb2-129"></a>}</span>
-<span id="cb2-130"><a href="#cb2-130"></a></span>
-<span id="cb2-131"><a href="#cb2-131"></a><span class="co">/* setter and getter */</span></span>
-<span id="cb2-132"><a href="#cb2-132"></a><span class="dt">void</span></span>
-<span id="cb2-133"><a href="#cb2-133"></a>t_num_str_set (TNumStr *self, TNumber *num) {</span>
-<span id="cb2-134"><a href="#cb2-134"></a>  g_return_if_fail (T_IS_NUM_STR (self));</span>
-<span id="cb2-135"><a href="#cb2-135"></a>  g_return_if_fail (T_IS_NUMBER (num));</span>
-<span id="cb2-136"><a href="#cb2-136"></a></span>
-<span id="cb2-137"><a href="#cb2-137"></a>  <span class="dt">char</span> *s;</span>
-<span id="cb2-138"><a href="#cb2-138"></a></span>
-<span id="cb2-139"><a href="#cb2-139"></a>  <span class="cf">if</span> (T_IS_INT (num)) {</span>
-<span id="cb2-140"><a href="#cb2-140"></a>    s = t_number_to_s (T_NUMBER (num));</span>
-<span id="cb2-141"><a href="#cb2-141"></a>    t_str_set_string (T_STR (self), s);</span>
-<span id="cb2-142"><a href="#cb2-142"></a>    g_free (s);</span>
-<span id="cb2-143"><a href="#cb2-143"></a>  } <span class="cf">else</span> {</span>
-<span id="cb2-144"><a href="#cb2-144"></a>    s = t_number_to_s (T_NUMBER (num));</span>
-<span id="cb2-145"><a href="#cb2-145"></a>    t_str_set_string (T_STR (self), s);</span>
-<span id="cb2-146"><a href="#cb2-146"></a>    g_free (s);</span>
-<span id="cb2-147"><a href="#cb2-147"></a>  }</span>
-<span id="cb2-148"><a href="#cb2-148"></a>}</span>
-<span id="cb2-149"><a href="#cb2-149"></a></span>
-<span id="cb2-150"><a href="#cb2-150"></a>TNumber *</span>
-<span id="cb2-151"><a href="#cb2-151"></a>t_num_str_get (TNumStr *self) {</span>
-<span id="cb2-152"><a href="#cb2-152"></a>  g_return_val_if_fail (T_IS_NUM_STR (self), NULL);</span>
-<span id="cb2-153"><a href="#cb2-153"></a></span>
-<span id="cb2-154"><a href="#cb2-154"></a>  <span class="cf">if</span> (self-&gt;type == t_int)</span>
-<span id="cb2-155"><a href="#cb2-155"></a>    <span class="cf">return</span> T_NUMBER (t_int_new_with_value (self-&gt;ivalue));</span>
-<span id="cb2-156"><a href="#cb2-156"></a>  <span class="cf">else</span> <span class="cf">if</span> (self-&gt;type == t_double)</span>
-<span id="cb2-157"><a href="#cb2-157"></a>    <span class="cf">return</span> T_NUMBER (t_double_new_with_value (self-&gt;dvalue));</span>
-<span id="cb2-158"><a href="#cb2-158"></a>  <span class="cf">else</span></span>
-<span id="cb2-159"><a href="#cb2-159"></a>    <span class="cf">return</span> NULL;</span>
-<span id="cb2-160"><a href="#cb2-160"></a>}</span>
-<span id="cb2-161"><a href="#cb2-161"></a></span>
-<span id="cb2-162"><a href="#cb2-162"></a><span class="dt">int</span></span>
-<span id="cb2-163"><a href="#cb2-163"></a>t_num_str_get_num_type (TNumStr *self) {</span>
-<span id="cb2-164"><a href="#cb2-164"></a>  g_return_val_if_fail (T_IS_NUM_STR (self), G_TYPE_INVALID);</span>
-<span id="cb2-165"><a href="#cb2-165"></a></span>
-<span id="cb2-166"><a href="#cb2-166"></a>  <span class="cf">return</span> self-&gt;type;</span>
-<span id="cb2-167"><a href="#cb2-167"></a>}</span>
-<span id="cb2-168"><a href="#cb2-168"></a></span>
-<span id="cb2-169"><a href="#cb2-169"></a><span class="co">/* create a new TNumStr instance */</span></span>
-<span id="cb2-170"><a href="#cb2-170"></a>TNumStr *</span>
-<span id="cb2-171"><a href="#cb2-171"></a>t_num_str_new_with_int (<span class="dt">int</span> i) {</span>
-<span id="cb2-172"><a href="#cb2-172"></a>  <span class="dt">char</span> *s;</span>
-<span id="cb2-173"><a href="#cb2-173"></a>  TNumStr *numstr;</span>
-<span id="cb2-174"><a href="#cb2-174"></a></span>
-<span id="cb2-175"><a href="#cb2-175"></a>  numstr = t_num_str_new ();</span>
-<span id="cb2-176"><a href="#cb2-176"></a>  s = g_strdup_printf (<span class="st">&quot;%d&quot;</span>, i);</span>
-<span id="cb2-177"><a href="#cb2-177"></a>  t_str_set_string (T_STR (numstr), s);</span>
-<span id="cb2-178"><a href="#cb2-178"></a>  g_free (s);</span>
-<span id="cb2-179"><a href="#cb2-179"></a>  <span class="cf">return</span> numstr;</span>
-<span id="cb2-180"><a href="#cb2-180"></a>}</span>
-<span id="cb2-181"><a href="#cb2-181"></a></span>
-<span id="cb2-182"><a href="#cb2-182"></a>TNumStr *</span>
-<span id="cb2-183"><a href="#cb2-183"></a>t_num_str_new_with_double (<span class="dt">double</span> d) {</span>
-<span id="cb2-184"><a href="#cb2-184"></a>  <span class="dt">char</span> *s;</span>
-<span id="cb2-185"><a href="#cb2-185"></a>  TNumStr *numstr;</span>
-<span id="cb2-186"><a href="#cb2-186"></a></span>
-<span id="cb2-187"><a href="#cb2-187"></a>  numstr = t_num_str_new ();</span>
-<span id="cb2-188"><a href="#cb2-188"></a>  s = g_strdup_printf (<span class="st">&quot;%f&quot;</span>, d);</span>
-<span id="cb2-189"><a href="#cb2-189"></a>  t_str_set_string (T_STR(numstr), s);</span>
-<span id="cb2-190"><a href="#cb2-190"></a>  g_free (s);</span>
-<span id="cb2-191"><a href="#cb2-191"></a>  <span class="cf">return</span> numstr;</span>
-<span id="cb2-192"><a href="#cb2-192"></a>}</span>
-<span id="cb2-193"><a href="#cb2-193"></a></span>
-<span id="cb2-194"><a href="#cb2-194"></a>TNumStr *</span>
-<span id="cb2-195"><a href="#cb2-195"></a>t_num_str_new_with_tnumber (TNumber *num) {</span>
-<span id="cb2-196"><a href="#cb2-196"></a>  g_return_val_if_fail (T_IS_NUMBER (num), NULL);</span>
-<span id="cb2-197"><a href="#cb2-197"></a></span>
-<span id="cb2-198"><a href="#cb2-198"></a>  TNumStr *numstr;</span>
-<span id="cb2-199"><a href="#cb2-199"></a></span>
-<span id="cb2-200"><a href="#cb2-200"></a>  numstr = t_num_str_new ();</span>
-<span id="cb2-201"><a href="#cb2-201"></a>  t_num_str_set (numstr, num);</span>
-<span id="cb2-202"><a href="#cb2-202"></a>  <span class="cf">return</span> numstr;</span>
-<span id="cb2-203"><a href="#cb2-203"></a>}</span>
-<span id="cb2-204"><a href="#cb2-204"></a></span>
-<span id="cb2-205"><a href="#cb2-205"></a>TNumStr *</span>
-<span id="cb2-206"><a href="#cb2-206"></a>t_num_str_new (<span class="dt">void</span>) {</span>
-<span id="cb2-207"><a href="#cb2-207"></a>  <span class="cf">return</span> T_NUM_STR (g_object_new (T_TYPE_NUM_STR, NULL));</span>
-<span id="cb2-208"><a href="#cb2-208"></a>}</span></code></pre></div>
+<span id="cb2-125"><a href="#cb2-125"></a>TNumStr <span class="op">*</span></span>
+<span id="cb2-126"><a href="#cb2-126"></a>t_num_str_new <span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-127"><a href="#cb2-127"></a>  <span class="cf">return</span> T_NUM_STR <span class="op">(</span>g_object_new <span class="op">(</span>T_TYPE_NUM_STR<span class="op">,</span> NULL<span class="op">));</span></span>
+<span id="cb2-128"><a href="#cb2-128"></a><span class="op">}</span></span></code></pre></div>
 <ul>
-<li>10-14: Defines a property id <code>PROP_STRING</code>. This id is used for a overriding property “string”. It will be explained in the next subsection.</li>
-<li>16-22: Definition of TNumStr.
-<ul>
-<li>string: the numeric string held by TNumStr instance.</li>
-<li>type: the type of the numeric string. <code>t_int</code> or <code>t_double</code>. If It is <code>t_none</code>, the string member is NULL or non-numeric string (it isn’t expected though). ivalue: If the type is <code>t_int</code>, the value is assigned to it. dvalue: If the type is <code>t_double</code>, the value is assigned to it.</li>
-</ul></li>
-<li>24: <code>G_DEFINE_TYPE</code> macro. the parent object is TStr.</li>
-<li>26- 62: <code>t_num_str_is_numeric_string</code> function checks the given string and returns <code>t_int</code>, <code>t_double</code> or <code>t_none</code>. If the string isn’t a numeric string, <code>t_none</code> will be returned. The check algorithm is explained in the first subsection “Verification of a numeric string”.</li>
-<li>64-104: Implements overriding “string” property. This will be explained in the next subsection.</li>
-<li>106-113: Finalize method. This method and the “chain up to its parent” process will be explained later.</li>
-<li>115-119: Initializes an instance.</li>
-<li>121-129: Initializes the class. First, the finalize method is overridden by <code>t_new_str_finalize</code>. The next three lines overrides the “string” property. It will be explained in the next subsection.</li>
-<li>132-160: Setter and getter. The setter sets the numeric string with a TNumber object. And the getter returns a TNumber object.</li>
-<li>162-167: <code>t_num_str_get_num_type</code> returns the type of the numeric string held by the TNumStr instance. It is <code>t_int</code>, <code>t_double</code> or <code>t_none</code>.</li>
-<li>170- 208: Four functions for creating a new TNumStr instance.</li>
+<li>10-13: Definition of TNumStr type C structure. TNumStr instance
+holds a string and type. The string is placed in the parent’s (TStr)
+private area, so the structure doesn’t have it. The type is stored in
+the <code>type</code> element of the structure.</li>
+<li>15: <code>G_DEFINE_TYPE</code> macro.</li>
+<li>17- 55: <code>t_num_str_string_type</code> function checks the given
+string and returns <code>t_int</code>, <code>t_double</code> or
+<code>t_none</code>. If the string is NULL or an non-numeric string,
+<code>t_none</code> will be returned. The check algorithm is explained
+in the first subsection “Verification of a numeric string”.</li>
+<li>57-61: <code>t_num_str_real_set_string</code> function. It sets
+TNumStr’s string and type with the parameter <code>s</code>.</li>
+<li>63-66: Initializes an instance. When the TNumStr instance is
+created, it has no string (NULL). So, the type is set with t_none.</li>
+<li>68-73: Initializes the class. The class method
+<code>set_string</code> is replaced by
+<code>t_num_str_real_set_string</code>. So <code>t_str_set_string</code>
+and <code>t_str_set_property</code> (in tstr.c) sets not only the string
+but also the type. -75-80: <code>t_num_str_get_string_type</code>
+returns the type.</li>
+<li>83-110: Setter and getter. The setter sets the numeric string with a
+TNumber object. And the getter returns a TNumber object.</li>
+<li>114-128: TNumStr instance creating functions.</li>
 </ul>
-<h2 id="overriding-a-property">Overriding a property</h2>
-<p>TStr has a “string” property. Because TNumStr is a child of TStr, TNumStr also has the property. It is natural to think that TNumStr uses the property for its numeric string. But TStr’s string is a general string. It allows any string even if it is not a numeric string. Therefore, it is not appropriate to use the “string” property as it is.</p>
-<p>TNumStr overrides the property and it restricts it to a numeric string. See the class initialization function again.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a>t_num_str_class_init (TNumStrClass *class) {</span>
-<span id="cb3-3"><a href="#cb3-3"></a>  GObjectClass *gobject_class = G_OBJECT_CLASS (class);</span>
-<span id="cb3-4"><a href="#cb3-4"></a></span>
-<span id="cb3-5"><a href="#cb3-5"></a>  gobject_class-&gt;finalize = t_num_str_finalize;</span>
-<span id="cb3-6"><a href="#cb3-6"></a>  gobject_class-&gt;set_property = t_num_str_set_property;</span>
-<span id="cb3-7"><a href="#cb3-7"></a>  gobject_class-&gt;get_property = t_num_str_get_property;</span>
-<span id="cb3-8"><a href="#cb3-8"></a>  g_object_class_override_property (gobject_class, PROP_STRING, <span class="st">&quot;string&quot;</span>);</span>
-<span id="cb3-9"><a href="#cb3-9"></a>}</span></code></pre></div>
+<h2 id="child-class-extends-parents-function.">Child class extends
+parent’s function.</h2>
+<p>TNumStr is a child class of TStr, so it has all the TStr’s public
+funftions.</p>
 <ul>
-<li>6-7: set_property and get_property methods are overridden by TNumStr’s set/get functions.</li>
-<li>8: <code>g_object_class_override_property</code> overrides the “string” property. The arguments are TNumStr class, new property id and the property name. Now, the property can be set/get with the TNumStr’s own functions.</li>
+<li><code>TStr *t_str_concat (TStr *self, TStr *other)</code></li>
+<li><code>void t_str_set_string (TStr *self, const char *s)</code></li>
+<li><code>char *t_str_get_string (TStr *self)</code></li>
 </ul>
-<p>The set/get functions are shown below.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a>t_num_str_set_string_property (TNumStr *self, <span class="dt">const</span> <span class="dt">char</span> *string) {</span>
-<span id="cb4-3"><a href="#cb4-3"></a>  <span class="dt">int</span> type;</span>
-<span id="cb4-4"><a href="#cb4-4"></a></span>
-<span id="cb4-5"><a href="#cb4-5"></a>  type = t_num_str_is_numeric_string (string);</span>
-<span id="cb4-6"><a href="#cb4-6"></a>  <span class="cf">if</span> (type == t_int) {</span>
-<span id="cb4-7"><a href="#cb4-7"></a>    <span class="cf">if</span> (self-&gt;string)</span>
-<span id="cb4-8"><a href="#cb4-8"></a>      g_free (self-&gt;string);</span>
-<span id="cb4-9"><a href="#cb4-9"></a>    self-&gt;string = g_strdup (string);</span>
-<span id="cb4-10"><a href="#cb4-10"></a>    self-&gt;type = t_int;</span>
-<span id="cb4-11"><a href="#cb4-11"></a>    self-&gt;ivalue = atoi (self-&gt;string);</span>
-<span id="cb4-12"><a href="#cb4-12"></a>  } <span class="cf">else</span> <span class="cf">if</span> (type == t_double) {</span>
-<span id="cb4-13"><a href="#cb4-13"></a>    <span class="cf">if</span> (self-&gt;string)</span>
-<span id="cb4-14"><a href="#cb4-14"></a>      g_free (self-&gt;string);</span>
-<span id="cb4-15"><a href="#cb4-15"></a>    self-&gt;string = g_strdup (string);</span>
-<span id="cb4-16"><a href="#cb4-16"></a>    self-&gt;type = t_double;</span>
-<span id="cb4-17"><a href="#cb4-17"></a>    self-&gt;dvalue = atof (self-&gt;string);</span>
-<span id="cb4-18"><a href="#cb4-18"></a>  } <span class="cf">else</span> <span class="co">/* type == NS_OTHER */</span></span>
-<span id="cb4-19"><a href="#cb4-19"></a>    <span class="co">/* The string is not a number. No update. */</span></span>
-<span id="cb4-20"><a href="#cb4-20"></a>    ;</span>
-<span id="cb4-21"><a href="#cb4-21"></a>}</span>
-<span id="cb4-22"><a href="#cb4-22"></a></span>
-<span id="cb4-23"><a href="#cb4-23"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb4-24"><a href="#cb4-24"></a>t_num_str_set_property (GObject *object, guint property_id, <span class="dt">const</span> GValue *value, GParamSpec *pspec) {</span>
-<span id="cb4-25"><a href="#cb4-25"></a>  TNumStr *self = T_NUM_STR (object);</span>
-<span id="cb4-26"><a href="#cb4-26"></a></span>
-<span id="cb4-27"><a href="#cb4-27"></a>  <span class="cf">if</span> (property_id == PROP_STRING)</span>
-<span id="cb4-28"><a href="#cb4-28"></a>    t_num_str_set_string_property (self, g_value_get_string (value));</span>
-<span id="cb4-29"><a href="#cb4-29"></a>  <span class="cf">else</span></span>
-<span id="cb4-30"><a href="#cb4-30"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);</span>
-<span id="cb4-31"><a href="#cb4-31"></a>}</span>
-<span id="cb4-32"><a href="#cb4-32"></a></span>
-<span id="cb4-33"><a href="#cb4-33"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb4-34"><a href="#cb4-34"></a>t_num_str_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {</span>
-<span id="cb4-35"><a href="#cb4-35"></a>  TNumStr *self = T_NUM_STR (object);</span>
-<span id="cb4-36"><a href="#cb4-36"></a></span>
-<span id="cb4-37"><a href="#cb4-37"></a>  <span class="cf">if</span> (property_id == PROP_STRING)</span>
-<span id="cb4-38"><a href="#cb4-38"></a>    g_value_set_string (value, g_strdup (self-&gt;string));</span>
-<span id="cb4-39"><a href="#cb4-39"></a>  <span class="cf">else</span></span>
-<span id="cb4-40"><a href="#cb4-40"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);</span>
-<span id="cb4-41"><a href="#cb4-41"></a>}</span></code></pre></div>
+<p>When you want to set a string to a TNumStr instance, you can use
+<code>t_str_set_string</code> function.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>TNumStr <span class="op">*</span>ns <span class="op">=</span> t_num_str_new <span class="op">();</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>t_str_set_string <span class="op">(</span>T_STR <span class="op">(</span>ns<span class="op">),</span> <span class="st">&quot;123.456&quot;</span><span class="op">);</span></span></code></pre></div>
+<p>TNumStr extends the function of <code>t_str_set_string</code>. It
+sets not only a string but also its type for a TNumStr instance.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> t<span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> t_num_str_get_string_type <span class="op">(</span>ns<span class="op">);</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>t <span class="op">==</span> t_none<span class="op">)</span> g_print <span class="op">(</span><span class="st">&quot;t_none</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>t <span class="op">==</span> t_int<span class="op">)</span> g_print <span class="op">(</span><span class="st">&quot;t_int</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>t <span class="op">==</span> t_double<span class="op">)</span> g_print <span class="op">(</span><span class="st">&quot;t_double</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">// =&gt; t_double appears on your display</span></span></code></pre></div>
+<p>TNumStr adds some public functions.</p>
 <ul>
-<li>23-31: <code>t_num_str_set_property</code> overrides the set_property method. If the property id is the same as the id set with <code>g_object_class_override_property</code>, then <code>t_num_str_set_string_property</code> is called.</li>
-<li>1-21: <code>t_num_str_set_string_property</code> function. If the string type is <code>t_int</code>, the string expresses an integer. The previous string has been stored in <code>self-&gt;string</code>. If it isn’t NULL, free the string, first. Then, duplicates the new string and stores it in<code>self-&gt;string</code>. Updates <code>self-&gt;type</code> and <code>self-&gt;ivalue</code>. If the string type is <code>t_double</code> the previous string is freed and the new string is duplicated and stored in <code>self-&gt;string</code>. Updates <code>self-&gt;type</code> and <code>self-&gt;dvalue</code>. If the string type is neither <code>t_int</code> nor <code>t_double</code>, then nothing happens. Notice that even if the string isn’t updated, notify signal will be emitted. Therefore, if you want to know the change of the numeric string, you need to check the string is really changed.</li>
-<li>33-41: <code>t_num_str_get_property</code> overrides the get_property method. It just retrieve the numeric string from <code>self-&gt;string</code> and set the GValue with the copy of the string.</li>
+<li><code>int t_num_str_get_string_type (TNumStr *self)</code></li>
+<li><code>void t_num_str_set_from_t_number (TNumStr *self, TNumber *num)</code></li>
+<li><code>TNumber *t_num_str_get_t_number (TNumStr *self)</code></li>
 </ul>
-<p>The functions above uses <code>self-&gt;string</code> to save the numeric string. It is a member of TNumStr structure. Therefore, a <code>string</code> member of TStr (parent instance member) isn’t used to save the property value.</p>
-<h2 id="chaining-up-to-its-parent">Chaining up to its parent</h2>
-<p>The “chain up to its parent” process is illustrated with the diagram below. There are three classes, GObjectCLass, TStrClass and TNumStrClass. Each class has a finalize method pointer which points finalize functions in the corresponding program (GObject, TStr or TNumStr program). The finalize method of TNumStrClass finalizes its own part of the TNumStr instance. At the end of the function, it calls its parent’s finalize method. It is the finalize method of TStrClass. It calls its own finalize function and finalizes the TStr private data (TStrPrivate) of the TNumStr instance. And at the end of the function, it calls its parent’s finalize method. At last, GObject finalize method finalizes the GObject part of the TNumStr instance.</p>
-<figure>
-<img src="image/chainup.png" alt="" /><figcaption>Chaining up process</figcaption>
-</figure>
+<p>A child class extends the parent class. So, a child is more specific
+and richer than the parent.</p>
 <h2 id="compilation-and-execution">Compilation and execution</h2>
-<p>There’s <code>main.c</code> in <code>src/tstr</code> directory. It just tests <code>tstr.c</code> and <code>tnumstr.c</code> program.</p>
-<p>Compilation is done by usual way. First, change your current directory to <code>src/tstr</code>.</p>
+<p>There are <code>main.c</code>, <code>test1.c</code> and
+<code>test2.c</code> in <code>src/tstr</code> directory. Two programs
+<code>test1.c</code> and <code>test2.c</code> generates
+<code>_build/test1</code> and <code>_build/test2</code> respectively.
+They test <code>tstr.c</code> and <code>tnumstr.c</code>. If there are
+errors, messages will appear. Otherwise nothing appears.</p>
+<p>The program <code>main.c</code> generates
+<code>_build/tnumstr</code>. It shows how TStr and TNumStr work.</p>
+<p>Compilation is done by usual way. First, change your current
+directory to <code>src/tstr</code>.</p>
 <pre><code>$ meson _build
 $ ninja -C _build
-$ _build/tstr</code></pre>
+$ _build/test1
+$ _build/test2
+$ _build/tnumstr</code></pre>
+<p>The last part of <code>main.c</code> is conversion between TNumStr
+and TNumber. There are some difference between them because of the
+following two reasons.</p>
+<ul>
+<li>floating point is rounded. It is not an exact value when the value
+has long figures. TNumStr “123.4567890123456789” is converted to TNumber
+123.456789.</li>
+<li>There are two or more string expression in floating points. TNumStr
+“.456” is converted to TNumber x, and x is converted to TNumStr
+“0.456000”.</li>
+</ul>
+<p>It is difficult to compare two TNumStr instances. The best way is to
+compare TNumber instances converted from TNumStr.</p>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
   </body>

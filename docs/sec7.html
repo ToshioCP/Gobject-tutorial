@@ -89,7 +89,7 @@
     <div class="container">
     <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
       <div class="container-fluid">
-        <span class="navbar-brand">Gtk4 tutorial</span>
+        <span class="navbar-brand">GObject tutorial</span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -111,280 +111,470 @@
         </div>
       </div>
     </nav>
-<h1 id="derivable-and-non-abstract-type">Derivable and non-abstract type</h1>
-<p>It is more common to make a non-abstract derivable type than abstract type. This section covers how to make non-abstract derivable type objects. A derivable type example is an object for string. It is TStr. And its child is an object for numeric string. A numeric string is a string that expresses a number. For example, “0”, “-100” and “123.45”. The child object (numeric string) will be explained in the next section.</p>
-<p>Before the derivable object, I’d like to write about strings. Because TStr is an object of a string and we need to be careful to write a program with strings.</p>
+<h1 id="derivable-and-non-abstract-type">Derivable and non-abstract
+type</h1>
+<p>It is more common to make a non-abstract derivable type than abstract
+type. This section covers how to make non-abstract derivable type
+objects. A derivable type example is an object for string. It is TStr.
+And its child is an object for numeric string. A numeric string is a
+string that expresses a number. For example, “0”, “-100” and “123.45”.
+The child object (numeric string) will be explained in the next
+section.</p>
+<p>I’d like to write about strings before derivable objects. Because
+TStr is an object of a string and we need to be careful to write a
+program with strings.</p>
 <h2 id="string-and-memory-management">String and memory management</h2>
-<p>TStr has a string type value. It is similar to TInt or TDouble but string is more complex than int and double. When you make TStr program, you need to be careful about memory management, which is not necessary to TInt and TDouble.</p>
+<p>TStr has a string type value. It is similar to TInt or TDouble but
+string is more complex than int and double. When you make TStr program,
+you need to be careful about memory management, which is not necessary
+to TInt and TDouble.</p>
 <h3 id="string-and-memory">String and memory</h3>
-<p>String is an array of characters that is terminated with ‘\0’. String is not a C type such as char, int, float or double. But the pointer to a character array behaves like a string type of other languages. So, we often call the pointer string.</p>
-<p>If the pointer is NULL, it points nothing. So, the pointer is not a string. Programs with string will include bugs if you aren’t careful about NULL pointer.</p>
-<p>Another annoying problem is memory allocation. Because string is an array of characters, memory allocation is necessary to create a new string. We don’t forget to allocate memory, but often forget to free the memory. It causes memory leak.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="dt">char</span> *s;</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>s = g_strdup (<span class="st">&quot;Hello.&quot;</span>);</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>... ... ... <span class="cf">do</span> something with s</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>g_free (s);</span></code></pre></div>
+<p>String is an array of characters that is terminated with ‘\0’. String
+is not a C type such as char, int, float or double. But the pointer to a
+character array behaves like a string type of other languages. So, we
+often call the pointer string.</p>
+<p>If the pointer is NULL, it points nothing. So, the pointer is not a
+string. Programs with string will include bugs if you aren’t careful
+about NULL pointer.</p>
+<p>Another annoying problem is memory allocation. Because string is an
+array of characters, memory allocation is necessary to create a new
+string. We don’t forget to allocate memory, but often forget to free the
+memory. It causes memory leak.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> <span class="op">*</span>s<span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> g_strdup <span class="op">(</span><span class="st">&quot;Hello.&quot;</span><span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">...</span> <span class="op">...</span> <span class="op">...</span> <span class="cf">do</span> something with s</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>g_free <span class="op">(</span>s<span class="op">);</span></span></code></pre></div>
 <p><code>g_strdup</code> duplicates a string. It does:</p>
 <ul>
-<li>Calculates the size of the string. The size of “Hello.” is 7 because strings are zero-terminated. The string is an array ‘H’, ‘e’, ‘l’, ‘l’, ‘o’, ‘.’ and zero (‘\0’).</li>
+<li>Calculates the size of the string. The size of “Hello.” is 7 because
+strings are zero-terminated. The string is an array ‘H’, ‘e’, ‘l’, ‘l’,
+‘o’, ‘.’ and zero (‘\0’).</li>
 <li>Requests the system to allocate 7 bytes memories.</li>
 <li>Copies the string to the memory.</li>
 <li>Returns the pointer to the newly-allocated memory.</li>
+<li>If the argument is NULL, then g_strdup returns NULL.</li>
 </ul>
-<p>If the string <code>s</code> is no longer useless, <code>s</code> must be freed, which means the allocated 7 bytes are returned to the system. <code>g_free</code> frees the memory.</p>
-<p>Strings bounded by double quotes like “Hello.” is a string literal. It is an array of characters, but the contents of the array is not allowed to change. And it mustn’t be freed. If you write a character in a string literal or free a string literal, the result is undefined. Maybe bad thing will happen, for example, a segmentation fault error.</p>
-<p>There’s a difference between arrays and pointers when you initialize them with string literal. If an array is initialized with string literal, the array can be changed.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="dt">char</span> a[]=<span class="st">&quot;Hello!&quot;</span>;</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>a[<span class="dv">1</span>]=<span class="ch">&#39;a&#39;</span>;</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>g_print (<span class="st">&quot;%s</span><span class="sc">\n</span><span class="st">&quot;</span>, a); <span class="co">/* Hallo will appear in your display. */</span></span></code></pre></div>
-<p>The first line initializes an array <code>a</code>. The initialization is not simple. First, the compiler calculates the length of “Hello!”. It is 7 because the string literal has ‘\0’ at the end of it. Then 7 bytes memory is allocated in static memory or stack memory. It depends on the class of the array, whether <code>static</code> or <code>auto</code>. The memory is initialized with “Hello!”. So, the string in the array can me changed. This program successfully displays `Hallo!.</p>
+<p>If the string <code>s</code> is no longer in use, <code>s</code> must
+be freed, which means the allocated 7 bytes must be returned to the
+system. <code>g_free</code> frees the memory.</p>
+<p>Strings bounded by double quotes like “Hello.” is a string literal.
+It is an array of characters, but the contents of the array is not
+allowed to change. And it mustn’t be freed. If you write a character in
+a string literal or free a string literal, the result is undefined.
+Maybe bad things will happen, for example, a segmentation fault
+error.</p>
+<p>There’s a difference between arrays and pointers when you initialize
+them with string literal. If an array is initialized with string
+literal, the array can be changed.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> a<span class="op">[]=</span><span class="st">&quot;Hello!&quot;</span><span class="op">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>a<span class="op">[</span><span class="dv">1</span><span class="op">]=</span><span class="ch">&#39;a&#39;</span><span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>g_print <span class="op">(</span><span class="st">&quot;%s</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> a<span class="op">);</span> <span class="co">/* Hallo will appear in your display. */</span></span></code></pre></div>
+<p>The first line initializes an array <code>a</code>. The
+initialization is not simple. First, the compiler calculates the length
+of “Hello!”. It is 7 because the string literal has ‘\0’ at the end of
+it. Then 7 bytes memory is allocated in static memory or stack memory.
+It depends on the class of the array, whether <code>static</code> or
+<code>auto</code>. The memory is initialized with “Hello!”. So, the
+string in the array can me changed. This program successfully displays
+`Hallo!.</p>
 <p>The first line of the program above is the same as follows.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="dt">char</span> a[] = {<span class="ch">&#39;H&#39;</span>, <span class="ch">&#39;e&#39;</span>, <span class="ch">&#39;l&#39;</span>, <span class="ch">&#39;l&#39;</span>, <span class="ch">&#39;o&#39;</span>, <span class="ch">&#39;!&#39;</span>, <span class="ch">&#39;\0&#39;</span>};</span></code></pre></div>
-<p>If you define a pointer with string literal, you can’t change the string pointed by the pointer.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="dt">char</span> *a = <span class="st">&quot;Hello&quot;</span>;</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>*(a+<span class="dv">1</span>) = <span class="ch">&#39;a&#39;</span>; <span class="co">/* This is illegal. */</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>g_print (<span class="st">&quot;%s</span><span class="sc">\n</span><span class="st">&quot;</span>, a);</span></code></pre></div>
-<p>The first line just assigns the address of the string literal to the variable <code>a</code>. String literal is an array of characters but it’s read-only. It might be in the program code area or some other non-writable area. It depends on the implementation of your compiler. Therefore, the second line tries to write a char ‘a’ to the read-only memory and the result is undefined, for example, a segmentation error happens. Anyway, don’t write a program like this.</p>
-<p>In conclusion, a string is an array of characters and it is placed in one of the following.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> a<span class="op">[]</span> <span class="op">=</span> <span class="op">{</span><span class="ch">&#39;H&#39;</span><span class="op">,</span> <span class="ch">&#39;e&#39;</span><span class="op">,</span> <span class="ch">&#39;l&#39;</span><span class="op">,</span> <span class="ch">&#39;l&#39;</span><span class="op">,</span> <span class="ch">&#39;o&#39;</span><span class="op">,</span> <span class="ch">&#39;!&#39;</span><span class="op">,</span> <span class="ch">&#39;\0&#39;</span><span class="op">};</span></span></code></pre></div>
+<p>If you define a pointer with string literal, you can’t change the
+string pointed by the pointer.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> <span class="op">*</span>a <span class="op">=</span> <span class="st">&quot;Hello&quot;</span><span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">*(</span>a<span class="op">+</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> <span class="ch">&#39;a&#39;</span><span class="op">;</span> <span class="co">/* This is illegal. */</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>g_print <span class="op">(</span><span class="st">&quot;%s</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> a<span class="op">);</span></span></code></pre></div>
+<p>The first line just assigns the address of the string literal to the
+variable <code>a</code>. String literal is an array of characters but
+it’s read-only. It might be in the program code area or some other
+non-writable area. It depends on the implementation of your compiler.
+Therefore, the second line tries to write a char ‘a’ to the read-only
+memory and the result is undefined, for example, a segmentation error
+happens. Anyway, don’t write a program like this.</p>
+<p>In conclusion, a string is an array of characters and it is placed in
+one of the following.</p>
 <ul>
 <li>Read-only memory. A string literal is read-only.</li>
-<li>stack. If the class of an array is <code>auto</code>, then the array is placed in the stack. stack is writable. If the array is defined in a function, its default class is <code>auto</code>. The stack area will disappear when the function returns to the caller.</li>
-<li>static area. If the class of an array is <code>static</code>, then the array is placed in the static area. It keeps its value and remains for the life of the program. This area is writable.</li>
-<li>heap. You can allocate and free memory for a string. For allocation, <code>g_new</code> or <code>g_new0</code> is used. For freeing, <code>g_free</code> is used.</li>
+<li>stack. If the class of an array is <code>auto</code>, then the array
+is placed in the stack. stack is writable. If the array is defined in a
+function, its default class is <code>auto</code>. The stack area will
+disappear when the function returns to the caller.</li>
+<li>static area. If the class of an array is <code>static</code>, then
+the array is placed in the static area. It keeps its value and remains
+for the life of the program. This area is writable.</li>
+<li>heap. You can allocate and free memory for a string. For allocation,
+<code>g_new</code> or <code>g_new0</code> is used. For freeing,
+<code>g_free</code> is used.</li>
 </ul>
 <h3 id="copying-string">Copying string</h3>
-<p>There are two ways to copy a string. First way is just copying the pointer.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="dt">char</span> *s = <span class="st">&quot;Hello&quot;</span>;</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="dt">char</span> *t = s;</span></code></pre></div>
-<p>Two pointers <code>s</code> and <code>t</code> points the same address. Therefore, you can’t modify <code>t</code> because <code>t</code> points a string literal, which is read-only.</p>
-<p>Second way is creating memory and copying the string to the memory.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="dt">char</span> *s = <span class="st">&quot;Hello&quot;</span>;</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="dt">char</span> *t = g_strdup (s);</span></code></pre></div>
-<p><code>g_strdup</code> allocates memory and initializes it with “Hello”, then returns the pointer to the memory. The function <code>g_strdup</code> is almost same as the <code>string_dup</code> function below.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="dt">char</span> *</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>string_dup (<span class="dt">char</span> *s) {</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>  <span class="dt">int</span> length;</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>  <span class="dt">char</span> *t;</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>  <span class="cf">if</span> (s == NULL)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a>    <span class="cf">return</span> NULL;</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a>  length = strlen (s) + <span class="dv">1</span>;</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a>  t = g_new (<span class="dt">char</span>, length);</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a>  strcpy (t, s);</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true"></a>  <span class="cf">return</span> t;</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true"></a>}</span></code></pre></div>
-<p>If <code>g_strdup</code> is used, the two pointers <code>s</code> and <code>t</code> point different memories. You can modify <code>t</code> because it is placed in the memory allocated from the heap area.</p>
-<p>It is important to know the difference between assigning pointers and duplicating strings.</p>
+<p>There are two ways to copy a string. First way is just copying the
+pointer.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> <span class="op">*</span>s <span class="op">=</span> <span class="st">&quot;Hello&quot;</span><span class="op">;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> <span class="op">*</span>t <span class="op">=</span> s<span class="op">;</span></span></code></pre></div>
+<p>Two pointers <code>s</code> and <code>t</code> points the same
+address. Therefore, you can’t modify <code>t</code> because
+<code>t</code> points a string literal, which is read-only.</p>
+<p>Second way is creating memory and copying the string to the
+memory.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> <span class="op">*</span>s <span class="op">=</span> <span class="st">&quot;Hello&quot;</span><span class="op">;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> <span class="op">*</span>t <span class="op">=</span> g_strdup <span class="op">(</span>s<span class="op">);</span></span></code></pre></div>
+<p><code>g_strdup</code> allocates memory and initializes it with
+“Hello”, then returns the pointer to the memory. The function
+<code>g_strdup</code> is almost same as the <code>string_dup</code>
+function below.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> <span class="op">*</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>string_dup <span class="op">(</span><span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> length<span class="op">;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">char</span> <span class="op">*</span>t<span class="op">;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>s <span class="op">==</span> NULL<span class="op">)</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> NULL<span class="op">;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  length <span class="op">=</span> strlen <span class="op">(</span>s<span class="op">)</span> <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  t <span class="op">=</span> g_new <span class="op">(</span><span class="dt">char</span><span class="op">,</span> length<span class="op">);</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  strcpy <span class="op">(</span>t<span class="op">,</span> s<span class="op">);</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> t<span class="op">;</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>If <code>g_strdup</code> is used, the two pointers <code>s</code> and
+<code>t</code> point different memories. You can modify <code>t</code>
+because it is placed in the memory allocated from the heap area.</p>
+<p>It is important to know the difference between assigning pointers and
+duplicating strings.</p>
 <h3 id="const-qualifier">const qualifier</h3>
-<p>The qualifier <code>const</code> makes a variable won’t change its value. It can also be applied to an array. Then, the elements of the array won’t be changed.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="dt">const</span> <span class="dt">double</span> pi = <span class="fl">3.1415926536</span>;</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a><span class="dt">const</span> <span class="dt">char</span> a[] = <span class="st">&quot;read only string&quot;</span>;</span></code></pre></div>
-<p>An array parameter in a function can be qualified with <code>const</code> to indicate that the function does not change the array. In the same way, the return value (a pointer to an array or string) of a function can be qualified with <code>const</code>. The caller mustn’t modify or free the returned array or string.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="dt">char</span> *</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>string_dup (<span class="dt">const</span> <span class="dt">char</span> *s) {</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>  ... ...</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>}</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a><span class="dt">const</span> <span class="dt">char</span> *</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>g_value_get_string (<span class="dt">const</span> GValue *value);</span></code></pre></div>
-<p>The qualifier <code>const</code> indicates who is the owner of the string when it is used in the function of objects. “Owner” is an object or a caller of the function that has the right to modify or free the string.</p>
-<p>For example, <code>g_value_get_string</code> is given <code>const GValue *value</code> as an argument. The GValue pointed by <code>value</code> is owned by the caller and the function doesn’t change or free it. The function returns a string qualified with <code>const</code>. The returned string is owned by the object and the caller mustn’t change or free the string. It is possible that the string will be changed or freed by the object later.</p>
+<p>The qualifier <code>const</code> makes a variable won’t change its
+value. It can also be applied to an array. Then, the elements of the
+array won’t be changed.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="dt">const</span> <span class="dt">double</span> pi <span class="op">=</span> <span class="fl">3.1415926536</span><span class="op">;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dt">const</span> <span class="dt">char</span> a<span class="op">[]</span> <span class="op">=</span> <span class="st">&quot;read only string&quot;</span><span class="op">;</span></span></code></pre></div>
+<p>An array parameter in a function can be qualified with
+<code>const</code> to indicate that the function does not change the
+array. In the same way, the return value (a pointer to an array or
+string) of a function can be qualified with <code>const</code>. The
+caller mustn’t modify or free the returned array or string.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> <span class="op">*</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>string_dup <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span> <span class="op">...</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>g_value_get_string <span class="op">(</span><span class="dt">const</span> GValue <span class="op">*</span>value<span class="op">);</span></span></code></pre></div>
+<p>The qualifier <code>const</code> indicates who is the owner of the
+string when it is used in the function of objects. “Owner” is an object
+or a caller of the function that has the right to modify or free the
+string.</p>
+<p>For example, <code>g_value_get_string</code> is given
+<code>const GValue *value</code> as an argument. The GValue pointed by
+<code>value</code> is owned by the caller and the function doesn’t
+change or free it. The function returns a string qualified with
+<code>const</code>. The returned string is owned by the object and the
+caller mustn’t change or free the string. It is possible that the string
+will be changed or freed by the object later.</p>
 <h2 id="header-file">Header file</h2>
-<p>The rest of this section is about TStr. TStr is a child of GObject and it holds a string. The string is a pointer and an array of characters. The pointer points the array. The pointer can be NULL. If it is NULL, TStr has no array. TStr has a string type property.</p>
+<p>The rest of this section is about TStr. TStr is a child of GObject
+and it holds a string. The string is a pointer and an array of
+characters. The pointer points the array. The pointer can be NULL. If it
+is NULL, TStr has no array. TStr has a string type property.</p>
 <p>The header file <code>tstr.h</code> is as follows.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1"></a><span class="pp">#ifndef __T_STR_H__</span></span>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1"></a><span class="pp">#ifndef __T_STR_H__</span></span>
 <span id="cb10-2"><a href="#cb10-2"></a><span class="pp">#define __T_STR_H__</span></span>
 <span id="cb10-3"><a href="#cb10-3"></a></span>
 <span id="cb10-4"><a href="#cb10-4"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
 <span id="cb10-5"><a href="#cb10-5"></a></span>
 <span id="cb10-6"><a href="#cb10-6"></a><span class="pp">#define T_TYPE_STR  (t_str_get_type ())</span></span>
-<span id="cb10-7"><a href="#cb10-7"></a>G_DECLARE_DERIVABLE_TYPE (TStr, t_str, T, STR, GObject)</span>
+<span id="cb10-7"><a href="#cb10-7"></a>G_DECLARE_DERIVABLE_TYPE <span class="op">(</span>TStr<span class="op">,</span> t_str<span class="op">,</span> T<span class="op">,</span> STR<span class="op">,</span> GObject<span class="op">)</span></span>
 <span id="cb10-8"><a href="#cb10-8"></a></span>
-<span id="cb10-9"><a href="#cb10-9"></a><span class="kw">struct</span> _TStrClass {</span>
-<span id="cb10-10"><a href="#cb10-10"></a>  GObjectClass parent_class;</span>
-<span id="cb10-11"><a href="#cb10-11"></a>};</span>
-<span id="cb10-12"><a href="#cb10-12"></a></span>
-<span id="cb10-13"><a href="#cb10-13"></a>TStr *</span>
-<span id="cb10-14"><a href="#cb10-14"></a>t_str_concat (TStr *self, TStr *other);</span>
-<span id="cb10-15"><a href="#cb10-15"></a></span>
-<span id="cb10-16"><a href="#cb10-16"></a><span class="co">/* setter and getter */</span></span>
-<span id="cb10-17"><a href="#cb10-17"></a><span class="dt">void</span></span>
-<span id="cb10-18"><a href="#cb10-18"></a>t_str_set_string (TStr *self, <span class="dt">const</span> <span class="dt">char</span> *s);</span>
-<span id="cb10-19"><a href="#cb10-19"></a></span>
-<span id="cb10-20"><a href="#cb10-20"></a><span class="dt">char</span> *</span>
-<span id="cb10-21"><a href="#cb10-21"></a>t_str_get_string (TStr *self);</span>
-<span id="cb10-22"><a href="#cb10-22"></a></span>
-<span id="cb10-23"><a href="#cb10-23"></a><span class="co">/* create a new TStr instance */</span></span>
-<span id="cb10-24"><a href="#cb10-24"></a>TStr *</span>
-<span id="cb10-25"><a href="#cb10-25"></a>t_str_new_with_string (<span class="dt">const</span> <span class="dt">char</span> *s);</span>
-<span id="cb10-26"><a href="#cb10-26"></a></span>
-<span id="cb10-27"><a href="#cb10-27"></a>TStr *</span>
-<span id="cb10-28"><a href="#cb10-28"></a>t_str_new (<span class="dt">void</span>);</span>
-<span id="cb10-29"><a href="#cb10-29"></a><span class="pp">#endif </span><span class="co">/* __T_STR_H__ */</span></span></code></pre></div>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="kw">struct</span> _TStrClass <span class="op">{</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a>  GObjectClass parent_class<span class="op">;</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a>  <span class="co">/* expect that descendants will override the setter */</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a>  <span class="dt">void</span> <span class="op">(*</span>set_string<span class="op">)</span>  <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">);</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a><span class="op">};</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a></span>
+<span id="cb10-15"><a href="#cb10-15"></a>TStr <span class="op">*</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a>t_str_concat <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> TStr <span class="op">*</span>other<span class="op">);</span></span>
+<span id="cb10-17"><a href="#cb10-17"></a></span>
+<span id="cb10-18"><a href="#cb10-18"></a><span class="co">/* setter and getter */</span></span>
+<span id="cb10-19"><a href="#cb10-19"></a><span class="dt">void</span></span>
+<span id="cb10-20"><a href="#cb10-20"></a>t_str_set_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">);</span></span>
+<span id="cb10-21"><a href="#cb10-21"></a></span>
+<span id="cb10-22"><a href="#cb10-22"></a><span class="dt">char</span> <span class="op">*</span></span>
+<span id="cb10-23"><a href="#cb10-23"></a>t_str_get_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">);</span></span>
+<span id="cb10-24"><a href="#cb10-24"></a></span>
+<span id="cb10-25"><a href="#cb10-25"></a><span class="co">/* create a new TStr instance */</span></span>
+<span id="cb10-26"><a href="#cb10-26"></a>TStr <span class="op">*</span></span>
+<span id="cb10-27"><a href="#cb10-27"></a>t_str_new_with_string <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">);</span></span>
+<span id="cb10-28"><a href="#cb10-28"></a></span>
+<span id="cb10-29"><a href="#cb10-29"></a>TStr <span class="op">*</span></span>
+<span id="cb10-30"><a href="#cb10-30"></a>t_str_new <span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
+<span id="cb10-31"><a href="#cb10-31"></a><span class="pp">#endif </span><span class="co">/* __T_STR_H__ */</span></span></code></pre></div>
 <ul>
-<li>7: Uses <code>G_DECLARE_DERIVABLE_TYPE</code> like the example in the previous section.</li>
-<li>9-11: TStrClass doesn’t have its own class area. But you can add some members like you did in <code>TNumber</code>.</li>
-<li>13-14: <code>t_str_concat</code> connects two strings of TStr instances and returns a new TStr instance.</li>
-<li>17-21: Setter and getter.</li>
-<li>24-28: Functions to create a TStr object.</li>
+<li>7: Uses <code>G_DECLARE_DERIVABLE_TYPE</code> like the example in
+the previous section.</li>
+<li>9-13: TStrClass has one class method. It is <code>set_string</code>.
+This will be overridden by the child class <code>TNumStr</code>. The
+class method is called by the public function
+<code>t_str_set_string</code>. It has a string parameter and sets the
+instance string with the string (argument). TNumStr class holds a string
+like TStr, but it holds the type of the string as well. The class method
+<code>set_string</code> will be overridden and it will set not only the
+string but also the type in the child class. The detailed explanation
+will be in the later part of this section and the next section.</li>
+<li>15-16: <code>t_str_concat</code> connects two strings of TStr
+instances and returns a new TStr instance.</li>
+<li>19-23: Setter and getter.</li>
+<li>26-30: Functions to create a TStr object.</li>
 </ul>
 <h2 id="c-file">C file</h2>
-<p>The C file of TStr object is as follows. It is <code>tstr.c</code>.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1"></a><span class="pp">#include </span><span class="im">&quot;tstr.h&quot;</span></span>
+<p>The C file of TStr object is as follows. It is
+<code>tstr.c</code>.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1"></a><span class="pp">#include </span><span class="im">&quot;tstr.h&quot;</span></span>
 <span id="cb11-2"><a href="#cb11-2"></a></span>
-<span id="cb11-3"><a href="#cb11-3"></a><span class="kw">enum</span> {</span>
-<span id="cb11-4"><a href="#cb11-4"></a>  PROP_0,</span>
-<span id="cb11-5"><a href="#cb11-5"></a>  PROP_STRING,</span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="kw">enum</span> <span class="op">{</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a>  PROP_0<span class="op">,</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>  PROP_STRING<span class="op">,</span></span>
 <span id="cb11-6"><a href="#cb11-6"></a>  N_PROPERTIES</span>
-<span id="cb11-7"><a href="#cb11-7"></a>};</span>
+<span id="cb11-7"><a href="#cb11-7"></a><span class="op">};</span></span>
 <span id="cb11-8"><a href="#cb11-8"></a></span>
-<span id="cb11-9"><a href="#cb11-9"></a><span class="dt">static</span> GParamSpec *str_properties[N_PROPERTIES] = {NULL, };</span>
+<span id="cb11-9"><a href="#cb11-9"></a><span class="dt">static</span> GParamSpec <span class="op">*</span>str_properties<span class="op">[</span>N_PROPERTIES<span class="op">]</span> <span class="op">=</span> <span class="op">{</span>NULL<span class="op">,</span> <span class="op">};</span></span>
 <span id="cb11-10"><a href="#cb11-10"></a></span>
-<span id="cb11-11"><a href="#cb11-11"></a><span class="kw">typedef</span> <span class="kw">struct</span> {</span>
-<span id="cb11-12"><a href="#cb11-12"></a>  <span class="dt">char</span> *string;</span>
-<span id="cb11-13"><a href="#cb11-13"></a>} TStrPrivate;</span>
+<span id="cb11-11"><a href="#cb11-11"></a><span class="kw">typedef</span> <span class="kw">struct</span> <span class="op">{</span></span>
+<span id="cb11-12"><a href="#cb11-12"></a>  <span class="dt">char</span> <span class="op">*</span>string<span class="op">;</span></span>
+<span id="cb11-13"><a href="#cb11-13"></a><span class="op">}</span> TStrPrivate<span class="op">;</span></span>
 <span id="cb11-14"><a href="#cb11-14"></a></span>
-<span id="cb11-15"><a href="#cb11-15"></a>G_DEFINE_TYPE_WITH_PRIVATE(TStr, t_str, G_TYPE_OBJECT)</span>
+<span id="cb11-15"><a href="#cb11-15"></a>G_DEFINE_TYPE_WITH_PRIVATE<span class="op">(</span>TStr<span class="op">,</span> t_str<span class="op">,</span> G_TYPE_OBJECT<span class="op">)</span></span>
 <span id="cb11-16"><a href="#cb11-16"></a></span>
 <span id="cb11-17"><a href="#cb11-17"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb11-18"><a href="#cb11-18"></a>t_str_set_property (GObject *object, guint property_id, <span class="dt">const</span> GValue *value, GParamSpec *pspec) {</span>
-<span id="cb11-19"><a href="#cb11-19"></a>  TStr *self = T_STR (object);</span>
-<span id="cb11-20"><a href="#cb11-20"></a>  TStrPrivate *priv = t_str_get_instance_private (self);</span>
-<span id="cb11-21"><a href="#cb11-21"></a></span>
-<span id="cb11-22"><a href="#cb11-22"></a></span>
-<span id="cb11-23"><a href="#cb11-23"></a>  <span class="cf">if</span> (property_id == PROP_STRING) {</span>
-<span id="cb11-24"><a href="#cb11-24"></a>    <span class="cf">if</span> (priv-&gt;string)</span>
-<span id="cb11-25"><a href="#cb11-25"></a>      g_free (priv-&gt;string);</span>
-<span id="cb11-26"><a href="#cb11-26"></a>    priv-&gt;string = g_strdup (g_value_get_string (value));</span>
-<span id="cb11-27"><a href="#cb11-27"></a>  } <span class="cf">else</span></span>
-<span id="cb11-28"><a href="#cb11-28"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);</span>
-<span id="cb11-29"><a href="#cb11-29"></a>}</span>
+<span id="cb11-18"><a href="#cb11-18"></a>t_str_set_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> <span class="dt">const</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-19"><a href="#cb11-19"></a>  TStr <span class="op">*</span>self <span class="op">=</span> T_STR <span class="op">(</span>object<span class="op">);</span></span>
+<span id="cb11-20"><a href="#cb11-20"></a></span>
+<span id="cb11-21"><a href="#cb11-21"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_STRING<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-22"><a href="#cb11-22"></a>    t_str_set_string<span class="op">(</span>self<span class="op">,</span> g_value_get_string <span class="op">(</span>value<span class="op">));</span></span>
+<span id="cb11-23"><a href="#cb11-23"></a>  <span class="op">}</span> <span class="cf">else</span></span>
+<span id="cb11-24"><a href="#cb11-24"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
+<span id="cb11-25"><a href="#cb11-25"></a><span class="op">}</span></span>
+<span id="cb11-26"><a href="#cb11-26"></a></span>
+<span id="cb11-27"><a href="#cb11-27"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb11-28"><a href="#cb11-28"></a>t_str_get_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-29"><a href="#cb11-29"></a>  TStr <span class="op">*</span>self <span class="op">=</span> T_STR <span class="op">(</span>object<span class="op">);</span></span>
 <span id="cb11-30"><a href="#cb11-30"></a></span>
-<span id="cb11-31"><a href="#cb11-31"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb11-32"><a href="#cb11-32"></a>t_str_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {</span>
-<span id="cb11-33"><a href="#cb11-33"></a>  TStr *self = T_STR (object);</span>
-<span id="cb11-34"><a href="#cb11-34"></a>  TStrPrivate *priv = t_str_get_instance_private (self);</span>
-<span id="cb11-35"><a href="#cb11-35"></a></span>
-<span id="cb11-36"><a href="#cb11-36"></a>  <span class="cf">if</span> (property_id == PROP_STRING)</span>
-<span id="cb11-37"><a href="#cb11-37"></a>    g_value_set_string (value, g_strdup (priv-&gt;string));</span>
-<span id="cb11-38"><a href="#cb11-38"></a>  <span class="cf">else</span></span>
-<span id="cb11-39"><a href="#cb11-39"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);</span>
-<span id="cb11-40"><a href="#cb11-40"></a>}</span>
-<span id="cb11-41"><a href="#cb11-41"></a></span>
-<span id="cb11-42"><a href="#cb11-42"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb11-43"><a href="#cb11-43"></a>t_str_finalize (GObject *object) {</span>
-<span id="cb11-44"><a href="#cb11-44"></a>  TStr *self = T_STR (object);</span>
-<span id="cb11-45"><a href="#cb11-45"></a>  TStrPrivate *priv = t_str_get_instance_private (self);</span>
-<span id="cb11-46"><a href="#cb11-46"></a></span>
-<span id="cb11-47"><a href="#cb11-47"></a>  <span class="cf">if</span> (priv-&gt;string)</span>
-<span id="cb11-48"><a href="#cb11-48"></a>    g_free (priv-&gt;string);</span>
-<span id="cb11-49"><a href="#cb11-49"></a>  G_OBJECT_CLASS (t_str_parent_class)-&gt;finalize (object);</span>
-<span id="cb11-50"><a href="#cb11-50"></a>}</span>
-<span id="cb11-51"><a href="#cb11-51"></a></span>
-<span id="cb11-52"><a href="#cb11-52"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb11-53"><a href="#cb11-53"></a>t_str_init (TStr *self) {</span>
-<span id="cb11-54"><a href="#cb11-54"></a>  TStrPrivate *priv = t_str_get_instance_private (self);</span>
+<span id="cb11-31"><a href="#cb11-31"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_STRING<span class="op">)</span></span>
+<span id="cb11-32"><a href="#cb11-32"></a>    g_value_set_string <span class="op">(</span>value<span class="op">,</span> t_str_get_string<span class="op">(</span>self<span class="op">));</span></span>
+<span id="cb11-33"><a href="#cb11-33"></a>  <span class="cf">else</span></span>
+<span id="cb11-34"><a href="#cb11-34"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
+<span id="cb11-35"><a href="#cb11-35"></a><span class="op">}</span></span>
+<span id="cb11-36"><a href="#cb11-36"></a></span>
+<span id="cb11-37"><a href="#cb11-37"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb11-38"><a href="#cb11-38"></a>t_str_real_set_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-39"><a href="#cb11-39"></a>  TStrPrivate <span class="op">*</span>priv <span class="op">=</span> t_str_get_instance_private <span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb11-40"><a href="#cb11-40"></a></span>
+<span id="cb11-41"><a href="#cb11-41"></a>  <span class="cf">if</span> <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">)</span></span>
+<span id="cb11-42"><a href="#cb11-42"></a>    g_free <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">);</span></span>
+<span id="cb11-43"><a href="#cb11-43"></a>  priv<span class="op">-&gt;</span>string <span class="op">=</span> g_strdup <span class="op">(</span>s<span class="op">);</span></span>
+<span id="cb11-44"><a href="#cb11-44"></a><span class="op">}</span></span>
+<span id="cb11-45"><a href="#cb11-45"></a></span>
+<span id="cb11-46"><a href="#cb11-46"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb11-47"><a href="#cb11-47"></a>t_str_finalize <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-48"><a href="#cb11-48"></a>  TStr <span class="op">*</span>self <span class="op">=</span> T_STR <span class="op">(</span>object<span class="op">);</span></span>
+<span id="cb11-49"><a href="#cb11-49"></a>  TStrPrivate <span class="op">*</span>priv <span class="op">=</span> t_str_get_instance_private <span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb11-50"><a href="#cb11-50"></a></span>
+<span id="cb11-51"><a href="#cb11-51"></a>  <span class="cf">if</span> <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">)</span></span>
+<span id="cb11-52"><a href="#cb11-52"></a>    g_free <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">);</span></span>
+<span id="cb11-53"><a href="#cb11-53"></a>  G_OBJECT_CLASS <span class="op">(</span>t_str_parent_class<span class="op">)-&gt;</span>finalize <span class="op">(</span>object<span class="op">);</span></span>
+<span id="cb11-54"><a href="#cb11-54"></a><span class="op">}</span></span>
 <span id="cb11-55"><a href="#cb11-55"></a></span>
-<span id="cb11-56"><a href="#cb11-56"></a>  priv-&gt;string = NULL;</span>
-<span id="cb11-57"><a href="#cb11-57"></a>}</span>
-<span id="cb11-58"><a href="#cb11-58"></a></span>
-<span id="cb11-59"><a href="#cb11-59"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb11-60"><a href="#cb11-60"></a>t_str_class_init (TStrClass *class) {</span>
-<span id="cb11-61"><a href="#cb11-61"></a>  GObjectClass *gobject_class = G_OBJECT_CLASS (class);</span>
+<span id="cb11-56"><a href="#cb11-56"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb11-57"><a href="#cb11-57"></a>t_str_init <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-58"><a href="#cb11-58"></a>  TStrPrivate <span class="op">*</span>priv <span class="op">=</span> t_str_get_instance_private <span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb11-59"><a href="#cb11-59"></a></span>
+<span id="cb11-60"><a href="#cb11-60"></a>  priv<span class="op">-&gt;</span>string <span class="op">=</span> NULL<span class="op">;</span></span>
+<span id="cb11-61"><a href="#cb11-61"></a><span class="op">}</span></span>
 <span id="cb11-62"><a href="#cb11-62"></a></span>
-<span id="cb11-63"><a href="#cb11-63"></a>  gobject_class-&gt;finalize = t_str_finalize;</span>
-<span id="cb11-64"><a href="#cb11-64"></a>  gobject_class-&gt;set_property = t_str_set_property;</span>
-<span id="cb11-65"><a href="#cb11-65"></a>  gobject_class-&gt;get_property = t_str_get_property;</span>
-<span id="cb11-66"><a href="#cb11-66"></a>  str_properties[PROP_STRING] = g_param_spec_string (<span class="st">&quot;string&quot;</span>, <span class="st">&quot;str&quot;</span>, <span class="st">&quot;string&quot;</span>, <span class="st">&quot;&quot;</span>, G_PARAM_READWRITE);</span>
-<span id="cb11-67"><a href="#cb11-67"></a>  g_object_class_install_properties (gobject_class, N_PROPERTIES, str_properties);</span>
-<span id="cb11-68"><a href="#cb11-68"></a>}</span>
-<span id="cb11-69"><a href="#cb11-69"></a></span>
-<span id="cb11-70"><a href="#cb11-70"></a><span class="co">/* setter and getter */</span></span>
-<span id="cb11-71"><a href="#cb11-71"></a><span class="dt">void</span></span>
-<span id="cb11-72"><a href="#cb11-72"></a>t_str_set_string (TStr *self, <span class="dt">const</span> <span class="dt">char</span> *s) {</span>
-<span id="cb11-73"><a href="#cb11-73"></a>  g_return_if_fail (T_IS_STR (self));</span>
-<span id="cb11-74"><a href="#cb11-74"></a></span>
-<span id="cb11-75"><a href="#cb11-75"></a>  g_object_set (self, <span class="st">&quot;string&quot;</span>, s, NULL);</span>
-<span id="cb11-76"><a href="#cb11-76"></a>}</span>
-<span id="cb11-77"><a href="#cb11-77"></a></span>
-<span id="cb11-78"><a href="#cb11-78"></a><span class="dt">char</span> *</span>
-<span id="cb11-79"><a href="#cb11-79"></a>t_str_get_string (TStr *self) {</span>
-<span id="cb11-80"><a href="#cb11-80"></a>  g_return_val_if_fail (T_IS_STR (self), NULL);</span>
+<span id="cb11-63"><a href="#cb11-63"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb11-64"><a href="#cb11-64"></a>t_str_class_init <span class="op">(</span>TStrClass <span class="op">*</span>class<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-65"><a href="#cb11-65"></a>  GObjectClass <span class="op">*</span>gobject_class <span class="op">=</span> G_OBJECT_CLASS <span class="op">(</span>class<span class="op">);</span></span>
+<span id="cb11-66"><a href="#cb11-66"></a></span>
+<span id="cb11-67"><a href="#cb11-67"></a>  gobject_class<span class="op">-&gt;</span>finalize <span class="op">=</span> t_str_finalize<span class="op">;</span></span>
+<span id="cb11-68"><a href="#cb11-68"></a>  gobject_class<span class="op">-&gt;</span>set_property <span class="op">=</span> t_str_set_property<span class="op">;</span></span>
+<span id="cb11-69"><a href="#cb11-69"></a>  gobject_class<span class="op">-&gt;</span>get_property <span class="op">=</span> t_str_get_property<span class="op">;</span></span>
+<span id="cb11-70"><a href="#cb11-70"></a>  str_properties<span class="op">[</span>PROP_STRING<span class="op">]</span> <span class="op">=</span> g_param_spec_string <span class="op">(</span><span class="st">&quot;string&quot;</span><span class="op">,</span> <span class="st">&quot;str&quot;</span><span class="op">,</span> <span class="st">&quot;string&quot;</span><span class="op">,</span> <span class="st">&quot;&quot;</span><span class="op">,</span> G_PARAM_READWRITE<span class="op">);</span></span>
+<span id="cb11-71"><a href="#cb11-71"></a>  g_object_class_install_properties <span class="op">(</span>gobject_class<span class="op">,</span> N_PROPERTIES<span class="op">,</span> str_properties<span class="op">);</span></span>
+<span id="cb11-72"><a href="#cb11-72"></a></span>
+<span id="cb11-73"><a href="#cb11-73"></a>  class<span class="op">-&gt;</span>set_string <span class="op">=</span> t_str_real_set_string<span class="op">;</span></span>
+<span id="cb11-74"><a href="#cb11-74"></a><span class="op">}</span></span>
+<span id="cb11-75"><a href="#cb11-75"></a></span>
+<span id="cb11-76"><a href="#cb11-76"></a><span class="co">/* setter and getter */</span></span>
+<span id="cb11-77"><a href="#cb11-77"></a><span class="dt">void</span></span>
+<span id="cb11-78"><a href="#cb11-78"></a>t_str_set_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-79"><a href="#cb11-79"></a>  g_return_if_fail <span class="op">(</span>T_IS_STR <span class="op">(</span>self<span class="op">));</span></span>
+<span id="cb11-80"><a href="#cb11-80"></a>  TStrClass <span class="op">*</span>class <span class="op">=</span> T_STR_GET_CLASS <span class="op">(</span>self<span class="op">);</span></span>
 <span id="cb11-81"><a href="#cb11-81"></a></span>
-<span id="cb11-82"><a href="#cb11-82"></a>  <span class="dt">char</span> *s;</span>
-<span id="cb11-83"><a href="#cb11-83"></a></span>
-<span id="cb11-84"><a href="#cb11-84"></a>  g_object_get (self, <span class="st">&quot;string&quot;</span>, &amp;s, NULL);</span>
-<span id="cb11-85"><a href="#cb11-85"></a>  <span class="cf">return</span> s;</span>
-<span id="cb11-86"><a href="#cb11-86"></a>}</span>
-<span id="cb11-87"><a href="#cb11-87"></a></span>
-<span id="cb11-88"><a href="#cb11-88"></a>TStr *</span>
-<span id="cb11-89"><a href="#cb11-89"></a>t_str_concat (TStr *self, TStr *other) {</span>
-<span id="cb11-90"><a href="#cb11-90"></a>  g_return_val_if_fail (T_IS_STR (self), NULL);</span>
-<span id="cb11-91"><a href="#cb11-91"></a>  g_return_val_if_fail (T_IS_STR (other), NULL);</span>
+<span id="cb11-82"><a href="#cb11-82"></a>  class<span class="op">-&gt;</span>set_string <span class="op">(</span>self<span class="op">,</span> s<span class="op">);</span></span>
+<span id="cb11-83"><a href="#cb11-83"></a><span class="op">}</span></span>
+<span id="cb11-84"><a href="#cb11-84"></a></span>
+<span id="cb11-85"><a href="#cb11-85"></a><span class="dt">char</span> <span class="op">*</span></span>
+<span id="cb11-86"><a href="#cb11-86"></a>t_str_get_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-87"><a href="#cb11-87"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_STR <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb11-88"><a href="#cb11-88"></a>  TStrPrivate <span class="op">*</span>priv <span class="op">=</span> t_str_get_instance_private <span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb11-89"><a href="#cb11-89"></a></span>
+<span id="cb11-90"><a href="#cb11-90"></a>  <span class="cf">return</span> g_strdup <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">);</span></span>
+<span id="cb11-91"><a href="#cb11-91"></a><span class="op">}</span></span>
 <span id="cb11-92"><a href="#cb11-92"></a></span>
-<span id="cb11-93"><a href="#cb11-93"></a>  <span class="dt">char</span> *s1, *s2, *s3;</span>
-<span id="cb11-94"><a href="#cb11-94"></a>  TStr *str;</span>
-<span id="cb11-95"><a href="#cb11-95"></a></span>
-<span id="cb11-96"><a href="#cb11-96"></a>  s1 = t_str_get_string (self);</span>
-<span id="cb11-97"><a href="#cb11-97"></a>  s2 = t_str_get_string (other);</span>
-<span id="cb11-98"><a href="#cb11-98"></a>  <span class="cf">if</span> (s1 &amp;&amp; s2)</span>
-<span id="cb11-99"><a href="#cb11-99"></a>    s3 = g_strconcat (s1, s2, NULL);</span>
-<span id="cb11-100"><a href="#cb11-100"></a>  <span class="cf">else</span> <span class="cf">if</span> (s1)</span>
-<span id="cb11-101"><a href="#cb11-101"></a>    s3 = g_strdup (s1);</span>
-<span id="cb11-102"><a href="#cb11-102"></a>  <span class="cf">else</span> <span class="cf">if</span> (s2)</span>
-<span id="cb11-103"><a href="#cb11-103"></a>    s3 = g_strdup (s2);</span>
-<span id="cb11-104"><a href="#cb11-104"></a>  <span class="cf">else</span></span>
-<span id="cb11-105"><a href="#cb11-105"></a>    s3 = NULL;</span>
-<span id="cb11-106"><a href="#cb11-106"></a>  str = t_str_new_with_string (s3);</span>
-<span id="cb11-107"><a href="#cb11-107"></a>  <span class="cf">if</span> (s1) g_free (s1);</span>
-<span id="cb11-108"><a href="#cb11-108"></a>  <span class="cf">if</span> (s2) g_free (s2);</span>
-<span id="cb11-109"><a href="#cb11-109"></a>  <span class="cf">if</span> (s3) g_free (s3);</span>
-<span id="cb11-110"><a href="#cb11-110"></a>  <span class="cf">return</span> str;</span>
-<span id="cb11-111"><a href="#cb11-111"></a>}</span>
-<span id="cb11-112"><a href="#cb11-112"></a></span>
-<span id="cb11-113"><a href="#cb11-113"></a><span class="co">/* create a new TStr instance */</span></span>
-<span id="cb11-114"><a href="#cb11-114"></a>TStr *</span>
-<span id="cb11-115"><a href="#cb11-115"></a>t_str_new_with_string (<span class="dt">const</span> <span class="dt">char</span> *s) {</span>
-<span id="cb11-116"><a href="#cb11-116"></a>  <span class="cf">return</span> T_STR (g_object_new (T_TYPE_STR, <span class="st">&quot;string&quot;</span>, s, NULL));</span>
-<span id="cb11-117"><a href="#cb11-117"></a>}</span>
-<span id="cb11-118"><a href="#cb11-118"></a></span>
-<span id="cb11-119"><a href="#cb11-119"></a>TStr *</span>
-<span id="cb11-120"><a href="#cb11-120"></a>t_str_new (<span class="dt">void</span>) {</span>
-<span id="cb11-121"><a href="#cb11-121"></a>  <span class="cf">return</span> T_STR (g_object_new (T_TYPE_STR, NULL));</span>
-<span id="cb11-122"><a href="#cb11-122"></a>}</span></code></pre></div>
+<span id="cb11-93"><a href="#cb11-93"></a>TStr <span class="op">*</span></span>
+<span id="cb11-94"><a href="#cb11-94"></a>t_str_concat <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> TStr <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-95"><a href="#cb11-95"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_STR <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb11-96"><a href="#cb11-96"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_STR <span class="op">(</span>other<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb11-97"><a href="#cb11-97"></a></span>
+<span id="cb11-98"><a href="#cb11-98"></a>  <span class="dt">char</span> <span class="op">*</span>s1<span class="op">,</span> <span class="op">*</span>s2<span class="op">,</span> <span class="op">*</span>s3<span class="op">;</span></span>
+<span id="cb11-99"><a href="#cb11-99"></a>  TStr <span class="op">*</span>str<span class="op">;</span></span>
+<span id="cb11-100"><a href="#cb11-100"></a></span>
+<span id="cb11-101"><a href="#cb11-101"></a>  s1 <span class="op">=</span> t_str_get_string <span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb11-102"><a href="#cb11-102"></a>  s2 <span class="op">=</span> t_str_get_string <span class="op">(</span>other<span class="op">);</span></span>
+<span id="cb11-103"><a href="#cb11-103"></a>  <span class="cf">if</span> <span class="op">(</span>s1 <span class="op">&amp;&amp;</span> s2<span class="op">)</span></span>
+<span id="cb11-104"><a href="#cb11-104"></a>    s3 <span class="op">=</span> g_strconcat <span class="op">(</span>s1<span class="op">,</span> s2<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb11-105"><a href="#cb11-105"></a>  <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>s1<span class="op">)</span></span>
+<span id="cb11-106"><a href="#cb11-106"></a>    s3 <span class="op">=</span> g_strdup <span class="op">(</span>s1<span class="op">);</span></span>
+<span id="cb11-107"><a href="#cb11-107"></a>  <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>s2<span class="op">)</span></span>
+<span id="cb11-108"><a href="#cb11-108"></a>    s3 <span class="op">=</span> g_strdup <span class="op">(</span>s2<span class="op">);</span></span>
+<span id="cb11-109"><a href="#cb11-109"></a>  <span class="cf">else</span></span>
+<span id="cb11-110"><a href="#cb11-110"></a>    s3 <span class="op">=</span> NULL<span class="op">;</span></span>
+<span id="cb11-111"><a href="#cb11-111"></a>  str <span class="op">=</span> t_str_new_with_string <span class="op">(</span>s3<span class="op">);</span></span>
+<span id="cb11-112"><a href="#cb11-112"></a>  <span class="cf">if</span> <span class="op">(</span>s1<span class="op">)</span> g_free <span class="op">(</span>s1<span class="op">);</span></span>
+<span id="cb11-113"><a href="#cb11-113"></a>  <span class="cf">if</span> <span class="op">(</span>s2<span class="op">)</span> g_free <span class="op">(</span>s2<span class="op">);</span></span>
+<span id="cb11-114"><a href="#cb11-114"></a>  <span class="cf">if</span> <span class="op">(</span>s3<span class="op">)</span> g_free <span class="op">(</span>s3<span class="op">);</span></span>
+<span id="cb11-115"><a href="#cb11-115"></a>  <span class="cf">return</span> str<span class="op">;</span></span>
+<span id="cb11-116"><a href="#cb11-116"></a><span class="op">}</span></span>
+<span id="cb11-117"><a href="#cb11-117"></a></span>
+<span id="cb11-118"><a href="#cb11-118"></a><span class="co">/* create a new TStr instance */</span></span>
+<span id="cb11-119"><a href="#cb11-119"></a>TStr <span class="op">*</span></span>
+<span id="cb11-120"><a href="#cb11-120"></a>t_str_new_with_string <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-121"><a href="#cb11-121"></a>  <span class="cf">return</span> T_STR <span class="op">(</span>g_object_new <span class="op">(</span>T_TYPE_STR<span class="op">,</span> <span class="st">&quot;string&quot;</span><span class="op">,</span> s<span class="op">,</span> NULL<span class="op">));</span></span>
+<span id="cb11-122"><a href="#cb11-122"></a><span class="op">}</span></span>
+<span id="cb11-123"><a href="#cb11-123"></a></span>
+<span id="cb11-124"><a href="#cb11-124"></a>TStr <span class="op">*</span></span>
+<span id="cb11-125"><a href="#cb11-125"></a>t_str_new <span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-126"><a href="#cb11-126"></a>  <span class="cf">return</span> T_STR <span class="op">(</span>g_object_new <span class="op">(</span>T_TYPE_STR<span class="op">,</span> NULL<span class="op">));</span></span>
+<span id="cb11-127"><a href="#cb11-127"></a><span class="op">}</span></span></code></pre></div>
 <ul>
-<li>3-9: <code>enum</code> defines a property id. <code>PROP_STRING</code> is the id of “string” property. Only one property is defined here, so you can define it without <code>enum</code>. However, <code>enum</code> can be applied to define two or more properties. So, this way is more recommended. In the same way, an array <code>str_properties</code> is used. it stores a static pointer for GParamSpec.</li>
-<li>11-13: TStrPrivate is a C structure. It is a private data area for TStr. If TStr were a final type, then no descendant would exist and TStr instance could be a private data area. But TStr is derivable so you can’t store such private data in TStr instance that is open to the descendants. The name of this structure is “&lt;object name&gt;Private” like <code>TStrPrivate</code>. The structure must be defined before <code>G_DEFINE_TYPE_WITH_PRIVATE</code>.</li>
-<li>15: <code>G_DEFINE_TYPE_WITH_PRIVATE</code> macro. This macro expands to:
+<li>3-9: <code>enum</code> defines a property id.
+<code>PROP_STRING</code> is the id of “string” property. Only one
+property is defined here, so you can define it without
+<code>enum</code>. However, <code>enum</code> can be applied to define
+two or more properties. So, this way is more recommended. In the same
+way, an array <code>str_properties</code> is used. it stores a static
+pointer for GParamSpec.</li>
+<li>11-13: TStrPrivate is a C structure. It is a private data area for
+TStr. If TStr were a final type, then no descendant would exist and TStr
+instance could be a private data area. But TStr is derivable so you
+can’t store such private data in TStr instance that is open to the
+descendants. The name of this structure is “&lt;object name&gt;Private”
+like <code>TStrPrivate</code>. The structure must be defined before
+<code>G_DEFINE_TYPE_WITH_PRIVATE</code>.</li>
+<li>15: <code>G_DEFINE_TYPE_WITH_PRIVATE</code> macro. This macro
+expands to:
 <ul>
-<li>Declares <code>t_str_class_init</code> which is a class initialization function.</li>
-<li>Declares <code>t_str_init</code> which is an instance initialization function.</li>
-<li>Defines <code>t_str_parent_class</code> static variable. It points to the parent class of TStr.</li>
-<li>Adds private instance data to the type. It is a C structure and its name is <code>TStrPrivate</code>. (See above).</li>
-<li>Defines <code>t_str_get_type ()</code> function. This function registers the type in its first call.</li>
-<li>Defines a private instance getter <code>t_str_get_instance_private ()</code>. This function has a parameter which is the pointer to the instance.</li>
+<li>Declares <code>t_str_class_init</code> which is a class
+initialization function.</li>
+<li>Declares <code>t_str_init</code> which is an instance initialization
+function.</li>
+<li>Defines <code>t_str_parent_class</code> static variable. It points
+to the parent class of TStr.</li>
+<li>Adds private instance data to the type. It is a C structure and its
+name is <code>TStrPrivate</code>. (See above).</li>
+<li>Defines <code>t_str_get_type ()</code> function. This function
+registers the type in its first call.</li>
+<li>Defines a private instance getter
+<code>t_str_get_instance_private ()</code>. This function has a
+parameter which is the pointer to the instance.</li>
 </ul></li>
-<li>17-29: <code>t_str_set_property</code>. This is similar to <code>t_int_set_property</code>, but the property value is stored in the private area.</li>
-<li>20: Gets the pointer to <code>TStrPrivate</code> and assigns it to <code>priv</code>.</li>
-<li>24-25: <code>priv-&gt;string</code> is a pointer to the string TStr holds. Before updating the pointer, the previous string need to be freed.</li>
-<li>26: Stores the string in <code>priv-&gt;string</code>. The function <code>g_value_get_string</code> returns the pointer to the string that GValue owns. You can’t own the string. That means you can’t change or free the string. Therefore, it is necessary to duplicate the string before it is stored in <code>prive-&gt;string</code>. If you don’t duplicate it, <code>priv-&gt;string</code> may be changed or freed by the GValue later.</li>
-<li>31-40: <code>t_str_get_property</code>. Gets the pointer to <code>TStrPrivate</code> and assigns it to <code>priv</code>. Then it retrieves the string from <code>priv-&gt;string</code>, duplicates it and set the GValue <code>value</code> with the string. Notice that the function <code>g_strdup</code> is necessary as well.</li>
-<li>42-50: <code>t_str_finalize</code> is called when TStr instance is destroyed. This function frees the string <code>priv-&gt;string</code>. After that, it calls the parent’s finalize method. This is called “chain up to its parent” and it will be explained in the next section.</li>
-<li>52-57: <code>t_str_init</code> initializes <code>priv-&gt;string</code>.</li>
-<li>59-68: <code>t_str_class_init</code> function initializes the class of TStr object.</li>
-<li>63: Overrides <code>finalize</code> method. This method is called in the destruction process. Overrides <code>set_property</code> and <code>get_property</code> method. Creates GParamSpec. Then installs the property.</li>
-<li>71-86: Setter and getter functions. General setting/getting property functions <code>g_object_set</code> and <code>g_object_get</code> are fine. But the setter and getter are convenient and user friendly.</li>
-<li>88-111 <code>t_str_concat</code> function. It concatenates the string of <code>self</code> and <code>other</code> and creates a new TStr that has the new string.</li>
-<li>114-122: <code>t_str_new_with_string</code> and <code>t_str_new</code> create a new TStr instances.</li>
+<li>17-25: <code>t_str_set_property</code>. This is similar to
+<code>t_int_set_property</code>, but the property value is stored in the
+private area.</li>
+<li>22: It uses <code>t_str_set_string</code> function to set the
+private data area with the string from the GValue. It is important
+because <code>t_str_set_string</code> calls the class method
+<code>set_string</code>, which will be overridden by the child class.
+Therefore, the <code>t_str_set_property</code> function will set the
+string and also its type in the child class. The function
+<code>g_value_get_string</code> returns the pointer to the string that
+GValue owns. You can’t own the string. That means you can’t change or
+free the string. Therefore, it is necessary to duplicate the string
+before it is stored. The duplication is done in the function
+<code>t_str_set_string</code>.</li>
+<li>27-35: <code>t_str_get_property</code>. It uses
+<code>t_str_get_string</code> function. String duplication is done in
+the function.</li>
+<li>37-44 <code>t_str_real_set_string</code> function. This is pointed
+by <code>set_string</code> in the class. So, it is the body of the class
+method. First, it gets the pointer to the private area with
+<code>t_str_get_instance_private</code> function. If the instance holds
+a string, free it before setting it with a new string. It copies the
+string and put it to <code>priv-&gt;string</code>.</li>
+<li>46-54: <code>t_str_finalize</code> is called when TStr instance is
+destroyed. This function frees the string <code>priv-&gt;string</code>.
+After that, it calls the parent’s finalize method. This is called “chain
+up to its parent” and it will be explained later in this section.</li>
+<li>56-61: <code>t_str_init</code> initializes
+<code>priv-&gt;string</code>.</li>
+<li>63-74: <code>t_str_class_init</code> function initializes the class
+of TStr object.</li>
+<li>67: Overrides <code>finalize</code> method. This method is called in
+the destruction process.</li>
+<li>68-69: Overrides <code>set_property</code> and
+<code>get_property</code> method.</li>
+<li>70-71: Creates GParamSpec. Then installs the property.</li>
+<li>73: The class method <code>set_string</code> points to
+<code>t_str_real_set_string</code>. This method is expected to be
+replaced in the child class.</li>
+<li>77-91: Setter and getter. They are used by property set/get
+functions <code>t_str_set_property</code> and
+<code>t_str_get_property</code>. The setter
+<code>t_str_set_string</code> just calls the class method. So its
+behavior will change in the child class.</li>
+<li>93-116: <code>t_str_concat</code> function. It concatenates the
+string of <code>self</code> and <code>other</code> and creates a new
+TStr.</li>
+<li>119-127: <code>t_str_new_with_string</code> and
+<code>t_str_new</code> create a new TStr instances.</li>
 </ul>
-<h2 id="how-to-write-a-derivable-type">How to write a derivable type</h2>
+<h2 id="chaining-up-to-its-parent">Chaining up to its parent</h2>
+<p>The “chain up to its parent” process is illustrated with the diagram
+below.</p>
+<figure>
+<img src="image/chainup.png"
+alt="Chaining up process in GObject and TStr" />
+<figcaption aria-hidden="true">Chaining up process in GObject and
+TStr</figcaption>
+</figure>
+<p>There are two classes, GObjectCLass and TStrClass. Each class has
+their finalize methods (functions) pointed by the pointers in the class
+structures. The finalize method of TStrClass finalizes its own part of
+the TStr instance. At the end of the function, it calls its parent’s
+finalize method. It is the finalize method of GObjectClass. It calls its
+own finalize function and finalizes the GObject private data.</p>
+<p>If the GObjectClass has two or more descendant classes, the number of
+the finalize functions may be the same as the number of the descendants.
+And they are connected by “chain up to its parent” way.</p>
+<figure>
+<img src="image/chainup3.png" alt="Chaining up process" />
+<figcaption aria-hidden="true">Chaining up process</figcaption>
+</figure>
+<h2 id="how-to-write-a-derivable-type">How to write a derivable
+type</h2>
 <ul>
-<li>Use <code>G_DECLARE_DERIVABLE_TYPE</code> macro in the header file. You need to write a macro like <code>#define T_TYPE_STR (t_str_get_type ())</code> before <code>G_DECLARE_DERIVABLE_TYPE</code>.</li>
-<li>Declare your class structure in the header file. The contents of the class are open to the descendants. Most of the members are class methods.</li>
-<li>Use <code>G_DEFINE_TYPE_WITH_PRIVATE</code> in the C file. You need to define the private area before <code>G_DEFINE_TYPE_WITH_PRIVATE</code>. It is a C structure and the name is “&lt;object name&gt;Private” like “TStrPrivate”.</li>
+<li>Use <code>G_DECLARE_DERIVABLE_TYPE</code> macro in the header file.
+You need to write a macro like
+<code>#define T_TYPE_STR (t_str_get_type ())</code> before
+<code>G_DECLARE_DERIVABLE_TYPE</code>.</li>
+<li>Declare your class structure in the header file. The contents of the
+class are open to the descendants. Most of the members are class
+methods.</li>
+<li>Use <code>G_DEFINE_TYPE_WITH_PRIVATE</code> in the C file. You need
+to define the private area before
+<code>G_DEFINE_TYPE_WITH_PRIVATE</code>. It is a C structure and the
+name is “&lt;object name&gt;Private” like “TStrPrivate”.</li>
 <li>Define class and instance initialization functions.</li>
 </ul>
     </div>

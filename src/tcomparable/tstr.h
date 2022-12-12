@@ -8,6 +8,8 @@ G_DECLARE_DERIVABLE_TYPE (TStr, t_str, T, STR, GObject)
 
 struct _TStrClass {
   GObjectClass parent_class;
+  /* expect that descendants will override the setter */
+  void (*set_string)  (TStr *self, const char *s);
 };
 
 TStr *

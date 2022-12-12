@@ -14,4 +14,3 @@ t_int_new_with_value (int value);
 TInt *
 t_int_new (void);
 #endif /* __T_INT_H__ */
-

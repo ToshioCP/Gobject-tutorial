@@ -9,7 +9,7 @@ The string "title" is the name of the property.
 The name of a property is a string that begins with a letter followed by letters, digits, dash ('-') or underscore ('_').
 Dash and underscore is used as separators but they cannot be mixed.
 Using dash is more efficient than underscore.
-For example, "value", "double" and "double-value" are correct property name.
+For example, "value", "double" and "double-value" are correct property names.
 "\_value" or "-value" are incorrect.
 
 Properties have various types of values.
@@ -93,19 +93,21 @@ The suffix of the function name, `double` in `g_param_spec_double`, implies the 
 - The name is "value".
 - The nick name is "val".
 - The description is "Double value".
-- The minimum value is -MAXDOUBLE.
-MAXDOUBLE is the maximum value which can be held in a double.
-It is described in [GLib Reference Manual, MAXDOUBLE and MINDOUBLE](https://developer-old.gnome.org/glib/stable/glib-Basic-Types.html#G-MINDOUBLE:CAPS).
-You might think the lowest value of double is MINDOUBLE, but it's not.
-MINDOUBLE is the minimum positive value which can be held in a double.
-- The maximum value is MAXDOUBLE.
+- The minimum value is -G\_MAXDOUBLE.
+G\_MAXDOUBLE is the maximum value which can be held in a double.
+It is described in [GLib(2.68.1) Reference Manual -- G\_MAXDOUBLE and G\_MINDOUBLE](https://developer-old.gnome.org/glib/stable/glib-Basic-Types.html#G-MINDOUBLE:CAPS).
+You might think the lowest value of double is G\_MINDOUBLE, but it's not.
+G\_MINDOUBLE is the minimum positive value which can be held in a double.
+- The maximum value is G\_MAXDOUBLE.
 - The default value is 0.0.
 - `G_PARAM_READWRITE` is a flag.
 `G_PARAM_READWRITE` means that the parameter is readable and writable.
 
-For further information, refer to GObject API reference,
- [GObject Reference Manual, Parameters and Values](https://developer-old.gnome.org/gobject/stable/gobject-Standard-Parameter-and-Value-Types.html)
- and [GObject Reference Manual, GParamSpec](https://developer-old.gnome.org/gobject/stable/gobject-GParamSpec.html).
+For further information, refer to GObject API reference.
+
+- [GParamSpec and its subclasses](https://docs.gtk.org/gobject/index.html#classes)
+- [g\_param\_spec\_double and similar functions](https://docs.gtk.org/gobject/index.html#functions)
+- [GValue](https://docs.gtk.org/gobject/struct.Value.html)
 
 When GObject property is registered, GParamSpec is used.
 This is extracted from tdouble.c in [src/tdouble6](tdouble6).
@@ -133,7 +135,7 @@ This function must be called after `set_property` and `get_property` methods are
 These methods will be explained later.
 The arguments are TDoubleClass class, PROP\_DOUBLE (property id) and GParamSpec instance.
 Property id is used to identify the property in `tdouble.c`.
-It is an positive integer.
+It is a positive integer.
 
 ## Overriding set\_property and get\_property class methods
 
@@ -150,11 +152,11 @@ That part needs to be programmed by the writer of the object with overriding.
 And it calls a function pointed by `set_property` in the class.
 Look at the diagram below.
 
-![Overriding `set_property` class method](../image/class_property1.png){width=10cm height=7.5cm}
+![Overriding `set_property` class method](../image/class_property1.png){width=15cm height=7.5cm}
 
-`set_property` in GObjectClass class points `g_object_do_set_property` in gobject program, which is made by compiling `gobject.c`.
+`set_property` in GObjectClass class points `g_object_do_set_property` in GObject program, which is made by compiling `gobject.c`.
 The GObjectClass part of the TDoubleClass structure (it is the same as TDoubleClass because TDoubleClass doesn't have its own area) is initialized by copying from the contents of GObjectClass.
-Therefore, `set_property` in TDoubleClass class points `g_object_do_set_property` in gobject program.
+Therefore, `set_property` in TDoubleClass class points `g_object_do_set_property` in GObject program.
 But `g_object_do_set_property` doesn't store the value to the TDouble instance.
 The writer of TDouble object makes `t_double_set_property` function in `tdouble.c`.
 And assigns the address of `t_double_set_property` to `set_property` in TDoubleClass class.
@@ -198,10 +200,7 @@ Conversely, you can set Gvalue `value` with `g_value_set_double`.
 g_value_set_double (value, 123.45);
 ~~~
 
-Refer to GObject API reference for further information.
-
-- [GObject Reference Manual, Generic values](https://developer-old.gnome.org/gobject/stable/gobject-Generic-values.html)
-- [GObject Reference Manual, Parameters and Values](https://developer-old.gnome.org/gobject/stable/gobject-Standard-Parameter-and-Value-Types.html)
+Refer to [GObject API reference -- GValue](https://docs.gtk.org/gobject/struct.Value.html) for further information.
 
 ## t\_double\_set\_property and t\_double\_get\_property
 
@@ -298,7 +297,7 @@ If you define more than one property, use an array of property id.
 It is good for you to see Gtk source files such as `gtklabel.c`.
 GtkLabel has 18 properties.
 
-The source files are in [src/tdouble6](tdouble6) directory.
+There's an example in [src/tdouble6](tdouble6) directory.
 
 ## Exercise
 

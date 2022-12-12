@@ -11,7 +11,7 @@ G_DEFINE_TYPE (TDouble, t_double, G_TYPE_OBJECT)
 
 static void
 div_by_zero_default_cb (TDouble *d) {
-  g_print ("\nError: division by zero.\n\n");
+  g_printerr ("\nError: division by zero.\n\n");
 }
 
 static void

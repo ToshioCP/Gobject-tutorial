@@ -22,13 +22,9 @@ G_DEFINE_TYPE_WITH_CODE (TStr, t_str, G_TYPE_OBJECT,
 static void
 t_str_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   TStr *self = T_STR (object);
-  TStrPrivate *priv = t_str_get_instance_private (self);
-
 
   if (property_id == PROP_STRING) {
-    if (priv->string)
-      g_free (priv->string);
-    priv->string = g_strdup (g_value_get_string (value));
+    t_str_set_string(self, g_value_get_string (value));
   } else
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 }
@@ -36,12 +32,20 @@ t_str_set_property (GObject *object, guint property_id, const GValue *value, GPa
 static void
 t_str_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
   TStr *self = T_STR (object);
-  TStrPrivate *priv = t_str_get_instance_private (self);
 
   if (property_id == PROP_STRING)
-    g_value_set_string (value, g_strdup (priv->string));
+    g_value_set_string (value, t_str_get_string(self));
   else
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+}
+
+static void
+t_str_real_set_string (TStr *self, const char *s) {
+  TStrPrivate *priv = t_str_get_instance_private (self);
+
+  if (priv->string)
+    g_free (priv->string);
+  priv->string = g_strdup (s);
 }
 
 static void
@@ -57,6 +61,8 @@ t_str_finalize (GObject *object) {
 static int
 t_str_comparable_cmp (TComparable *self, TComparable *other) {
   g_return_val_if_fail (T_IS_STR (self), -2);
+  if (! T_IS_STR (other))
+    g_signal_emit_by_name (self, "arg-error");
   g_return_val_if_fail (T_IS_STR (other), -2);
 
   char *s, *o;
@@ -99,24 +105,25 @@ t_str_class_init (TStrClass *class) {
   gobject_class->get_property = t_str_get_property;
   str_properties[PROP_STRING] = g_param_spec_string ("string", "str", "string", "", G_PARAM_READWRITE);
   g_object_class_install_properties (gobject_class, N_PROPERTIES, str_properties);
+
+  class->set_string = t_str_real_set_string;
 }
 
 /* setter and getter */
 void
 t_str_set_string (TStr *self, const char *s) {
   g_return_if_fail (T_IS_STR (self));
+  TStrClass *class = T_STR_GET_CLASS (self);
 
-  g_object_set (self, "string", s, NULL);
+  class->set_string (self, s);
 }
 
 char *
 t_str_get_string (TStr *self) {
   g_return_val_if_fail (T_IS_STR (self), NULL);
+  TStrPrivate *priv = t_str_get_instance_private (self);
 
-  char *s;
-
-  g_object_get (self, "string", &s, NULL);
-  return s;
+  return g_strdup (priv->string);
 }
 
 TStr *

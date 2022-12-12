@@ -89,7 +89,7 @@
     <div class="container">
     <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
       <div class="container-fluid">
-        <span class="navbar-brand">Gtk4 tutorial</span>
+        <span class="navbar-brand">GObject tutorial</span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -113,150 +113,208 @@
     </nav>
 <h1 id="gobject">GObject</h1>
 <h2 id="class-and-instance">Class and instance</h2>
-<p>GObject instance is created with <code>g_object_new</code> function. GObject has not only instances but also a class.</p>
+<p>GObject instance is created with <code>g_object_new</code> function.
+GObject has not only instances but also classes.</p>
 <ul>
-<li>The class of GObject is created at the first call of <code>g_object_new</code>. And there exists only one GObject class.</li>
-<li>GObject instance is created whenever <code>g_object_new</code> is called. So, two or more GObject instances can exist.</li>
+<li>A class of GObject is created at the first call of
+<code>g_object_new</code>. And there exists only one GObject class.</li>
+<li>GObject instance is created whenever <code>g_object_new</code> is
+called. So, two or more GObject instances can exist.</li>
 </ul>
-<p>In a broad sense, GObject means the object which includes its class and instances. In a narrow sense, GObject is a definition of a C structure.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">typedef</span> <span class="kw">struct</span> _GObject  GObject;</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="kw">struct</span>  _GObject</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>{</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>  GTypeInstance  g_type_instance;</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>  </span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>  <span class="co">/*&lt; private &gt;*/</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>  guint          ref_count;  <span class="co">/* (atomic) */</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>  GData         *qdata;</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>};</span></code></pre></div>
-<p>The <code>g_object_new</code> function allocates GObject-sized memory, initializes the memory and returns the pointer to the memory. The memory is a GObject instance.</p>
-<p>In the same way, the class of GObject is memory allocated by <code>g_object_new</code> and its structure is defined with GObjectClass. The following is extracted from <code>gobhect.h</code>. But you don’t need to know the details of the structure now.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">typedef</span> <span class="kw">struct</span> _GObjectClass  GObjectClass;</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="kw">struct</span>  _GObjectClass</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>{</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>  GTypeClass   g_type_class;</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>  <span class="co">/*&lt; private &gt;*/</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>  GSList      *construct_properties;</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>  <span class="co">/*&lt; public &gt;*/</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>  <span class="co">/* seldom overridden */</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>  GObject*   (*constructor)     (GType                  type,</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>                                 guint                  n_construct_properties,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>                                 GObjectConstructParam *construct_properties);</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>  <span class="co">/* overridable methods */</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>  <span class="dt">void</span>       (*set_property)        (GObject        *object,</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a>                                         guint           property_id,</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a>                                         <span class="dt">const</span> GValue   *value,</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a>                                         GParamSpec     *pspec);</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true"></a>  <span class="dt">void</span>       (*get_property)        (GObject        *object,</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true"></a>                                         guint           property_id,</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true"></a>                                         GValue         *value,</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true"></a>                                         GParamSpec     *pspec);</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true"></a>  <span class="dt">void</span>       (*dispose)         (GObject        *object);</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true"></a>  <span class="dt">void</span>       (*finalize)        (GObject        *object);</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true"></a>  <span class="co">/* seldom overridden */</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true"></a>  <span class="dt">void</span>       (*dispatch_properties_changed) (GObject      *object,</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true"></a>                         guint     n_pspecs,</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true"></a>                         GParamSpec  **pspecs);</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true"></a>  <span class="co">/* signals */</span></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true"></a>  <span class="dt">void</span>       (*notify)          (GObject    *object,</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true"></a>                     GParamSpec *pspec);</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true"></a></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true"></a>  <span class="co">/* called when done constructing */</span></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true"></a>  <span class="dt">void</span>       (*constructed)     (GObject    *object);</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true"></a></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true"></a>  <span class="co">/*&lt; private &gt;*/</span></span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true"></a>  gsize     flags;</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true"></a></span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true"></a>  <span class="co">/* padding */</span></span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true"></a>  gpointer  pdummy[<span class="dv">6</span>];</span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true"></a>};</span></code></pre></div>
-<p>The programs for GObject are included in GLib source files. You can download the GLib source files from <a href="https://download.gnome.org/sources/glib/">Gnome download page</a>.</p>
-<p>There are sample programs in src/misc directory. You can compile them by:</p>
+<p>In a broad sense, GObject means the object which includes its class
+and instances. In a narrow sense, GObject is a definition of a C
+structure.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="kw">struct</span> _GObject  GObject<span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span>  _GObject</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  GTypeInstance  g_type_instance<span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">/*&lt; private &gt;*/</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  guint          ref_count<span class="op">;</span>  <span class="co">/* (atomic) */</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  GData         <span class="op">*</span>qdata<span class="op">;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p>The <code>g_object_new</code> function allocates GObject-sized
+memory, initializes the memory and returns the pointer to the memory.
+The memory is a GObject instance.</p>
+<p>In the same way, the class of GObject is memory allocated by
+<code>g_object_new</code> and its structure is defined with
+GObjectClass. The following is extracted from <code>gobject.h</code>.
+But you don’t need to know the details of the structure now.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span>  _GObjectClass</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  GTypeClass   g_type_class<span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">/*&lt; private &gt;*/</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  GSList      <span class="op">*</span>construct_properties<span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">/*&lt; public &gt;*/</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* seldom overridden */</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  GObject<span class="op">*</span>   <span class="op">(*</span>constructor<span class="op">)</span>     <span class="op">(</span>GType                  type<span class="op">,</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>                                 guint                  n_construct_properties<span class="op">,</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                                 GObjectConstructParam <span class="op">*</span>construct_properties<span class="op">);</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* overridable methods */</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span>       <span class="op">(*</span>set_property<span class="op">)</span>        <span class="op">(</span>GObject        <span class="op">*</span>object<span class="op">,</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>                                         guint           property_id<span class="op">,</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>                                         <span class="dt">const</span> GValue   <span class="op">*</span>value<span class="op">,</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>                                         GParamSpec     <span class="op">*</span>pspec<span class="op">);</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span>       <span class="op">(*</span>get_property<span class="op">)</span>        <span class="op">(</span>GObject        <span class="op">*</span>object<span class="op">,</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>                                         guint           property_id<span class="op">,</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>                                         GValue         <span class="op">*</span>value<span class="op">,</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>                                         GParamSpec     <span class="op">*</span>pspec<span class="op">);</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span>       <span class="op">(*</span>dispose<span class="op">)</span>         <span class="op">(</span>GObject        <span class="op">*</span>object<span class="op">);</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span>       <span class="op">(*</span>finalize<span class="op">)</span>        <span class="op">(</span>GObject        <span class="op">*</span>object<span class="op">);</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* seldom overridden */</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span>       <span class="op">(*</span>dispatch_properties_changed<span class="op">)</span> <span class="op">(</span>GObject      <span class="op">*</span>object<span class="op">,</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>                         guint     n_pspecs<span class="op">,</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>                         GParamSpec  <span class="op">**</span>pspecs<span class="op">);</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* signals */</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span>       <span class="op">(*</span>notify<span class="op">)</span>          <span class="op">(</span>GObject    <span class="op">*</span>object<span class="op">,</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>                     GParamSpec <span class="op">*</span>pspec<span class="op">);</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* called when done constructing */</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span>       <span class="op">(*</span>constructed<span class="op">)</span>     <span class="op">(</span>GObject    <span class="op">*</span>object<span class="op">);</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="co">/*&lt; private &gt;*/</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  gsize     flags<span class="op">;</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  gsize         n_construct_properties<span class="op">;</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  gpointer pspecs<span class="op">;</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  gsize n_pspecs<span class="op">;</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* padding */</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  gpointer  pdummy<span class="op">[</span><span class="dv">3</span><span class="op">];</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p>The programs for GObject are included in GLib source files. You can
+download the GLib source files from <a
+href="https://download.gnome.org/sources/glib/">GNOME download
+page</a>.</p>
+<p>There are sample programs in src/misc directory in the GObject
+tutorial repository. You can compile them by:</p>
 <pre><code>$ cd src/misc
 $ meson _build
 $ ninja -C _build</code></pre>
-<p>One of the programs is <code>example1.c</code>. Its code is as follows.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
+<p>One of the programs is <code>example1.c</code>. Its code is as
+follows.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
 <span id="cb4-2"><a href="#cb4-2"></a></span>
 <span id="cb4-3"><a href="#cb4-3"></a><span class="dt">int</span></span>
-<span id="cb4-4"><a href="#cb4-4"></a>main (<span class="dt">int</span> argc, <span class="dt">char</span> **argv) {</span>
-<span id="cb4-5"><a href="#cb4-5"></a>  GObject *instance1, *instance2;</span>
-<span id="cb4-6"><a href="#cb4-6"></a>  GObjectClass *class1, *class2;</span>
+<span id="cb4-4"><a href="#cb4-4"></a>main <span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span> <span class="op">**</span>argv<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>  GObject <span class="op">*</span>instance1<span class="op">,</span> <span class="op">*</span>instance2<span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>  GObjectClass <span class="op">*</span>class1<span class="op">,</span> <span class="op">*</span>class2<span class="op">;</span></span>
 <span id="cb4-7"><a href="#cb4-7"></a>  </span>
-<span id="cb4-8"><a href="#cb4-8"></a>  instance1 = g_object_new (G_TYPE_OBJECT, NULL);</span>
-<span id="cb4-9"><a href="#cb4-9"></a>  instance2 = g_object_new (G_TYPE_OBJECT, NULL);</span>
-<span id="cb4-10"><a href="#cb4-10"></a>  g_print (<span class="st">&quot;The address of instance1 is %p</span><span class="sc">\n</span><span class="st">&quot;</span>, instance1);</span>
-<span id="cb4-11"><a href="#cb4-11"></a>  g_print (<span class="st">&quot;The address of instance2 is %p</span><span class="sc">\n</span><span class="st">&quot;</span>, instance2);</span>
+<span id="cb4-8"><a href="#cb4-8"></a>  instance1 <span class="op">=</span> g_object_new <span class="op">(</span>G_TYPE_OBJECT<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>  instance2 <span class="op">=</span> g_object_new <span class="op">(</span>G_TYPE_OBJECT<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a>  g_print <span class="op">(</span><span class="st">&quot;The address of instance1 is %p</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> instance1<span class="op">);</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a>  g_print <span class="op">(</span><span class="st">&quot;The address of instance2 is %p</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> instance2<span class="op">);</span></span>
 <span id="cb4-12"><a href="#cb4-12"></a></span>
-<span id="cb4-13"><a href="#cb4-13"></a>  class1 = G_OBJECT_GET_CLASS (instance1);</span>
-<span id="cb4-14"><a href="#cb4-14"></a>  class2 = G_OBJECT_GET_CLASS (instance2);</span>
-<span id="cb4-15"><a href="#cb4-15"></a>  g_print (<span class="st">&quot;The address of the class of instance1 is %p</span><span class="sc">\n</span><span class="st">&quot;</span>, class1);</span>
-<span id="cb4-16"><a href="#cb4-16"></a>  g_print (<span class="st">&quot;The address of the class of instance2 is %p</span><span class="sc">\n</span><span class="st">&quot;</span>, class2);</span>
+<span id="cb4-13"><a href="#cb4-13"></a>  class1 <span class="op">=</span> G_OBJECT_GET_CLASS <span class="op">(</span>instance1<span class="op">);</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a>  class2 <span class="op">=</span> G_OBJECT_GET_CLASS <span class="op">(</span>instance2<span class="op">);</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a>  g_print <span class="op">(</span><span class="st">&quot;The address of the class of instance1 is %p</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> class1<span class="op">);</span></span>
+<span id="cb4-16"><a href="#cb4-16"></a>  g_print <span class="op">(</span><span class="st">&quot;The address of the class of instance2 is %p</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> class2<span class="op">);</span></span>
 <span id="cb4-17"><a href="#cb4-17"></a></span>
-<span id="cb4-18"><a href="#cb4-18"></a>  g_object_unref (instance1);</span>
-<span id="cb4-19"><a href="#cb4-19"></a>  g_object_unref (instance2);</span>
+<span id="cb4-18"><a href="#cb4-18"></a>  g_object_unref <span class="op">(</span>instance1<span class="op">);</span></span>
+<span id="cb4-19"><a href="#cb4-19"></a>  g_object_unref <span class="op">(</span>instance2<span class="op">);</span></span>
 <span id="cb4-20"><a href="#cb4-20"></a></span>
-<span id="cb4-21"><a href="#cb4-21"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb4-22"><a href="#cb4-22"></a>}</span></code></pre></div>
+<span id="cb4-21"><a href="#cb4-21"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-22"><a href="#cb4-22"></a><span class="op">}</span></span></code></pre></div>
 <ul>
-<li>5-6: <code>instance1</code> and <code>instance2</code> are pointers that points GObject instances. <code>class1</code> and <code>class2</code> points a class of GObject.</li>
-<li>8-11: A function <code>g_object_new</code> creates a GObject instance. GObject instance is a chunk of memory of which the structure is GObject (<code>struct _GObject</code>). The argument <code>G_TYPE_OBJECT</code> represents the type of GObject. This type is different from C language type like <code>char</code> or <code>int</code>. There is <em>type system</em> which is a base system of gobject system. Every data type such as GObject must be registered to the type system. The type system has series of functions for the registration. If one of the functions is called, then the type system determines <code>GType</code> type value for the object and returns it to the caller. <code>GType</code> is an unsigned long integer on my computer but it depends on the hardware. <code>g_object_new</code> allocates GObject-sized memory and returns the pointer to the top address of the memory. After the creation, this program displays the addresses of instances.</li>
-<li>13-16: A macro <code>G_OBJECT_GET_CLASS</code> returns the pointer to the class of the argument. Therefore, <code>class1</code> points the class of <code>instance1</code> and <code>class2</code> points the class of <code>instance2</code> respectively. The addresses of the two classes are displayed.</li>
-<li>18-19: <code>g_object_unref</code> will be explained in the next subsection. It destroys the objects and the memory are freed.</li>
+<li>5-6: <code>instance1</code> and <code>instance2</code> are pointers
+that points GObject instances. <code>class1</code> and
+<code>class2</code> points a class of the instances.</li>
+<li>8-11: A function <code>g_object_new</code> creates a GObject
+instance. GObject instance is a chunk of memory which has GObject
+structure (<code>struct _GObject</code>). The argument
+<code>G_TYPE_OBJECT</code> is the type of GObject. This type is
+different from C language type like <code>char</code> or
+<code>int</code>. There is <em>Type System</em> which is a base system
+of GObject system. Every data type such as GObject must be registered to
+the type system. The type system has series of functions for the
+registration. If one of the functions is called, then the type system
+determines <code>GType</code> type value for the object and returns it
+to the caller. <code>GType</code> is an unsigned long integer on my
+computer but it depends on the hardware. <code>g_object_new</code>
+allocates GObject-sized memory and returns the pointer to the top
+address of the memory. After the creation, this program displays the
+addresses of instances.</li>
+<li>13-16: A macro <code>G_OBJECT_GET_CLASS</code> returns the pointer
+to the class of the argument. Therefore, <code>class1</code> points the
+class of <code>instance1</code> and <code>class2</code> points the class
+of <code>instance2</code> respectively. The addresses of the two classes
+are displayed.</li>
+<li>18-19: <code>g_object_unref</code> will be explained in the next
+subsection. It destroys the objects and the memory is freed.</li>
 </ul>
 <p>Now, execute it.</p>
 <pre><code>$ cd misc; _build/example1
-The address of instance1 is 0x55de7b292600
-The address of instance2 is 0x55de7b292620
-The address of the class of instance1 is 0x55de7b292460
-The address of the class of instance2 is 0x55de7b292460</code></pre>
-<p>The locations of two instances <code>instance1</code> and <code>instance2</code> are different. Each instance has its own memory. The locations of two classes <code>class1</code> and <code>class2</code> are the same. Two GObject instances share the same class.</p>
+The address of instance1 is 0x55749a089a00
+The address of instance2 is 0x55749a089a20
+The address of the class of instance1 is 0x55749a089830
+The address of the class of instance2 is 0x55749a089830</code></pre>
+<p>The locations of two instances <code>instance1</code> and
+<code>instance2</code> are different. Each instance has its own memory.
+The locations of two classes <code>class1</code> and <code>class2</code>
+are the same. Two GObject instances share the same class.</p>
 <figure>
-<img src="image/class_instance.png" alt="" /><figcaption>Class and Instance</figcaption>
+<img src="image/class_instance.png" alt="Class and Instance" />
+<figcaption aria-hidden="true">Class and Instance</figcaption>
 </figure>
 <h2 id="reference-count">Reference count</h2>
-<p>GObject instance has its own memory. They are allocated by the system when it is created. If it becomes useless, the memory must be freed. However, how can we determine whether it is useless? GObject system provides reference count to solve the problem.</p>
-<p>Instance is created and used by someone (some other objects, some functions or something like that). We say someone refers to the instance. If the instance is referred by A and B, then the number of the reference is two. This is reference count. Let’s think about a scenario like this:</p>
+<p>GObject instance has its own memory. They are allocated by the system
+when it is created. If it becomes useless, the memory must be freed.
+However, how can we determine whether it is useless? GObject system
+provides reference count to solve the problem.</p>
+<p>Instance is created and used by other objects or main program. That
+is to say, the instance is referred. If the instance is referred by A
+and B, then the number of the reference is two. This number is called
+<em>reference count</em>. Let’s think about a scenario like this:</p>
 <ul>
-<li>A calls <code>g_object_new</code> and owns an instance G. A refers G, so the reference count of G is 1.</li>
-<li>B wants to use G too. B calls <code>g_object_ref</code> and increases the reference count by 1. Now the reference count is 2.</li>
-<li>A no longer uses G. A calls <code>g_object_unref</code> and decreases the reference count by 1. Now the reference count is 1.</li>
-<li>B no longer uses G. B calls <code>g_object_unref</code> and decreases the reference count by 1. Now the reference count is 0.</li>
-<li>Because the reference count is zero, G knows that no one refers to it. G begins finalizing process by itself. G disappears and the memory are freed.</li>
+<li>A calls <code>g_object_new</code> and owns an instance G. A refers
+G, so the reference count of G is 1.</li>
+<li>B wants to use G too. B calls <code>g_object_ref</code> and
+increases the reference count by 1. Now the reference count is 2.</li>
+<li>A no longer uses G. A calls <code>g_object_unref</code> and
+decreases the reference count by 1. Now the reference count is 1.</li>
+<li>B no longer uses G. B calls <code>g_object_unref</code> and
+decreases the reference count by 1. Now the reference count is 0.</li>
+<li>Because the reference count is zero, G knows that no one refers to
+it. G begins finalizing process by itself. G disappears and the memory
+is freed.</li>
 </ul>
 <p>A program <code>example2.c</code> is based on the scenario above.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
 <span id="cb6-2"><a href="#cb6-2"></a></span>
 <span id="cb6-3"><a href="#cb6-3"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb6-4"><a href="#cb6-4"></a>show_ref_count (GObject *instance) {</span>
-<span id="cb6-5"><a href="#cb6-5"></a>  <span class="cf">if</span> (G_IS_OBJECT (instance))</span>
+<span id="cb6-4"><a href="#cb6-4"></a>show_ref_count <span class="op">(</span>GObject <span class="op">*</span>instance<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>  <span class="cf">if</span> <span class="op">(</span>G_IS_OBJECT <span class="op">(</span>instance<span class="op">))</span></span>
 <span id="cb6-6"><a href="#cb6-6"></a>    <span class="co">/* Users should not use ref_count member in their program. */</span></span>
 <span id="cb6-7"><a href="#cb6-7"></a>    <span class="co">/* This is only for demonstration. */</span></span>
-<span id="cb6-8"><a href="#cb6-8"></a>    g_print (<span class="st">&quot;Reference count is %d.</span><span class="sc">\n</span><span class="st">&quot;</span>, instance-&gt;ref_count);</span>
+<span id="cb6-8"><a href="#cb6-8"></a>    g_print <span class="op">(</span><span class="st">&quot;Reference count is %d.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> instance<span class="op">-&gt;</span>ref_count<span class="op">);</span></span>
 <span id="cb6-9"><a href="#cb6-9"></a>  <span class="cf">else</span></span>
-<span id="cb6-10"><a href="#cb6-10"></a>    g_print (<span class="st">&quot;Instance is not GObject.</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb6-11"><a href="#cb6-11"></a>}</span>
+<span id="cb6-10"><a href="#cb6-10"></a>    g_print <span class="op">(</span><span class="st">&quot;Instance is not GObject.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="op">}</span></span>
 <span id="cb6-12"><a href="#cb6-12"></a></span>
 <span id="cb6-13"><a href="#cb6-13"></a><span class="dt">int</span></span>
-<span id="cb6-14"><a href="#cb6-14"></a>main (<span class="dt">int</span> argc, <span class="dt">char</span> **argv) {</span>
-<span id="cb6-15"><a href="#cb6-15"></a>  GObject *instance;</span>
+<span id="cb6-14"><a href="#cb6-14"></a>main <span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span> <span class="op">**</span>argv<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a>  GObject <span class="op">*</span>instance<span class="op">;</span></span>
 <span id="cb6-16"><a href="#cb6-16"></a>  </span>
-<span id="cb6-17"><a href="#cb6-17"></a>  instance = g_object_new (G_TYPE_OBJECT, NULL);</span>
-<span id="cb6-18"><a href="#cb6-18"></a>  g_print (<span class="st">&quot;Call g_object_new.</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb6-19"><a href="#cb6-19"></a>  show_ref_count (instance);</span>
-<span id="cb6-20"><a href="#cb6-20"></a>  g_object_ref (instance);</span>
-<span id="cb6-21"><a href="#cb6-21"></a>  g_print (<span class="st">&quot;Call g_object_ref.</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb6-22"><a href="#cb6-22"></a>  show_ref_count (instance);</span>
-<span id="cb6-23"><a href="#cb6-23"></a>  g_object_unref (instance);</span>
-<span id="cb6-24"><a href="#cb6-24"></a>  g_print (<span class="st">&quot;Call g_object_unref.</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb6-25"><a href="#cb6-25"></a>  show_ref_count (instance);</span>
-<span id="cb6-26"><a href="#cb6-26"></a>  g_object_unref (instance);</span>
-<span id="cb6-27"><a href="#cb6-27"></a>  g_print (<span class="st">&quot;Call g_object_unref.</span><span class="sc">\n</span><span class="st">&quot;</span>);</span>
-<span id="cb6-28"><a href="#cb6-28"></a>  show_ref_count (instance);</span>
+<span id="cb6-17"><a href="#cb6-17"></a>  instance <span class="op">=</span> g_object_new <span class="op">(</span>G_TYPE_OBJECT<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb6-18"><a href="#cb6-18"></a>  g_print <span class="op">(</span><span class="st">&quot;Call g_object_new.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb6-19"><a href="#cb6-19"></a>  show_ref_count <span class="op">(</span>instance<span class="op">);</span></span>
+<span id="cb6-20"><a href="#cb6-20"></a>  g_object_ref <span class="op">(</span>instance<span class="op">);</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a>  g_print <span class="op">(</span><span class="st">&quot;Call g_object_ref.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb6-22"><a href="#cb6-22"></a>  show_ref_count <span class="op">(</span>instance<span class="op">);</span></span>
+<span id="cb6-23"><a href="#cb6-23"></a>  g_object_unref <span class="op">(</span>instance<span class="op">);</span></span>
+<span id="cb6-24"><a href="#cb6-24"></a>  g_print <span class="op">(</span><span class="st">&quot;Call g_object_unref.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb6-25"><a href="#cb6-25"></a>  show_ref_count <span class="op">(</span>instance<span class="op">);</span></span>
+<span id="cb6-26"><a href="#cb6-26"></a>  g_object_unref <span class="op">(</span>instance<span class="op">);</span></span>
+<span id="cb6-27"><a href="#cb6-27"></a>  g_print <span class="op">(</span><span class="st">&quot;Call g_object_unref.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb6-28"><a href="#cb6-28"></a>  show_ref_count <span class="op">(</span>instance<span class="op">);</span></span>
 <span id="cb6-29"><a href="#cb6-29"></a>  </span>
-<span id="cb6-30"><a href="#cb6-30"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb6-31"><a href="#cb6-31"></a>}</span></code></pre></div>
+<span id="cb6-30"><a href="#cb6-30"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-31"><a href="#cb6-31"></a><span class="op">}</span></span></code></pre></div>
 <p>Now execute it.</p>
 <pre><code>$ cd misc; _build/example2
 Call g_object_new.
@@ -269,26 +327,49 @@ Call g_object_unref.
 Instance is not GObject.</code></pre>
 <p><code>example2</code> shows:</p>
 <ul>
-<li><code>g_object_new</code> creates a new GObject instance and sets its reference count to 1.</li>
+<li><code>g_object_new</code> creates a new GObject instance and sets
+its reference count to 1.</li>
 <li><code>g_object_ref</code> increases the reference count by 1.</li>
-<li><code>g_object_unref</code> decreases the reference count by 1. If the reference count drops to zero, the instance destroys itself.</li>
+<li><code>g_object_unref</code> decreases the reference count by 1. If
+the reference count drops to zero, the instance destroys itself.</li>
 </ul>
-<h2 id="initialization-and-destruction-process">Initialization and destruction process</h2>
-<p>The actual process of GObject initialization and destruction is very complex. The following is simplified description without details.</p>
+<h2 id="initialization-and-destruction-process">Initialization and
+destruction process</h2>
+<p>The actual process of GObject initialization and destruction is very
+complex. The following is simplified description without details.</p>
 <p>Initialization</p>
 <ol type="1">
-<li>Registers GObject type with the type system. This is done in the glib initialization process before the function <code>main</code> is called. (If the compiler is gcc, then <code>__attribute__ ((constructor))</code> is used to qualify the initialization function. Refer to <a href="https://gcc.gnu.org/onlinedocs/gcc-10.2.0/gcc/Common-Function-Attributes.html#Common-Function-Attributes">GCC manual</a>.)</li>
+<li>Registers GObject type with the type system. This is done in the
+GLib initialization process before the function <code>main</code> is
+called. (If the compiler is gcc, then
+<code>__attribute__ ((constructor))</code> is used to qualify the
+initialization function. Refer to <a
+href="https://gcc.gnu.org/onlinedocs/gcc-10.2.0/gcc/Common-Function-Attributes.html#Common-Function-Attributes">GCC
+manual</a>.)</li>
 <li>Allocates memory for GObjectClass and GObject structure.</li>
-<li>Initializes the GObjectClass structure memory. This memory will be the class of GObject.</li>
-<li>Initializes the GObject structure memory. This memory will be the instance of GObject.</li>
+<li>Initializes the GObjectClass structure memory. This memory will be
+the class of GObject.</li>
+<li>Initializes the GObject structure memory. This memory will be the
+instance of GObject.</li>
 </ol>
-<p>This initialization process is carried out when <code>g_object_new</code> function is called for the first time. At the second and subsequent call for <code>g_object_new</code>, it performs only two processes: (1) memory allocation for GObject structure (2) initialization for the memory. <code>g_object_new</code> returns the pointer that points the instance (the memory allocated for the GObject structure).</p>
+<p>This initialization process is carried out when
+<code>g_object_new</code> function is called for the first time. At the
+second and subsequent call for <code>g_object_new</code>, it performs
+only two processes: (1) memory allocation for GObject structure (2)
+initialization for the memory. <code>g_object_new</code> returns the
+pointer that points the instance (the memory allocated for the GObject
+structure).</p>
 <p>Destruction</p>
 <ol type="1">
-<li>Destroys GObject instance. The memory for the instance is freed.</li>
+<li>Destroys GObject instance. The memory for the instance is
+freed.</li>
 </ol>
-<p>GObject type is a static type. Static type never destroys its class. So, even if the destroyed instance is the last instance, the class still remains.</p>
-<p>When you write code to define a child object of GObject, It is important to understand the process above. The detailed process will be explained in the later sections.</p>
+<p>GObject type is a static type. Static type never destroys its class.
+So, even if the destroyed instance is the last instance, the class still
+remains.</p>
+<p>When you write code to define a child object of GObject, It is
+important to understand the process above. The detailed process will be
+explained in the later sections.</p>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
   </body>

@@ -3,7 +3,7 @@
 
 static void
 div_by_zero_cb (TDouble *d, gpointer user_data) {
-  g_print ("\nError happens in main.c.\n");
+  g_printerr ("\nError happens in main.c.\n");
 }
 
 static void

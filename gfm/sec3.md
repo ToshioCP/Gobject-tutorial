@@ -3,7 +3,7 @@ Up: [Readme.md](../Readme.md),  Prev: [Section 2](sec2.md), Next: [Section 4](se
 # Type system and registration process
 
 GObject is a base object.
-We don't use gobject itself usually.
+We don't usually use GObject itself.
 Because GObject is very simple and not enough to be used by itself in most situations.
 Instead, we use descendant objects of GObject such as many kinds of GtkWidget.
 We can rather say such derivability is the most important feature of GObject.
@@ -30,8 +30,14 @@ It has some useful functions.
 
 ## Define TDoubleClass and TDouble
 
-TDouble type object has class and instance.
-The type of the class is TDoubleClass.
+When we say "type", it can be the type in the type system or C language type.
+For example, GObject is a type name in the type system.
+And char, int or double is C language types.
+When the meaning of the word "type" is clear in the context, we just call it "type".
+But if it's ambiguous, we call it "C type" or "type in the type system".
+
+TDouble object has the class and instance.
+The C type of the class is TDoubleClass.
 Its structure is like this:
 
 ~~~C
@@ -41,14 +47,15 @@ struct _TDoubleClass {
 }
 ~~~
 
-\_TDoubleClass is a C structure tag name and TDoubleClass is "struct _TDoubleClass".
+\_TDoubleClass is a C structure tag name and TDoubleClass is "struct \_TDoubleClass".
+TDoubleClass is a newly created C type.
 
 - Use typedef to define a class type.
 - The first member of the structure must be the parent's class structure.
 
 TDoubleClass doesn't need its own member.
 
-The type of the instance of TDouble is TDouble.
+The C type of the instance of TDouble is TDouble.
 
 ~~~C
 typedef struct _TDouble TDouble
@@ -66,16 +73,16 @@ This is similar to the structure of the class.
 TDouble has its own member, "value".
 It is the value of TDouble instance.
 
-The coding convention above needs to be kept by writers.
+The coding convention above needs to be kept all the time.
 
 ## Creation process of a child of GObject
 
 The creation process of TDouble type is similar to the one of GObject.
 
-1. Register TDouble type with type system.
-2. Let the type system allocate memory for TDoubleClass and TDouble.
-3. Initialize TDoubleClass.
-4. Initialize TDouble.
+1. Registers TDouble type with type system.
+2. The type system allocates memory for TDoubleClass and TDouble.
+3. Initializes TDoubleClass.
+4. Initializes TDouble.
 
 ## Registration
 
@@ -147,8 +154,8 @@ This structure needs to be created before the registration.
 For example, TDouble's class size is `sizeof (TDoubleClass)`.
 - base_init, base_finalize: These function initialize/finalize the dynamic members of the class.
 In many cases, they aren't necessary, and are assigned NULL.
-For further information, see [GObject API Reference, BaseInitFunc](https://docs.gtk.org/gobject/callback.BaseInitFunc.html)
-and [GObject API Reference, ClassInitFunc](https://docs.gtk.org/gobject/callback.ClassInitFunc.html).
+For further information, see [GObject API Reference -- BaseInitFunc](https://docs.gtk.org/gobject/callback.BaseInitFunc.html)
+and [GObject API Reference -- ClassInitFunc](https://docs.gtk.org/gobject/callback.ClassInitFunc.html).
 - class_init: Initializes static members of the class.
 Assign your class initialization function to `class_init`member.
 By convention, the name is `<name space>_<name>_class_init`, for example, `t_double_class_init`.
@@ -263,8 +270,8 @@ Execute it.
 
 ~~~
 $ cd misc; _build/example3
-Registration was a success. The type is 565015a62430.
-Instantiation was a success. The instance address is 0x565015a64c00.
+Registration was a success. The type is 557292894830.
+Instantiation was a success. The instance address is 0x557292897000.
 ~~~
 
 ## G_DEFINE_TYPE macro
@@ -349,8 +356,8 @@ Execute it.
 
 ~~~
 $ cd misc; _build/example4
-Registration was a success. The type is 56251a064430.
-Instantiation was a success. The instance address is 0x56251a065c00.
+Registration was a success. The type is 55d4a6d20830.
+Instantiation was a success. The instance address is 0x55d4a6d22000.
 ~~~
 
 ## G_DECLARE_FINAL_TYPE macro
@@ -453,8 +460,8 @@ Execute it.
 
 ~~~
 $ cd misc; _build/example5
-Registration was a success. The type is 55f32dc2a430.
-Instantiation was a success. The instance address is 0x55f32dc2bc00.
+Registration was a success. The type is 558415d17830.
+Instantiation was a success. The instance address is 0x558415d19000.
 d is TDouble instance.
 d is GObject instance.
 ~~~
@@ -490,7 +497,9 @@ tdouble.h
 
 - The contents of header files are public, i.e. it is open to any files.
 Header files include macros, which gives type information, cast and type check, and public functions.
-- 1,2,18: These directives prevent that the header file is read two times or more.
+- 1,2,18: These directives prevent the compiler from reading the header file two times or more.
+If your compiler supprts `#pragma once` directive, you can use it instead.
+It is not officially defined but is supported widely in many compilers.
 - 6,7: `T_TYPE_DOUBLE` is public.
 `G_DECLARE_FINAL_TYPE` is also expanded to public definitions.
 - 9-13: Function declarations.
@@ -555,7 +564,7 @@ If it succeeds, it returns TRUE.
 If the argument `d` is not TDouble type, it outputs error to the log and immediately returns FALSE.
 This function is used to report a programmer's error.
 You shouldn't use it for a runtime error.
-See [Glib API Reference, Error Reporting](https://docs.gtk.org/glib/error-reporting.html) for further information.
+See [Glib API Reference -- Error Reporting](https://docs.gtk.org/glib/error-reporting.html) for further information.
 `g_return_val_if_fail` isn't used in static class functions, they are private, because static functions are called only from functions in the same file.
 Such functions know the parameters type well.
 `g_return_val_if_fail` is used in public functions.
@@ -626,7 +635,7 @@ This example is very simple.
 But any object has header file and C source file as the example above has.
 And they follow the convention.
 You probably aware of the importance of the convention.
-For the further information refer to [GObject API Reference, Conventions](https://docs.gtk.org/gobject/concepts.html#conventions).
+For the further information refer to [GObject API Reference -- Conventions](https://docs.gtk.org/gobject/concepts.html#conventions).
 
 ## Functions
 

@@ -47,18 +47,17 @@ t_int_get_type (void)
   return type;
 }
 
-
-
 static int
 t_int_comparable_cmp (TComparable *self, TComparable *other) {
   g_return_val_if_fail (T_IS_INT (self), -2);
-  g_return_val_if_fail (T_IS_INT (other) || T_IS_DOUBLE (other), -2);
+  if (! T_NUMBER (other))
+    g_signal_emit_by_name (self, "arg-error");
+  g_return_val_if_fail (T_IS_NUMBER (other), -2);
 
   int i;
   double s, o;
 
-  g_object_get (self, "value", &i, NULL);
-  s = (double) i;
+  s = (double) T_INT (self)->value;
   if (T_IS_INT (other)) {
     g_object_get (other, "value", &i, NULL);
     o = (double) i;
@@ -210,4 +209,3 @@ t_int_new (void) {
   d = g_object_new (T_TYPE_INT, NULL);
   return d;
 }
-

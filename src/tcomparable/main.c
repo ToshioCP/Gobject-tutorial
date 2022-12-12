@@ -30,27 +30,35 @@ notify_cb (GObject *gobject, GParamSpec *pspec, gpointer user_data) {
 static void
 t_print (const char *cmp, TComparable *c1, TComparable *c2) {
   char *s1, *s2;
+  TStr *ts1, *ts2, *ts3;
 
+  ts1 = t_str_new_with_string("\"");
   if (T_IS_NUMBER (c1))
     s1 = t_number_to_s (T_NUMBER (c1));
-  else if (T_IS_STR (c1))
-    s1 = t_str_get_string (T_STR (c1));
-  else {
+  else if (T_IS_STR (c1)) {
+    ts2 = t_str_concat (ts1, T_STR (c1));
+    ts3 = t_str_concat (ts2, ts1);
+    s1 = t_str_get_string (T_STR (ts3));
+    g_object_unref (ts2);
+    g_object_unref (ts3);
+  } else {
     g_print ("c1 isn't TInt, TDouble nor TStr.\n");
     return;
   }
   if (T_IS_NUMBER (c2))
     s2 = t_number_to_s (T_NUMBER (c2));
-  else if (T_IS_STR (c2))
-    s2 = t_str_get_string (T_STR (c2));
-  else {
+  else if (T_IS_STR (c2)) {
+    ts2 = t_str_concat (ts1, T_STR (c2));
+    ts3 = t_str_concat (ts2, ts1);
+    s2 = t_str_get_string (T_STR (ts3));
+    g_object_unref (ts2);
+    g_object_unref (ts3);
+  } else {
     g_print ("c2 isn't TInt, TDouble nor TStr.\n");
     return;
   }
-  if (T_IS_STR (c1))
-    g_print ("\"%s\" %s \"%s\".\n", s1, cmp, s2);
-  else
-    g_print ("%s %s %s.\n", s1, cmp, s2);
+  g_print ("%s %s %s.\n", s1, cmp, s2);
+  g_object_unref (ts1);
   g_free (s1);
   g_free (s2);
 }    
@@ -59,67 +67,52 @@ static void
 compare (TComparable *c1, TComparable *c2) {
   if (t_comparable_eq (c1, c2))
     t_print ("equals", c1, c2);
-  if (t_comparable_gt (c1, c2))
+  else if (t_comparable_gt (c1, c2))
     t_print ("is greater than", c1, c2);
-  if (t_comparable_lt (c1, c2))
+  else if (t_comparable_lt (c1, c2))
     t_print ("is less than", c1, c2);
-  if (t_comparable_ge (c1, c2))
+  else if (t_comparable_ge (c1, c2))
     t_print ("is greater than or equal to", c1, c2);
-  if (t_comparable_le (c1, c2))
+  else if (t_comparable_le (c1, c2))
     t_print ("is less than or equal to", c1, c2);
+  else
+    t_print ("can't compare to", c1, c2);
 }
 
 int
 main (int argc, char **argv) {
   const char *one = "one";
   const char *two = "two";
+  const char *three = "three";
   TInt *i;
   TDouble *d;
-  TStr *str1, *str2;
-  TNumStr *numstr1, *numstr2;
+  TStr *str1, *str2, *str3;
   gpointer obj;
 
-  i = t_int_new ();
-  d = t_double_new ();
-  str1 = t_str_new ();
-  str2 = t_str_new ();
-  numstr1 = t_num_str_new ();
-  numstr2 = t_num_str_new ();
+  i = t_int_new_with_value (124);
+  d = t_double_new_with_value (123.45);
+  str1 = t_str_new_with_string (one);
+  str2 = t_str_new_with_string (two);
+  str3 = t_str_new_with_string (three);
   obj = g_object_new (G_TYPE_OBJECT, NULL);
 
   g_signal_connect (G_OBJECT (i), "notify::value", G_CALLBACK (notify_cb), NULL);
   g_signal_connect (G_OBJECT (d), "notify::value", G_CALLBACK (notify_cb), NULL);
   g_signal_connect (G_OBJECT (str1), "notify::string", G_CALLBACK (notify_cb), NULL);
   g_signal_connect (G_OBJECT (str2), "notify::string", G_CALLBACK (notify_cb), NULL);
-  g_signal_connect (G_OBJECT (numstr1), "notify::string", G_CALLBACK (notify_cb), NULL);
-  g_signal_connect (G_OBJECT (numstr2), "notify::string", G_CALLBACK (notify_cb), NULL);
-
-  g_object_set (i, "value", 124, NULL);
-  g_object_set (d, "value", 123.45, NULL);
-  t_str_set_string (str1, one);
-  t_str_set_string (str2, two);
-  t_num_str_set (numstr1, T_NUMBER (i));
-  t_num_str_set (numstr2, T_NUMBER (d));
+  g_signal_connect (G_OBJECT (str3), "notify::string", G_CALLBACK (notify_cb), NULL);
 
   compare (T_COMPARABLE (i), T_COMPARABLE (d));
   compare (T_COMPARABLE (str1), T_COMPARABLE (str2));
-  compare (T_COMPARABLE (numstr1), T_COMPARABLE (numstr2));
+  compare (T_COMPARABLE (str2), T_COMPARABLE (str3));
   t_comparable_eq (T_COMPARABLE (d), obj);
 
-  g_print ("\n");
-  t_str_set_string (str1, "100");
-  t_str_set_string (str2, "50");
-  t_str_set_string (T_STR (numstr1), "100");
-  t_str_set_string (T_STR (numstr2), "50");
-  compare (T_COMPARABLE (str1), T_COMPARABLE (str2));
-  compare (T_COMPARABLE (numstr1), T_COMPARABLE (numstr2));
 
   g_object_unref (i);
   g_object_unref (d);
   g_object_unref (str1);
   g_object_unref (str2);
-  g_object_unref (numstr1);
-  g_object_unref (numstr2);
+  g_object_unref (str3);
   g_object_unref (obj);
 
   return 0;

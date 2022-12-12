@@ -89,7 +89,7 @@
     <div class="container">
     <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
       <div class="container-fluid">
-        <span class="navbar-brand">Gtk4 tutorial</span>
+        <span class="navbar-brand">GObject tutorial</span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -132,25 +132,27 @@ Step three is usually done outside the object.</p>
 all the features. The contents of this section is limited to the minimum
 things to write a simple signal and not necessarily accurate. If you
 need an accurate information, refer to GObject API reference. There are
-three parts which describe signals.</p>
+four parts which describe signals.</p>
 <ul>
 <li><a href="https://docs.gtk.org/gobject/concepts.html#signals">Type
-System Concepts, signals</a></li>
-<li><a
-href="https://developer-old.gnome.org/gobject/stable/gobject-Signals.html">Old
-GObject Reference Manual, Signals</a></li>
+System Concepts – signals</a></li>
+<li><a href="https://docs.gtk.org/gobject/#functions">Funcions
+(g_signal_XXX series)</a></li>
+<li><a href="https://docs.gtk.org/gobject/#function_macros">Funcions
+Macros (g_signal_XXX series)</a></li>
 <li><a
 href="https://docs.gtk.org/gobject/tutorial.html#how-to-create-and-use-signals">GObject
-Tutorial, How to create and use signals</a></li>
+Tutorial – How to create and use signals</a></li>
 </ul>
 <h2 id="signal-registration">Signal registration</h2>
 <p>An example in this section is a signal emitted when division-by-zero
 happens. First, we need to determine the name of the signal. Signal name
 consists of letters, digits, dash (<code>-</code>) and underscore
 (<code>_</code>). The first character of the name must be a letter. So,
-a string “div-by-zero”is appropriate for the signal name.</p>
-<p>There are four functions to register a signal. We will use
-<code>g_signal_new</code> for “div-by-zero” signal.</p>
+a string “div-by-zero” is appropriate for the signal name.</p>
+<p>There are four functions to register a signal. We will use <a
+href="https://docs.gtk.org/gobject/func.signal_new.html"><code>g_signal_new</code></a>
+for “div-by-zero” signal.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>guint</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>g_signal_new <span class="op">(</span><span class="dt">const</span> gchar <span class="op">*</span>signal_name<span class="op">,</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>              GType itype<span class="op">,</span></span>
@@ -177,8 +179,9 @@ a string “div-by-zero”is appropriate for the signal name.</p>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>              <span class="dv">0</span>     <span class="co">/* n_params */</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>              <span class="op">);</span></span></code></pre></div>
 <ul>
-<li><code>t_double_signal</code> is a static guint variable. Guint type
-is the same as unsigned int. It is set the signal id.</li>
+<li><code>t_double_signal</code> is a static guint variable. The type
+guint is the same as unsigned int. It is set the with the signal
+id.</li>
 <li>The second parameter is the type (GType) of the object the signal
 belongs to. <code>G_TYPE_FROM_CLASS (class)</code> returns the type
 corresponds to the class (<code>class</code> is a pointer to the class
@@ -187,13 +190,14 @@ of the object).</li>
 explain this flag. So, I want leave them out now. The argument above can
 be used in many cases. The definition is described in the <a
 href="https://docs.gtk.org/gobject/flags.SignalFlags.html">GObject API
-Reference, SignalFlags</a>.</li>
+Reference – SignalFlags</a>.</li>
 <li>The return type is G_TYPE_NONE which means no value is returned by
 the signal handler.</li>
 <li><code>n_params</code> is a number of parameters. This signal doesn’t
 have parameters, so it is zero.</li>
 </ul>
-<p>This function call is in the class initialization function.</p>
+<p>This function is located in the class initialization function
+(<code>t_double_class_init</code>).</p>
 <p>You can use other functions such as <code>g_signal_newv</code>. See
 <a href="https://docs.gtk.org/gobject/func.signal_newv.html">GObject API
 Reference</a> for details.</p>
@@ -206,9 +210,9 @@ emitted. The handler has two parameters.</p>
 connection.</li>
 </ul>
 <p>The “div-by-zero” signal doesn’t need user data.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> div_by_zero_cb <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">,</span> gpointer user_data<span class="op">)</span> <span class="op">{</span> <span class="op">...</span> <span class="op">...</span> <span class="op">...};</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> div_by_zero_cb <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">,</span> gpointer user_data<span class="op">)</span> <span class="op">{</span> <span class="op">...</span> <span class="op">...</span> <span class="op">...}</span></span></code></pre></div>
 <p>Or, you can leave out the second parameter.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> div_by_zero_cb <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">)</span> <span class="op">{</span> <span class="op">...</span> <span class="op">...</span> <span class="op">...};</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> div_by_zero_cb <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">)</span> <span class="op">{</span> <span class="op">...</span> <span class="op">...</span> <span class="op">...}</span></span></code></pre></div>
 <p>If a signal has parameters, the parameters are between the instance
 and user data. For example, the handler of “response” signal on
 GtkDialog is:</p>
@@ -223,8 +227,8 @@ what button has been clicked.</p>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  g_print <span class="op">(</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">Error: division by zero.</span><span class="sc">\n\n</span><span class="st">&quot;</span><span class="op">);</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h2 id="signal-connection">Signal connection</h2>
-<p>A signal and a handler are connected with the function
-<code>g_signal_connect</code>.</p>
+<p>A signal and a handler are connected with the function <a
+href="https://docs.gtk.org/gobject/func.signal_connect.html"><code>g_signal_connect</code></a>.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>g_signal_connect <span class="op">(</span>d1<span class="op">,</span> <span class="st">&quot;div-by-zero&quot;</span><span class="op">,</span> G_CALLBACK <span class="op">(</span>div_by_zero_cb<span class="op">),</span> NULL<span class="op">);</span></span></code></pre></div>
 <ul>
 <li><code>d1</code> is an instance the signal belongs.</li>
@@ -248,21 +252,23 @@ data, so NULL is assigned.</li>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> t_double_new <span class="op">(</span>self<span class="op">-&gt;</span>value <span class="op">/</span> value<span class="op">);</span></span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>If the divisor is zero, the signal is emitted.
-<code>g_signal_emit</code> has three parameters.</p>
+<p>If the divisor is zero, the signal is emitted. <a
+href="https://docs.gtk.org/gobject/func.signal_emit.html"><code>g_signal_emit</code></a>
+has three parameters.</p>
 <ul>
 <li>The first parameter is the instance that emits the signal.</li>
-<li>The second parameter is the signal id. Signal id has been set with
-<code>g_signal_new</code> function.</li>
-<li>The third parameter is detail. “div-by-zero” signal doesn’t have a
-detail, so the argument is zero. Detail isn’t explained in this section.
-If you want to know details, refer to <a
+<li>The second parameter is the signal id. Signal id is the value
+returned by the function <code>g_signal_new</code>.</li>
+<li>The third parameter is a detail. “div-by-zero” signal doesn’t have a
+detail, so the argument is zero. Detail isn’t explained in this section
+but usually you can put zero as a third argument. If you want to know
+the details, refer to <a
 href="https://docs.gtk.org/gobject/concepts.html#the-detail-argument">GObject
-API Reference, Signal Detail</a>.</li>
+API Reference – Signal Detail</a>.</li>
 </ul>
 <p>If a signal has parameters, they are fourth and subsequent
 arguments.</p>
-<h2 id="example-code">Example code</h2>
+<h2 id="example">Example</h2>
 <p>A sample program is in src/tdouble3.</p>
 <p>tdouble.c</p>
 <div class="sourceCode" id="cb9"><pre
@@ -381,7 +387,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb10-3"><a href="#cb10-3"></a></span>
 <span id="cb10-4"><a href="#cb10-4"></a><span class="dt">static</span> <span class="dt">void</span></span>
 <span id="cb10-5"><a href="#cb10-5"></a>div_by_zero_cb <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">,</span> gpointer user_data<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb10-6"><a href="#cb10-6"></a>  g_print <span class="op">(</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">Error: division by zero.</span><span class="sc">\n\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>  g_printerr <span class="op">(</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">Error: division by zero.</span><span class="sc">\n\n</span><span class="st">&quot;</span><span class="op">);</span></span>
 <span id="cb10-7"><a href="#cb10-7"></a><span class="op">}</span></span>
 <span id="cb10-8"><a href="#cb10-8"></a></span>
 <span id="cb10-9"><a href="#cb10-9"></a><span class="dt">static</span> <span class="dt">void</span></span>
@@ -442,13 +448,13 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb10-64"><a href="#cb10-64"></a></span>
 <span id="cb10-65"><a href="#cb10-65"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb10-66"><a href="#cb10-66"></a><span class="op">}</span></span></code></pre></div>
-<p>To compile, change your current directory to src/tdouble3 and type as
+<p>Change your current directory to src/tdouble3 and type as
 follows.</p>
 <pre><code>$ meson _build
 $ ninja -C _build</code></pre>
-<p>Then, Executable file <code>tdouble</code> is created in
+<p>Then, Executable file <code>tdouble</code> is created in the
 <code>_build</code> directory. Execute it.</p>
-<pre><code>$ cd tdouble3; _build/tdouble
+<pre><code>$ cd tdouble3; _build/tdouble 2&gt;&amp;1
 10.000000 + 20.000000 = 30.000000
 10.000000 - 20.000000 = -10.000000
 10.000000 * 20.000000 = 200.000000
@@ -497,7 +503,7 @@ function, no user data is given as an argument.</p>
 <div class="sourceCode" id="cb14"><pre
 class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1"></a><span class="dt">static</span> <span class="dt">void</span></span>
 <span id="cb14-2"><a href="#cb14-2"></a>div_by_zero_default_cb <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb14-3"><a href="#cb14-3"></a>  g_print <span class="op">(</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">Error: division by zero.</span><span class="sc">\n\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>  g_printerr <span class="op">(</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">Error: division by zero.</span><span class="sc">\n\n</span><span class="st">&quot;</span><span class="op">);</span></span>
 <span id="cb14-4"><a href="#cb14-4"></a><span class="op">}</span></span>
 <span id="cb14-5"><a href="#cb14-5"></a></span>
 <span id="cb14-6"><a href="#cb14-6"></a><span class="dt">static</span> <span class="dt">void</span></span>
@@ -517,7 +523,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <p><code>g_signal_connect</code> and <code>div_by_zero_cb</code> are
 removed from <code>main.c</code>.</p>
 <p>Compile and execute it.</p>
-<pre><code>$ cd tdouble4; _build/tdouble
+<pre><code>$ cd tdouble4; _build/tdouble 2&gt;&amp;1
 10.000000 + 20.000000 = 30.000000
 10.000000 - 20.000000 = -10.000000
 10.000000 * 20.000000 = 200.000000
@@ -586,7 +592,7 @@ Error has happened in main.c and an error message has been displayed.
 <h2 id="signal-flag">Signal flag</h2>
 <p>The order that handlers are called is described in <a
 href="https://docs.gtk.org/gobject/concepts.html#signal-emission">GObject
-API Reference, Sigmal emission</a>.</p>
+API Reference – Sigmal emission</a>.</p>
 <p>The order depends on the signal flag which is set in
 <code>g_signal_new</code> or <code>g_signal_new_class_handler</code>.
 There are three flags which relate to the order of handlers’

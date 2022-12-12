@@ -8,7 +8,7 @@ There are two kinds of types, final type and derivable type.
 Final type doesn't have any child object.
 Derivable type has child objects.
 
-The main difference between two objects above is their class.
+The main difference between the two objects is their classes.
 Final type objects doesn't have its own class area.
 The only member of the class is its parent class.
 
@@ -28,21 +28,21 @@ G_DECLARE_DERIVABLE_TYPE (TNumber, t_number, T, NUMBER, GObject)
 Abstract type doesn't have any instance.
 This type of object is derivable and its children can use functions and signals of the abstract object.
 
-The example of this section is TNumber, TInt and TDouble object.
-TInt and TDouble have already made in the previous section.
+The examples of this section are TNumber, TInt and TDouble object.
+TInt and TDouble have already been made in the previous section.
 They represent integer and floating point respectively.
 Numbers are more abstract than integer and floating point.
 
 TNumber is an abstract object which represents numbers.
 TNumber is a parent object of TInt and TDouble.
-TNumber isn't instantiated because it's abstract type.
+TNumber isn't instantiated because its type is abstract.
 When an instance has TInt or TDouble type, it is an instance of TNumber as well.
 
 TInt and TDouble have five operations: addition, subtraction, multiplication, division and unary minus operation.
 Those operations can be defined on TNumber object.
 
 In this section we will define TNumber object and five functions above.
-In addition `to_s` function will be added.
+In addition, `to_s` function will be added.
 It converts the value of TNumber into a string.
 It is like sprintf function.
 And we will rewrite TInt and TDouble to implement the functions.
@@ -97,7 +97,7 @@ And we will rewrite TInt and TDouble to implement the functions.
 
 - 7: `G_DECLARE_DERIVABLE_TYPE` macro.
 This is similar to `G_DECLARE_FINAL_TYPE` macro.
-The difference is the object is derivable or final.
+The difference is derivable or final.
 `G_DECLARE_DERIVABLE_TYPE` is expanded to:
   - Declaration of `t_number_get_type ()` function. This function must be defined in `tnumber.c` file. The definition is usually done with `G_DEFINE_TYPE` or its family macros.
   - Definition of TNumber instance, whose member is its parent only.
@@ -114,7 +114,7 @@ The methods are five arithmetic operators and `to_s` function.
 The offset of this pointer is given to `g_signal_new` as an argument.
 - 21-40: Functions. They are public.
 
-`tnumber.c` is below.
+`tnumber.c` is as follows.
 
 ~~~C
  1 #include "tnumber.h"
@@ -125,7 +125,7 @@ The offset of this pointer is given to `g_signal_new` as an argument.
  6 
  7 static void
  8 div_by_zero_default_cb (TNumber *self) {
- 9   g_print ("\nError: division by zero.\n\n");
+ 9   g_printerr ("\nError: division by zero.\n\n");
 10 }
 11 
 12 static void
@@ -439,13 +439,13 @@ The macro `t_int_binary_op` is used.
 `self` is the object on which the function is called.
 `other` is another TNumber object.
 It can be TInt or TDouble.
-IF it is TDouble, its value is casted to int before the division is performed.
+If it is TDouble, its value is casted to int before the division is performed.
 If the divisor (`other`) is zero, "div-by-zero" signal is emitted.
 The signal is defined in TNumber, so TInt doesn't know the signal id.
 The emission is done with `g_signal_emit_by_name` instead of `g_signal_emit`.
 The return value of `t_int_div` is TNumber type object
 However, because TNumber is abstract, the actual type of the object is TInt.
-- 95-100: A function with unary minus operator.
+- 95-100: A function for unary minus operator.
 - 102-109: `to_s` function. This function converts int to string.
 For example, if the value of the object is 123, then the result is a string "123".
 The caller should free the string if it becomes useless.
@@ -726,7 +726,8 @@ The addition of two TNumber objects isn't commutative because the type of the re
 
 ## Compilation and execution
 
-`meson.buld` controls the compilation process.
+The source files are located under [src/tnumber](../src/tnumber).
+The file `meson.buld`, which controls the compilation process, is as follows.
 
 ~~~meson
 1 project ('tnumber', 'c')
@@ -750,7 +751,7 @@ $ _build/tnumber
 Then the following is shown on the display.
 
 ~~~
-$ cd tnumber; _build/tnumber
+$ cd tnumber; _build/tnumber 2>&1
 Property "value" is set to 100.
 Property "value" is set to 12.345000.
 100 + 12.345000 is 112.
@@ -770,9 +771,7 @@ And you need one more thing, how to manage private data in your derivable object
 There is a tutorial in [GObject API Reference](https://docs.gtk.org/gobject/tutorial.html#gobject-tutorial).
 See the tutorial for learning derivable object.
 
-It is also good to see source files in Gtk.
-The stable version is now Gtk4 but most of the distributions still use Gtk3.
-Both of them are useful to learn how to write a derivable object.
+It is also good to see source files in GTK.
 
 ## Class initialization process
 

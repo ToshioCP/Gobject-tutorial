@@ -14,7 +14,7 @@ G_DEFINE_TYPE (TInt, t_int, G_TYPE_OBJECT)
 
 static void
 div_by_zero_default_cb (TInt *i, gpointer user_data) {
-  g_print ("\nError: division by zero.\n\n");
+  g_printerr ("\nError: division by zero.\n\n");
 }
 
 static void
