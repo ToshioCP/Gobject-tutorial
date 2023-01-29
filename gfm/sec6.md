@@ -794,7 +794,7 @@ The diagram below shows the process.
 
 ### Initialization process of TIntClass
 
-1. GNumberClass has been initialized before the initialization of GIntClass starts.
+1. TNumberClass has been initialized before the initialization of TIntClass starts.
 2. First call for `g_object_new (T_TYPE_INT, ...)` initializes TIntClass.
 And the initialization process is as follows.
 3. Memory is allocated for TIntClass.
