@@ -56,7 +56,7 @@ t_int_class_init (TIntClass *class) {
 
   gobject_class->set_property = t_int_set_property;
   gobject_class->get_property = t_int_get_property;
-  int_property = g_param_spec_int ("value", "val", "Double value", G_MININT, G_MAXINT, 0, G_PARAM_READWRITE);
+  int_property = g_param_spec_int ("value", "val", "Int value", G_MININT, G_MAXINT, 0, G_PARAM_READWRITE);
   g_object_class_install_property (gobject_class, PROP_INT, int_property);
 }
 
