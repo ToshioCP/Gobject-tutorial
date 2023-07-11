@@ -229,7 +229,7 @@ Class\_init and instance\_init functions are called when class or instance is in
 47   GType dtype;
 48   TDouble *d;
 49 
-50   dtype = t_double_get_type (); /* or d = T_TYPE_DOUBLE */
+50   dtype = t_double_get_type (); /* or dtype = T_TYPE_DOUBLE */
 51   if (dtype)
 52     g_print ("Registration was a success. The type is %lx.\n", dtype);
 53   else
@@ -332,7 +332,7 @@ See the following sample `example4.c` which works the same as `example3.c`.
 28   GType dtype;
 29   TDouble *d;
 30 
-31   dtype = t_double_get_type (); /* or d = T_TYPE_DOUBLE */
+31   dtype = t_double_get_type (); /* or dtype = T_TYPE_DOUBLE */
 32   if (dtype)
 33     g_print ("Registration was a success. The type is %lx.\n", dtype);
 34   else
@@ -429,7 +429,7 @@ It works like `example3.c` or `example4.c`.
 23   GType dtype;
 24   TDouble *d;
 25 
-26   dtype = t_double_get_type (); /* or d = T_TYPE_DOUBLE */
+26   dtype = t_double_get_type (); /* or dtype = T_TYPE_DOUBLE */
 27   if (dtype)
 28     g_print ("Registration was a success. The type is %lx.\n", dtype);
 29   else
