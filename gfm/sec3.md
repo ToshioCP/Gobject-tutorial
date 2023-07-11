@@ -91,7 +91,7 @@ So you don't need to care about registration.
 But, in this tutorial, it is important to understand GObject type system, so I want to show you the registration without macro, first.
 
 There are two kinds of types, static and dynamic.
-Static type doesn't destroy its class even all the instances have been destroyed.
+Static type doesn't destroy its class even after all the instances have been destroyed.
 Dynamic type destroys its class when the last instance has been destroyed.
 The type of GObject is static and its descendant objects' type is also static.
 The function `g_type_register_static` registers a type of a static object.
@@ -157,7 +157,7 @@ In many cases, they aren't necessary, and are assigned NULL.
 For further information, see [GObject API Reference -- BaseInitFunc](https://docs.gtk.org/gobject/callback.BaseInitFunc.html)
 and [GObject API Reference -- ClassInitFunc](https://docs.gtk.org/gobject/callback.ClassInitFunc.html).
 - class_init: Initializes static members of the class.
-Assign your class initialization function to `class_init`member.
+Assign your class initialization function to `class_init` member.
 By convention, the name is `<name space>_<name>_class_init`, for example, `t_double_class_init`.
 - class_finalize: Finalizes the class.
 Because descendant type of GObjec is static, it doesn't have a finalize function.
@@ -367,7 +367,7 @@ This macro can be used for a final type.
 A final type doesn't have any children.
 If a type has children, it is a derivable type.
 If you want to define a derivable type object, use `G_DECLARE_DERIVABLE_TYPE` instead.
-However, you probably write final type objects in most cases.
+However, you probably want to write final type objects in most cases.
 
 `G_DECLARE_FINAL_TYPE` does the following:
 
