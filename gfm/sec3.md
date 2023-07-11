@@ -382,7 +382,7 @@ But you need to define the structure `struct _TDouble` by yourself before `G_DEF
 - `<NAME SPACE>_<NAME>` macro is defined.
 For example, if the object is `TDouble` the macro is `T_DOUBLE`.
 It will be expanded to a function which casts the argument to the pointer to the object.
-For example, `T_Double (obj)` casts the type of `obj` to `TDouble *`.
+For example, `T_DOUBLE (obj)` casts the type of `obj` to `TDouble *`.
 - `<NAME SPACE>_IS_<NAME>` macro is defined.
 For example, if the object is `TDouble` the macro is `T_IS_DOUBLE`.
 It will be expanded to a function which checks if the argument points the instance of `TDouble`.
