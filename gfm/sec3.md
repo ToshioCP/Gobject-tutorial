@@ -116,7 +116,7 @@ For example, "TDouble".
 If the type is abstract type or abstract value type, then set their flag.
 Otherwise, set it to zero.
 
-Because the type system maintains the parent-child relationship of the type, `g_type_refister_static` has a parent type parameter.
+Because the type system maintains the parent-child relationship of the type, `g_type_register_static` has a parent type parameter.
 And the type system also keeps the information of the type.
 After the registration, `g_type_register_static` returns the type of the new object.
 
