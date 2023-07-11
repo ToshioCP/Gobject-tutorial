@@ -41,10 +41,10 @@ The C type of the class is TDoubleClass.
 Its structure is like this:
 
 ~~~C
-typedef struct _TDoubleClass TDoubleClass
+typedef struct _TDoubleClass TDoubleClass;
 struct _TDoubleClass {
   GObjectClass parent_class;
-}
+};
 ~~~
 
 \_TDoubleClass is a C structure tag name and TDoubleClass is "struct \_TDoubleClass".
@@ -58,11 +58,11 @@ TDoubleClass doesn't need its own member.
 The C type of the instance of TDouble is TDouble.
 
 ~~~C
-typedef struct _TDouble TDouble
+typedef struct _TDouble TDouble;
 struct _TDouble {
   GObject parent;
   double value;
-}
+};
 ~~~
 
 This is similar to the structure of the class.
