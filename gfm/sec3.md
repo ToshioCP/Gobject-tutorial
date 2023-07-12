@@ -41,10 +41,10 @@ The C type of the class is TDoubleClass.
 Its structure is like this:
 
 ~~~C
-typedef struct _TDoubleClass TDoubleClass
+typedef struct _TDoubleClass TDoubleClass;
 struct _TDoubleClass {
   GObjectClass parent_class;
-}
+};
 ~~~
 
 \_TDoubleClass is a C structure tag name and TDoubleClass is "struct \_TDoubleClass".
@@ -58,11 +58,11 @@ TDoubleClass doesn't need its own member.
 The C type of the instance of TDouble is TDouble.
 
 ~~~C
-typedef struct _TDouble TDouble
+typedef struct _TDouble TDouble;
 struct _TDouble {
   GObject parent;
   double value;
-}
+};
 ~~~
 
 This is similar to the structure of the class.
@@ -91,7 +91,7 @@ So you don't need to care about registration.
 But, in this tutorial, it is important to understand GObject type system, so I want to show you the registration without macro, first.
 
 There are two kinds of types, static and dynamic.
-Static type doesn't destroy its class even all the instances have been destroyed.
+Static type doesn't destroy its class even after all the instances have been destroyed.
 Dynamic type destroys its class when the last instance has been destroyed.
 The type of GObject is static and its descendant objects' type is also static.
 The function `g_type_register_static` registers a type of a static object.
@@ -116,7 +116,7 @@ For example, "TDouble".
 If the type is abstract type or abstract value type, then set their flag.
 Otherwise, set it to zero.
 
-Because the type system maintains the parent-child relationship of the type, `g_type_refister_static` has a parent type parameter.
+Because the type system maintains the parent-child relationship of the type, `g_type_register_static` has a parent type parameter.
 And the type system also keeps the information of the type.
 After the registration, `g_type_register_static` returns the type of the new object.
 
@@ -157,7 +157,7 @@ In many cases, they aren't necessary, and are assigned NULL.
 For further information, see [GObject API Reference -- BaseInitFunc](https://docs.gtk.org/gobject/callback.BaseInitFunc.html)
 and [GObject API Reference -- ClassInitFunc](https://docs.gtk.org/gobject/callback.ClassInitFunc.html).
 - class_init: Initializes static members of the class.
-Assign your class initialization function to `class_init`member.
+Assign your class initialization function to `class_init` member.
 By convention, the name is `<name space>_<name>_class_init`, for example, `t_double_class_init`.
 - class_finalize: Finalizes the class.
 Because descendant type of GObjec is static, it doesn't have a finalize function.
@@ -229,7 +229,7 @@ Class\_init and instance\_init functions are called when class or instance is in
 47   GType dtype;
 48   TDouble *d;
 49 
-50   dtype = t_double_get_type (); /* or d = T_TYPE_DOUBLE */
+50   dtype = t_double_get_type (); /* or dtype = T_TYPE_DOUBLE */
 51   if (dtype)
 52     g_print ("Registration was a success. The type is %lx.\n", dtype);
 53   else
@@ -332,7 +332,7 @@ See the following sample `example4.c` which works the same as `example3.c`.
 28   GType dtype;
 29   TDouble *d;
 30 
-31   dtype = t_double_get_type (); /* or d = T_TYPE_DOUBLE */
+31   dtype = t_double_get_type (); /* or dtype = T_TYPE_DOUBLE */
 32   if (dtype)
 33     g_print ("Registration was a success. The type is %lx.\n", dtype);
 34   else
@@ -367,7 +367,7 @@ This macro can be used for a final type.
 A final type doesn't have any children.
 If a type has children, it is a derivable type.
 If you want to define a derivable type object, use `G_DECLARE_DERIVABLE_TYPE` instead.
-However, you probably write final type objects in most cases.
+However, you probably want to write final type objects in most cases.
 
 `G_DECLARE_FINAL_TYPE` does the following:
 
@@ -382,7 +382,7 @@ But you need to define the structure `struct _TDouble` by yourself before `G_DEF
 - `<NAME SPACE>_<NAME>` macro is defined.
 For example, if the object is `TDouble` the macro is `T_DOUBLE`.
 It will be expanded to a function which casts the argument to the pointer to the object.
-For example, `T_Double (obj)` casts the type of `obj` to `TDouble *`.
+For example, `T_DOUBLE (obj)` casts the type of `obj` to `TDouble *`.
 - `<NAME SPACE>_IS_<NAME>` macro is defined.
 For example, if the object is `TDouble` the macro is `T_IS_DOUBLE`.
 It will be expanded to a function which checks if the argument points the instance of `TDouble`.
@@ -429,7 +429,7 @@ It works like `example3.c` or `example4.c`.
 23   GType dtype;
 24   TDouble *d;
 25 
-26   dtype = t_double_get_type (); /* or d = T_TYPE_DOUBLE */
+26   dtype = t_double_get_type (); /* or dtype = T_TYPE_DOUBLE */
 27   if (dtype)
 28     g_print ("Registration was a success. The type is %lx.\n", dtype);
 29   else
