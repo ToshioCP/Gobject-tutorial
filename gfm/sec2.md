@@ -146,10 +146,10 @@ Now, execute it.
 
 ~~~
 $ cd misc; _build/example1
-The address of instance1 is 0x561ad5205a00
-The address of instance2 is 0x561ad5205a20
-The address of the class of instance1 is 0x561ad5205830
-The address of the class of instance2 is 0x561ad5205830
+The address of instance1 is 0x561b281fdad0
+The address of instance2 is 0x561b281fdaf0
+The address of the class of instance1 is 0x561b281fd880
+The address of the class of instance2 is 0x561b281fd880
 ~~~
 
 The locations of two instances `instance1` and `instance2` are different.
@@ -218,11 +218,12 @@ A program `example2.c` is based on the scenario above.
 25   show_ref_count (instance);
 26   g_object_unref (instance);
 27   g_print ("Call g_object_unref.\n");
-28   show_ref_count (instance);
-29   
-30   return 0;
-31 }
-32 
+28   g_print ("Now the reference count is zero and the instance is destroyed.\n");
+29   g_print ("The instance memories are possibly returned to the system.\n");
+30   g_print ("Therefore, the access to the same address may cause a segmentation error.\n");
+31   
+32   return 0;
+33 }
 ~~~
 
 Now execute it.
@@ -236,7 +237,9 @@ Reference count is 2.
 Call g_object_unref.
 Reference count is 1.
 Call g_object_unref.
-Instance is not GObject.
+Now the reference count is zero and the instance is destroyed.
+The instance memories are possibly returned to the system.
+Therefore, the access to the same address may cause a segmentation error.
 ~~~
 
 `example2` shows:

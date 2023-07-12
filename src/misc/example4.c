@@ -28,7 +28,7 @@ main (int argc, char **argv) {
   GType dtype;
   TDouble *d;
 
-  dtype = t_double_get_type (); /* or d = T_TYPE_DOUBLE */
+  dtype = t_double_get_type (); /* or dtype = T_TYPE_DOUBLE */
   if (dtype)
     g_print ("Registration was a success. The type is %lx.\n", dtype);
   else

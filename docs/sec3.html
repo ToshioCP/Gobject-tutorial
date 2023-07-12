@@ -142,10 +142,10 @@ word “type” is clear in the context, we just call it “type”. But if it�
 ambiguous, we call it “C type” or “type in the type system”.</p>
 <p>TDouble object has the class and instance. The C type of the class is
 TDoubleClass. Its structure is like this:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="kw">struct</span> _TDoubleClass TDoubleClass</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="kw">struct</span> _TDoubleClass TDoubleClass<span class="op">;</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> _TDoubleClass <span class="op">{</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  GObjectClass parent_class<span class="op">;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <p>_TDoubleClass is a C structure tag name and TDoubleClass is “struct
 _TDoubleClass”. TDoubleClass is a newly created C type.</p>
 <ul>
@@ -155,11 +155,11 @@ structure.</li>
 </ul>
 <p>TDoubleClass doesn’t need its own member.</p>
 <p>The C type of the instance of TDouble is TDouble.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="kw">struct</span> _TDouble TDouble</span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="kw">struct</span> _TDouble TDouble<span class="op">;</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> _TDouble <span class="op">{</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  GObject parent<span class="op">;</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> value<span class="op">;</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <p>This is similar to the structure of the class.</p>
 <ul>
 <li>Use typedef to define an instance type.</li>
@@ -186,12 +186,12 @@ don’t need to care about registration. But, in this tutorial, it is
 important to understand GObject type system, so I want to show you the
 registration without macro, first.</p>
 <p>There are two kinds of types, static and dynamic. Static type doesn’t
-destroy its class even all the instances have been destroyed. Dynamic
-type destroys its class when the last instance has been destroyed. The
-type of GObject is static and its descendant objects’ type is also
-static. The function <code>g_type_register_static</code> registers a
-type of a static object. The following code is extracted from
-<code>gtype.h</code> in the Glib source files.</p>
+destroy its class even after all the instances have been destroyed.
+Dynamic type destroys its class when the last instance has been
+destroyed. The type of GObject is static and its descendant objects’
+type is also static. The function <code>g_type_register_static</code>
+registers a type of a static object. The following code is extracted
+from <code>gtype.h</code> in the Glib source files.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>GType</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>g_type_register_static <span class="op">(</span>GType           parent_type<span class="op">,</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">const</span> gchar     <span class="op">*</span>type_name<span class="op">,</span></span>
@@ -207,7 +207,7 @@ be explained below.</li>
 then set their flag. Otherwise, set it to zero.</li>
 </ul>
 <p>Because the type system maintains the parent-child relationship of
-the type, <code>g_type_refister_static</code> has a parent type
+the type, <code>g_type_register_static</code> has a parent type
 parameter. And the type system also keeps the information of the type.
 After the registration, <code>g_type_register_static</code> returns the
 type of the new object.</p>
@@ -247,7 +247,7 @@ API Reference – BaseInitFunc</a> and <a
 href="https://docs.gtk.org/gobject/callback.ClassInitFunc.html">GObject
 API Reference – ClassInitFunc</a>.</li>
 <li>class_init: Initializes static members of the class. Assign your
-class initialization function to <code>class_init</code>member. By
+class initialization function to <code>class_init</code> member. By
 convention, the name is
 <code>&lt;name space&gt;_&lt;name&gt;_class_init</code>, for example,
 <code>t_double_class_init</code>.</li>
@@ -324,7 +324,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb5-47"><a href="#cb5-47"></a>  GType dtype<span class="op">;</span></span>
 <span id="cb5-48"><a href="#cb5-48"></a>  TDouble <span class="op">*</span>d<span class="op">;</span></span>
 <span id="cb5-49"><a href="#cb5-49"></a></span>
-<span id="cb5-50"><a href="#cb5-50"></a>  dtype <span class="op">=</span> t_double_get_type <span class="op">();</span> <span class="co">/* or d = T_TYPE_DOUBLE */</span></span>
+<span id="cb5-50"><a href="#cb5-50"></a>  dtype <span class="op">=</span> t_double_get_type <span class="op">();</span> <span class="co">/* or dtype = T_TYPE_DOUBLE */</span></span>
 <span id="cb5-51"><a href="#cb5-51"></a>  <span class="cf">if</span> <span class="op">(</span>dtype<span class="op">)</span></span>
 <span id="cb5-52"><a href="#cb5-52"></a>    g_print <span class="op">(</span><span class="st">&quot;Registration was a success. The type is %lx.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> dtype<span class="op">);</span></span>
 <span id="cb5-53"><a href="#cb5-53"></a>  <span class="cf">else</span></span>
@@ -365,8 +365,8 @@ the address of the instance.</li>
 <p><code>example3.c</code> is in the src/misc directory.</p>
 <p>Execute it.</p>
 <pre><code>$ cd misc; _build/example3
-Registration was a success. The type is 56540117b830.
-Instantiation was a success. The instance address is 0x56540117e000.</code></pre>
+Registration was a success. The type is 558d37a4f880.
+Instantiation was a success. The instance address is 0x558d37a52010.</code></pre>
 <h2 id="g_define_type-macro">G_DEFINE_TYPE macro</h2>
 <p>The registration above is always done with the same algorithm.
 Therefore, it can be defined as a macro such as
@@ -425,7 +425,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb7-28"><a href="#cb7-28"></a>  GType dtype<span class="op">;</span></span>
 <span id="cb7-29"><a href="#cb7-29"></a>  TDouble <span class="op">*</span>d<span class="op">;</span></span>
 <span id="cb7-30"><a href="#cb7-30"></a></span>
-<span id="cb7-31"><a href="#cb7-31"></a>  dtype <span class="op">=</span> t_double_get_type <span class="op">();</span> <span class="co">/* or d = T_TYPE_DOUBLE */</span></span>
+<span id="cb7-31"><a href="#cb7-31"></a>  dtype <span class="op">=</span> t_double_get_type <span class="op">();</span> <span class="co">/* or dtype = T_TYPE_DOUBLE */</span></span>
 <span id="cb7-32"><a href="#cb7-32"></a>  <span class="cf">if</span> <span class="op">(</span>dtype<span class="op">)</span></span>
 <span id="cb7-33"><a href="#cb7-33"></a>    g_print <span class="op">(</span><span class="st">&quot;Registration was a success. The type is %lx.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> dtype<span class="op">);</span></span>
 <span id="cb7-34"><a href="#cb7-34"></a>  <span class="cf">else</span></span>
@@ -445,15 +445,15 @@ bothersome code like <code>GTypeInfo</code> and
 is to follow the convention of the naming of init functions.</p>
 <p>Execute it.</p>
 <pre><code>$ cd misc; _build/example4
-Registration was a success. The type is 5586adfaa830.
-Instantiation was a success. The instance address is 0x5586adfac000.</code></pre>
+Registration was a success. The type is 55c1d96e88a0.
+Instantiation was a success. The instance address is 0x55c1d96ea000.</code></pre>
 <h2 id="g_declare_final_type-macro">G_DECLARE_FINAL_TYPE macro</h2>
 <p>Another useful macro is <code>G_DECLARE_FINAL_TYPE</code> macro. This
 macro can be used for a final type. A final type doesn’t have any
 children. If a type has children, it is a derivable type. If you want to
 define a derivable type object, use
 <code>G_DECLARE_DERIVABLE_TYPE</code> instead. However, you probably
-write final type objects in most cases.</p>
+want to write final type objects in most cases.</p>
 <p><code>G_DECLARE_FINAL_TYPE</code> does the following:</p>
 <ul>
 <li>Declares <code>&lt;name space&gt;_&lt;name&gt;_get_type ()</code>
@@ -471,7 +471,7 @@ expansion. But you need to define the structure
 example, if the object is <code>TDouble</code> the macro is
 <code>T_DOUBLE</code>. It will be expanded to a function which casts the
 argument to the pointer to the object. For example,
-<code>T_Double (obj)</code> casts the type of <code>obj</code> to
+<code>T_DOUBLE (obj)</code> casts the type of <code>obj</code> to
 <code>TDouble *</code>.</li>
 <li><code>&lt;NAME SPACE&gt;_IS_&lt;NAME&gt;</code> macro is defined.
 For example, if the object is <code>TDouble</code> the macro is
@@ -515,7 +515,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb10-23"><a href="#cb10-23"></a>  GType dtype<span class="op">;</span></span>
 <span id="cb10-24"><a href="#cb10-24"></a>  TDouble <span class="op">*</span>d<span class="op">;</span></span>
 <span id="cb10-25"><a href="#cb10-25"></a></span>
-<span id="cb10-26"><a href="#cb10-26"></a>  dtype <span class="op">=</span> t_double_get_type <span class="op">();</span> <span class="co">/* or d = T_TYPE_DOUBLE */</span></span>
+<span id="cb10-26"><a href="#cb10-26"></a>  dtype <span class="op">=</span> t_double_get_type <span class="op">();</span> <span class="co">/* or dtype = T_TYPE_DOUBLE */</span></span>
 <span id="cb10-27"><a href="#cb10-27"></a>  <span class="cf">if</span> <span class="op">(</span>dtype<span class="op">)</span></span>
 <span id="cb10-28"><a href="#cb10-28"></a>    g_print <span class="op">(</span><span class="st">&quot;Registration was a success. The type is %lx.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> dtype<span class="op">);</span></span>
 <span id="cb10-29"><a href="#cb10-29"></a>  <span class="cf">else</span></span>
@@ -541,8 +541,8 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb10-49"><a href="#cb10-49"></a><span class="op">}</span></span></code></pre></div>
 <p>Execute it.</p>
 <pre><code>$ cd misc; _build/example5
-Registration was a success. The type is 56407170a830.
-Instantiation was a success. The instance address is 0x56407170c000.
+Registration was a success. The type is 558ff17408a0.
+Instantiation was a success. The instance address is 0x558ff1742000.
 d is TDouble instance.
 d is GObject instance.</code></pre>
 <h2 id="separate-the-file-into-main.c-tdouble.h-and-tdouble.c">Separate

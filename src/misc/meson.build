@@ -10,4 +10,3 @@ executable('example5', 'example5.c', dependencies: gobjdep, install: false)
 executable('typename', 'typename.c', dependencies: gobjdep, install: false)
 executable('toupper1', 'toupper1.c', dependencies: gobjdep, install: false)
 executable('toupper2', 'toupper2.c', dependencies: gobjdep, install: false)
-

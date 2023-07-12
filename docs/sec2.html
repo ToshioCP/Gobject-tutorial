@@ -248,10 +248,10 @@ subsection. It destroys the objects and the memory is freed.</li>
 </ul>
 <p>Now, execute it.</p>
 <pre><code>$ cd misc; _build/example1
-The address of instance1 is 0x55749a089a00
-The address of instance2 is 0x55749a089a20
-The address of the class of instance1 is 0x55749a089830
-The address of the class of instance2 is 0x55749a089830</code></pre>
+The address of instance1 is 0x559c9e47fad0
+The address of instance2 is 0x559c9e47faf0
+The address of the class of instance1 is 0x559c9e47f880
+The address of the class of instance2 is 0x559c9e47f880</code></pre>
 <p>The locations of two instances <code>instance1</code> and
 <code>instance2</code> are different. Each instance has its own memory.
 The locations of two classes <code>class1</code> and <code>class2</code>
@@ -311,10 +311,12 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb6-25"><a href="#cb6-25"></a>  show_ref_count <span class="op">(</span>instance<span class="op">);</span></span>
 <span id="cb6-26"><a href="#cb6-26"></a>  g_object_unref <span class="op">(</span>instance<span class="op">);</span></span>
 <span id="cb6-27"><a href="#cb6-27"></a>  g_print <span class="op">(</span><span class="st">&quot;Call g_object_unref.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
-<span id="cb6-28"><a href="#cb6-28"></a>  show_ref_count <span class="op">(</span>instance<span class="op">);</span></span>
-<span id="cb6-29"><a href="#cb6-29"></a>  </span>
-<span id="cb6-30"><a href="#cb6-30"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb6-31"><a href="#cb6-31"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb6-28"><a href="#cb6-28"></a>  g_print <span class="op">(</span><span class="st">&quot;Now the reference count is zero and the instance is destroyed.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb6-29"><a href="#cb6-29"></a>  g_print <span class="op">(</span><span class="st">&quot;The instance memories are possibly returned to the system.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb6-30"><a href="#cb6-30"></a>  g_print <span class="op">(</span><span class="st">&quot;Therefore, the access to the same address may cause a segmentation error.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb6-31"><a href="#cb6-31"></a>  </span>
+<span id="cb6-32"><a href="#cb6-32"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-33"><a href="#cb6-33"></a><span class="op">}</span></span></code></pre></div>
 <p>Now execute it.</p>
 <pre><code>$ cd misc; _build/example2
 Call g_object_new.
@@ -324,7 +326,9 @@ Reference count is 2.
 Call g_object_unref.
 Reference count is 1.
 Call g_object_unref.
-Instance is not GObject.</code></pre>
+Now the reference count is zero and the instance is destroyed.
+The instance memories are possibly returned to the system.
+Therefore, the access to the same address may cause a segmentation error.</code></pre>
 <p><code>example2</code> shows:</p>
 <ul>
 <li><code>g_object_new</code> creates a new GObject instance and sets

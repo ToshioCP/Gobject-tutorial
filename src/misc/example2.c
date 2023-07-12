@@ -25,8 +25,9 @@ main (int argc, char **argv) {
   show_ref_count (instance);
   g_object_unref (instance);
   g_print ("Call g_object_unref.\n");
-  show_ref_count (instance);
+  g_print ("Now the reference count is zero and the instance is destroyed.\n");
+  g_print ("The instance memories are possibly returned to the system.\n");
+  g_print ("Therefore, the access to the same address may cause a segmentation error.\n");
   
   return 0;
 }
-
