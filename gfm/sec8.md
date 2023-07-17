@@ -164,13 +164,13 @@ The C file of TNumStr is [`tnumstr.c`](../src/tstr/tnumstr.c).
 It is in the `src/tstr` directory.
 
 ~~~C
-  1 #include <stdlib.h>
-  2 #include <ctype.h>
-  3 #include "tnumstr.h"
-  4 #include "tstr.h"
-  5 #include "../tnumber/tnumber.h"
-  6 #include "../tnumber/tint.h"
-  7 #include "../tnumber/tdouble.h"
+  1 #include <ctype.h>
+  2 #include "tnumstr.h"
+  3 #include "tstr.h"
+  4 #include "../tnumber/tnumber.h"
+  5 #include "../tnumber/tint.h"
+  6 #include "../tnumber/tdouble.h"
+  7
   8 
   9 
  10 struct _TNumStr {

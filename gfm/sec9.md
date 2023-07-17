@@ -692,7 +692,7 @@ So, "a" is bigger than "b" and "three" is bigger than "two".
   4 #include "tint.h"
   5 #include "tdouble.h"
   6 #include "tstr.h"
-  7 #include "tnumstr.h"
+  7
   8 
   9 
  10 static void
