@@ -79,8 +79,8 @@ It is 7 because the string literal has '\0' at the end of it.
 Then 7 bytes memory is allocated in static memory or stack memory.
 It depends on the class of the array, whether `static` or `auto`.
 The memory is initialized with "Hello!".
-So, the string in the array can me changed.
-This program successfully displays `Hallo!.
+So, the string in the array can be changed.
+This program successfully displays `Hello!`.
 
 The first line of the program above is the same as follows.
 
@@ -468,7 +468,7 @@ The "chain up to its parent" process is illustrated with the diagram below.
 
 ![Chaining up process in GObject and TStr](../image/chainup.png)
 
-There are two classes, GObjectCLass and TStrClass.
+There are two classes, GObjectClass and TStrClass.
 Each class has their finalize methods (functions) pointed by the pointers in the class structures.
 The finalize method of TStrClass finalizes its own part of the TStr instance.
 At the end of the function, it calls its parent's finalize method.

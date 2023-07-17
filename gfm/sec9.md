@@ -109,7 +109,7 @@ Now let's see the header file.
 - 7: `G_DECLARE_INTERFACE` macro.
 The last parameter is a prerequisite of the interface.
 The prerequisite of TComparable is GObject.
-So, any other object than the descendants of GObject, for example GVarinat, can't implement TComparable.
+So, any other object than the descendants of GObject, for example GVariant, can't implement TComparable.
 A prerequisite is the GType of either an interface or a class.
 This macro expands to:
   - Declaration of `t_comparable_get_type()`.
@@ -124,7 +124,7 @@ The parent of `TComparableInterface` is `GTypeInterface`.
 `GTypeInterface` is a base of all interface types.
 It is like a `GTypeClass` which is a base of all class types.
 `GTypeClass` is the first member of the structure `GObjectClass`.
-(See `gobject.h`. Note that `GObjecClass` is the same as `struct _GObjectClass`.)
+(See `gobject.h`. Note that `GObjectClass` is the same as `struct _GObjectClass`.)
 The next member is a pointer `arg_error` to the default signal handler of "arg-error" signal.
 This signal is emitted when an argument of the public functions isn't TComparable.
 The last member is a pointer to a method `cmp`.

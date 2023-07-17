@@ -196,7 +196,7 @@ double v;
 v = g_value_get_double (&value);
 ~~~
 
-Conversely, you can set Gvalue `value` with `g_value_set_double`.
+Conversely, you can set GValue `value` with `g_value_set_double`.
 
 ~~~C
 g_value_set_double (value, 123.45);

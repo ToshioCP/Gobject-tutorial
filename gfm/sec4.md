@@ -548,7 +548,7 @@ There are three flags which relate to the order of handlers' invocation.
 
 `G_SIGNAL_RUN_LAST` is the most appropriate in many cases.
 
-Other signal flags are described in [GObject API Rreference](https://docs.gtk.org/gobject/flags.SignalFlags.html).
+Other signal flags are described in [GObject API Reference](https://docs.gtk.org/gobject/flags.SignalFlags.html).
 
 
 Up: [Readme.md](../Readme.md),  Prev: [Section 3](sec3.md), Next: [Section 5](sec5.md)
