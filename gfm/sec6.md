@@ -288,9 +288,9 @@ And the pointers of the methods in TNumberClass are rewritten here.
  15 t_int_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
  16   TInt *self = T_INT (object);
  17 
- 18   if (property_id == PROP_INT) {
+ 18   if (property_id == PROP_INT)
  19     self->value = g_value_get_int (value);
- 20   } else
+ 20   else
  21     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
  22 }
  23 

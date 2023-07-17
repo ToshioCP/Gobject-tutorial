@@ -287,9 +287,9 @@ It is `tstr.c`.
  18 t_str_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
  19   TStr *self = T_STR (object);
  20 
- 21   if (property_id == PROP_STRING) {
- 22     t_str_set_string(self, g_value_get_string (value));
- 23   } else
+ 21   if (property_id == PROP_STRING)
+ 22     t_str_set_string (self, g_value_get_string (value));
+ 23   else
  24     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
  25 }
  26 

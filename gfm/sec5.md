@@ -236,9 +236,9 @@ struct  _GObjectClass
 2 t_double_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
 3   TDouble *self = T_DOUBLE (object);
 4 
-5   if (property_id == PROP_DOUBLE) {
+5   if (property_id == PROP_DOUBLE)
 6     self->value = g_value_get_double (value);
-7   } else
+7   else
 8     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 9 }
 ~~~
