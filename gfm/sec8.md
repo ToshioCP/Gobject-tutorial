@@ -64,7 +64,7 @@ For example, "12" or "-23" are correct.
 The fourth part can be left out.
 For example, "100." is correct.
 
-There are six state.
+There are six states.
 
 - 0 is the start point.
 - 1 is the state after '+' or '-'.
