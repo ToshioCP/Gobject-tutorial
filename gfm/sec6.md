@@ -305,7 +305,7 @@ And the pointers of the methods in TNumberClass are rewritten here.
  32 }
  33 
  34 static void
- 35 t_int_init (TInt *d) {
+ 35 t_int_init (TInt *i) {
  36 }
  37 
  38 /* arithmetic operator */
@@ -402,18 +402,18 @@ And the pointers of the methods in TNumberClass are rewritten here.
 129 
 130 TInt *
 131 t_int_new_with_value (int value) {
-132   TInt *d;
+132   TInt *i;
 133 
-134   d = g_object_new (T_TYPE_INT, "value", value, NULL);
-135   return d;
+134   i = g_object_new (T_TYPE_INT, "value", value, NULL);
+135   return i;
 136 }
 137 
 138 TInt *
 139 t_int_new (void) {
-140   TInt *d;
+140   TInt *i;
 141 
-142   d = g_object_new (T_TYPE_INT, NULL);
-143   return d;
+142   i = g_object_new (T_TYPE_INT, NULL);
+143   return i;
 144 }
 145 
 ~~~

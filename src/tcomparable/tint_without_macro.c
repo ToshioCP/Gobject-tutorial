@@ -17,7 +17,7 @@ static void t_comparable_interface_init (TComparableInterface *iface);
 static void
 t_int_class_init (TIntClass *class);
 static void
-t_int_init (TInt *d);
+t_int_init (TInt *i);
 
 GType 
 t_int_get_type (void)
@@ -99,7 +99,7 @@ t_int_get_property (GObject *object, guint property_id, GValue *value, GParamSpe
 }
 
 static void
-t_int_init (TInt *d) {
+t_int_init (TInt *i) {
 }
 
 /* arithmetic operator */
@@ -196,16 +196,16 @@ t_int_class_init (TIntClass *class) {
 
 TInt *
 t_int_new_with_value (int value) {
-  TInt *d;
+  TInt *i;
 
-  d = g_object_new (T_TYPE_INT, "value", value, NULL);
-  return d;
+  i = g_object_new (T_TYPE_INT, "value", value, NULL);
+  return i;
 }
 
 TInt *
 t_int_new (void) {
-  TInt *d;
+  TInt *i;
 
-  d = g_object_new (T_TYPE_INT, NULL);
-  return d;
+  i = g_object_new (T_TYPE_INT, NULL);
+  return i;
 }

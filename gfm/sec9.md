@@ -345,7 +345,7 @@ The implementation is written in C file.
  67 }
  68 
  69 static void
- 70 t_int_init (TInt *d) {
+ 70 t_int_init (TInt *i) {
  71 }
  72 
  73 /* arithmetic operator */
@@ -442,18 +442,18 @@ The implementation is written in C file.
 164 
 165 TInt *
 166 t_int_new_with_value (int value) {
-167   TInt *d;
+167   TInt *i;
 168 
-169   d = g_object_new (T_TYPE_INT, "value", value, NULL);
-170   return d;
+169   i = g_object_new (T_TYPE_INT, "value", value, NULL);
+170   return i;
 171 }
 172 
 173 TInt *
 174 t_int_new (void) {
-175   TInt *d;
+175   TInt *i;
 176 
-177   d = g_object_new (T_TYPE_INT, NULL);
-178   return d;
+177   i = g_object_new (T_TYPE_INT, NULL);
+178   return i;
 179 }
 ~~~
 
