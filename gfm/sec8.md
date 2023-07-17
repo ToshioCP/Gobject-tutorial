@@ -310,7 +310,7 @@ So, the type is set with t\_none.
 - 68-73: Initializes the class.
 The class method `set_string` is replaced by `t_num_str_real_set_string`.
 So `t_str_set_string` and `t_str_set_property` (in tstr.c) sets not only the string but also the type.
--75-80: `t_num_str_get_string_type` returns the type.
+- 75-80: `t_num_str_get_string_type` returns the type.
 - 83-110: Setter and getter.
 The setter sets the numeric string with a TNumber object.
 And the getter returns a TNumber object.
