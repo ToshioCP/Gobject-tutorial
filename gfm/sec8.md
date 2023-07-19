@@ -64,7 +64,7 @@ For example, "12" or "-23" are correct.
 The fourth part can be left out.
 For example, "100." is correct.
 
-There are six state.
+There are six states.
 
 - 0 is the start point.
 - 1 is the state after '+' or '-'.
@@ -164,13 +164,13 @@ The C file of TNumStr is [`tnumstr.c`](../src/tstr/tnumstr.c).
 It is in the `src/tstr` directory.
 
 ~~~C
-  1 #include <stdlib.h>
-  2 #include <ctype.h>
-  3 #include "tnumstr.h"
-  4 #include "tstr.h"
-  5 #include "../tnumber/tnumber.h"
-  6 #include "../tnumber/tint.h"
-  7 #include "../tnumber/tdouble.h"
+  1 #include <ctype.h>
+  2 #include "tnumstr.h"
+  3 #include "tstr.h"
+  4 #include "../tnumber/tnumber.h"
+  5 #include "../tnumber/tint.h"
+  6 #include "../tnumber/tdouble.h"
+  7
   8 
   9 
  10 struct _TNumStr {
@@ -310,7 +310,7 @@ So, the type is set with t\_none.
 - 68-73: Initializes the class.
 The class method `set_string` is replaced by `t_num_str_real_set_string`.
 So `t_str_set_string` and `t_str_set_property` (in tstr.c) sets not only the string but also the type.
--75-80: `t_num_str_get_string_type` returns the type.
+- 75-80: `t_num_str_get_string_type` returns the type.
 - 83-110: Setter and getter.
 The setter sets the numeric string with a TNumber object.
 And the getter returns a TNumber object.

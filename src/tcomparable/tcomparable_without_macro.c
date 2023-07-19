@@ -33,7 +33,7 @@ arg_error_default_cb (TComparable *self) {
 
 static void
 t_comparable_default_init (TComparableInterface *iface) {
-  /* virtual functio */
+  /* virtual function */
   iface->cmp = NULL;
   /* argument error signal */
   iface->arg_error = arg_error_default_cb;

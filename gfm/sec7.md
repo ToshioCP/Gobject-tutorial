@@ -57,14 +57,14 @@ The string is an array 'H', 'e', 'l', 'l', 'o', '.' and zero ('\0').
 If the string `s` is no longer in use, `s` must be freed, which means the allocated 7 bytes must be returned to the system.
 `g_free` frees the memory.
 
-Strings bounded by double quotes like "Hello." is a string literal.
-It is an array of characters, but the contents of the array is not allowed to change.
-And it mustn't be freed.
+Strings bounded by double quotes like "Hello." are string literals.
+They are an array of characters, but the contents of the array are not allowed to change.
+And they mustn't be freed.
 If you write a character in a string literal or free a string literal, the result is undefined.
 Maybe bad things will happen, for example, a segmentation fault error.
 
-There's a difference between arrays and pointers when you initialize them with string literal.
-If an array is initialized with string literal, the array can be changed.
+There's a difference between arrays and pointers when you initialize them with a string literal.
+If an array is initialized with a string literal, the array can be changed.
 
 ~~~C
 char a[]="Hello!";
@@ -79,8 +79,8 @@ It is 7 because the string literal has '\0' at the end of it.
 Then 7 bytes memory is allocated in static memory or stack memory.
 It depends on the class of the array, whether `static` or `auto`.
 The memory is initialized with "Hello!".
-So, the string in the array can me changed.
-This program successfully displays `Hallo!.
+So, the string in the array can be changed.
+This program successfully displays `Hello!`.
 
 The first line of the program above is the same as follows.
 
@@ -287,9 +287,9 @@ It is `tstr.c`.
  18 t_str_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
  19   TStr *self = T_STR (object);
  20 
- 21   if (property_id == PROP_STRING) {
- 22     t_str_set_string(self, g_value_get_string (value));
- 23   } else
+ 21   if (property_id == PROP_STRING)
+ 22     t_str_set_string (self, g_value_get_string (value));
+ 23   else
  24     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
  25 }
  26 
@@ -468,7 +468,7 @@ The "chain up to its parent" process is illustrated with the diagram below.
 
 ![Chaining up process in GObject and TStr](../image/chainup.png)
 
-There are two classes, GObjectCLass and TStrClass.
+There are two classes, GObjectClass and TStrClass.
 Each class has their finalize methods (functions) pointed by the pointers in the class structures.
 The finalize method of TStrClass finalizes its own part of the TStr instance.
 At the end of the function, it calls its parent's finalize method.

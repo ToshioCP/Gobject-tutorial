@@ -1,10 +1,10 @@
-#include <stdlib.h>
 #include <ctype.h>
 #include "tnumstr.h"
 #include "tstr.h"
 #include "../tnumber/tnumber.h"
 #include "../tnumber/tint.h"
 #include "../tnumber/tdouble.h"
+
 
 
 struct _TNumStr {

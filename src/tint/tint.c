@@ -61,7 +61,7 @@ t_int_class_init (TIntClass *class) {
 }
 
 static void
-t_int_init (TInt *d) {
+t_int_init (TInt *i) {
 }
 
 /* arithmetic operator */
@@ -120,17 +120,17 @@ t_int_uminus (TInt *self) {
 
 TInt *
 t_int_new_with_value (int value) {
-  TInt *d;
+  TInt *i;
 
-  d = g_object_new (T_TYPE_INT, "value", value, NULL);
-  return d;
+  i = g_object_new (T_TYPE_INT, "value", value, NULL);
+  return i;
 }
 
 TInt *
 t_int_new (void) {
-  TInt *d;
+  TInt *i;
 
-  d = g_object_new (T_TYPE_INT, NULL);
-  return d;
+  i = g_object_new (T_TYPE_INT, NULL);
+  return i;
 }
 

@@ -109,7 +109,7 @@ Now let's see the header file.
 - 7: `G_DECLARE_INTERFACE` macro.
 The last parameter is a prerequisite of the interface.
 The prerequisite of TComparable is GObject.
-So, any other object than the descendants of GObject, for example GVarinat, can't implement TComparable.
+So, any other object than the descendants of GObject, for example GVariant, can't implement TComparable.
 A prerequisite is the GType of either an interface or a class.
 This macro expands to:
   - Declaration of `t_comparable_get_type()`.
@@ -124,7 +124,7 @@ The parent of `TComparableInterface` is `GTypeInterface`.
 `GTypeInterface` is a base of all interface types.
 It is like a `GTypeClass` which is a base of all class types.
 `GTypeClass` is the first member of the structure `GObjectClass`.
-(See `gobject.h`. Note that `GObjecClass` is the same as `struct _GObjectClass`.)
+(See `gobject.h`. Note that `GObjectClass` is the same as `struct _GObjectClass`.)
 The next member is a pointer `arg_error` to the default signal handler of "arg-error" signal.
 This signal is emitted when an argument of the public functions isn't TComparable.
 The last member is a pointer to a method `cmp`.
@@ -345,7 +345,7 @@ The implementation is written in C file.
  67 }
  68 
  69 static void
- 70 t_int_init (TInt *d) {
+ 70 t_int_init (TInt *i) {
  71 }
  72 
  73 /* arithmetic operator */
@@ -442,18 +442,18 @@ The implementation is written in C file.
 164 
 165 TInt *
 166 t_int_new_with_value (int value) {
-167   TInt *d;
+167   TInt *i;
 168 
-169   d = g_object_new (T_TYPE_INT, "value", value, NULL);
-170   return d;
+169   i = g_object_new (T_TYPE_INT, "value", value, NULL);
+170   return i;
 171 }
 172 
 173 TInt *
 174 t_int_new (void) {
-175   TInt *d;
+175   TInt *i;
 176 
-177   d = g_object_new (T_TYPE_INT, NULL);
-178   return d;
+177   i = g_object_new (T_TYPE_INT, NULL);
+178   return i;
 179 }
 ~~~
 
@@ -692,7 +692,7 @@ So, "a" is bigger than "b" and "three" is bigger than "two".
   4 #include "tint.h"
   5 #include "tdouble.h"
   6 #include "tstr.h"
-  7 #include "tnumstr.h"
+  7
   8 
   9 
  10 static void
