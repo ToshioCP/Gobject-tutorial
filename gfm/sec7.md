@@ -75,12 +75,12 @@ g_print ("%s\n", a); /* Hallo will appear in your display. */
 The first line initializes an array `a`.
 The initialization is not simple.
 First, the compiler calculates the length of "Hello!".
-It is 7 because the string literal has '\0' at the end of it.
-Then 7 bytes memory is allocated in static memory or stack memory.
+It is seven because the string literal has '\0' at the end of it.
+Then seven bytes memory is allocated in static memory or stack memory.
 It depends on the class of the array, whether `static` or `auto`.
 The memory is initialized with "Hello!".
 So, the string in the array can be changed.
-This program successfully displays `Hello!`.
+This program successfully displays `Hallo!.
 
 The first line of the program above is the same as follows.
 

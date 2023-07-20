@@ -194,13 +194,13 @@ double v;
 v = g_value_get_double (&value);
 ~~~
 
-Conversely, you can set Gvalue `value` with `g_value_set_double`.
+Conversely, you can set GValue `value` with `g_value_set_double`.
 
 ~~~C
 g_value_set_double (value, 123.45);
 ~~~
 
-Refer to [GObject API reference -- GValue](https://docs.gtk.org/gobject/struct.Value.html) for further information.
+Refer to [GObject API Reference -- GValue](https://docs.gtk.org/gobject/struct.Value.html) for further information.
 
 ## t\_double\_set\_property and t\_double\_get\_property
 

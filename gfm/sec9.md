@@ -692,7 +692,7 @@ So, "a" is bigger than "b" and "three" is bigger than "two".
   4 #include "tint.h"
   5 #include "tdouble.h"
   6 #include "tstr.h"
-  7
+  7 
   8 
   9 
  10 static void
@@ -843,7 +843,7 @@ $ cd tcomparable; _build/tcomparable 2>&1
 
 TComparable: argument error.
 
-** (process:81639): CRITICAL **: 21:53:14.414: t_comparable_eq: assertion 'T_IS_COMPARABLE (other)' failed
+** (process:6055): CRITICAL **: 16:25:33.920: t_comparable_eq: assertion 'T_IS_COMPARABLE (other)' failed
 ~~~
 
 The lines from `TComparable: argument error.` to `** (process:XXXXX)...` show that the comparison with TDouble and GObject fails.

@@ -352,12 +352,12 @@ all.</p>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>value <span class="op">=</span> <span class="op">...</span> <span class="op">...</span> <span class="op">...</span> <span class="op">(</span>a GValue object is assigned<span class="op">.</span> Its type is <span class="dt">double</span><span class="op">.)</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> v<span class="op">;</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> g_value_get_double <span class="op">(&amp;</span>value<span class="op">);</span></span></code></pre></div>
-<p>Conversely, you can set Gvalue <code>value</code> with
+<p>Conversely, you can set GValue <code>value</code> with
 <code>g_value_set_double</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>g_value_set_double <span class="op">(</span>value<span class="op">,</span> <span class="fl">123.45</span><span class="op">);</span></span></code></pre></div>
 <p>Refer to <a
 href="https://docs.gtk.org/gobject/struct.Value.html">GObject API
-reference – GValue</a> for further information.</p>
+Reference – GValue</a> for further information.</p>
 <h2
 id="t_double_set_property-and-t_double_get_property">t_double_set_property
 and t_double_get_property</h2>
@@ -388,9 +388,9 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb9-2"><a href="#cb9-2"></a>t_double_set_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> <span class="dt">const</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb9-3"><a href="#cb9-3"></a>  TDouble <span class="op">*</span>self <span class="op">=</span> T_DOUBLE <span class="op">(</span>object<span class="op">);</span></span>
 <span id="cb9-4"><a href="#cb9-4"></a></span>
-<span id="cb9-5"><a href="#cb9-5"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_DOUBLE<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_DOUBLE<span class="op">)</span></span>
 <span id="cb9-6"><a href="#cb9-6"></a>    self<span class="op">-&gt;</span>value <span class="op">=</span> g_value_get_double <span class="op">(</span>value<span class="op">);</span></span>
-<span id="cb9-7"><a href="#cb9-7"></a>  <span class="op">}</span> <span class="cf">else</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>  <span class="cf">else</span></span>
 <span id="cb9-8"><a href="#cb9-8"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
 <span id="cb9-9"><a href="#cb9-9"></a><span class="op">}</span></span></code></pre></div>
 <ul>

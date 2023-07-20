@@ -21,9 +21,9 @@ static void
 t_double_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   TDouble *self = T_DOUBLE (object);
 
-  if (property_id == PROP_DOUBLE) {
+  if (property_id == PROP_DOUBLE)
     self->value = g_value_get_double (value);
-  } else
+  else
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 }
 

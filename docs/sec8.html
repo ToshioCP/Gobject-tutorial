@@ -164,7 +164,7 @@ correct.</p>
 <p>The third and fourth parts can be left out. For example, “12” or
 “-23” are correct.</p>
 <p>The fourth part can be left out. For example, “100.” is correct.</p>
-<p>There are six state.</p>
+<p>There are six states.</p>
 <ul>
 <li>0 is the start point.</li>
 <li>1 is the state after ‘+’ or ‘-’.</li>
@@ -304,134 +304,132 @@ the string TStrNum object has. The returned value is
 <p>The C file of TNumStr is <code>tnumstr.c</code>. It is in the
 <code>src/tstr</code> directory.</p>
 <div class="sourceCode" id="cb2"><pre
-class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="pp">#include </span><span class="im">&lt;ctype.h&gt;</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="pp">#include </span><span class="im">&quot;tnumstr.h&quot;</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="pp">#include </span><span class="im">&quot;tstr.h&quot;</span></span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="pp">#include </span><span class="im">&quot;../tnumber/tnumber.h&quot;</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="pp">#include </span><span class="im">&quot;../tnumber/tint.h&quot;</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="pp">#include </span><span class="im">&quot;../tnumber/tdouble.h&quot;</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a></span>
-<span id="cb2-9"><a href="#cb2-9"></a></span>
-<span id="cb2-10"><a href="#cb2-10"></a><span class="kw">struct</span> _TNumStr <span class="op">{</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a>  TStr parent<span class="op">;</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a>  <span class="dt">int</span> type<span class="op">;</span></span>
-<span id="cb2-13"><a href="#cb2-13"></a><span class="op">};</span></span>
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a><span class="pp">#include </span><span class="im">&lt;ctype.h&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="pp">#include </span><span class="im">&quot;tnumstr.h&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="pp">#include </span><span class="im">&quot;tstr.h&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="pp">#include </span><span class="im">&quot;../tnumber/tnumber.h&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="pp">#include </span><span class="im">&quot;../tnumber/tint.h&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="pp">#include </span><span class="im">&quot;../tnumber/tdouble.h&quot;</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="kw">struct</span> _TNumStr <span class="op">{</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>  TStr parent<span class="op">;</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>  <span class="dt">int</span> type<span class="op">;</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="op">};</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a></span>
+<span id="cb2-13"><a href="#cb2-13"></a>G_DEFINE_TYPE<span class="op">(</span>TNumStr<span class="op">,</span> t_num_str<span class="op">,</span> T_TYPE_STR<span class="op">)</span></span>
 <span id="cb2-14"><a href="#cb2-14"></a></span>
-<span id="cb2-15"><a href="#cb2-15"></a>G_DEFINE_TYPE<span class="op">(</span>TNumStr<span class="op">,</span> t_num_str<span class="op">,</span> T_TYPE_STR<span class="op">)</span></span>
-<span id="cb2-16"><a href="#cb2-16"></a></span>
-<span id="cb2-17"><a href="#cb2-17"></a><span class="dt">static</span> <span class="dt">int</span></span>
-<span id="cb2-18"><a href="#cb2-18"></a>t_num_str_string_type <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>string<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-19"><a href="#cb2-19"></a>  <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>t<span class="op">;</span></span>
-<span id="cb2-20"><a href="#cb2-20"></a>  <span class="dt">int</span> stat<span class="op">,</span> input<span class="op">;</span></span>
-<span id="cb2-21"><a href="#cb2-21"></a>  <span class="co">/* state matrix */</span></span>
-<span id="cb2-22"><a href="#cb2-22"></a>  <span class="dt">int</span> m<span class="op">[</span><span class="dv">4</span><span class="op">][</span><span class="dv">5</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span></span>
-<span id="cb2-23"><a href="#cb2-23"></a>    <span class="op">{</span><span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">6</span><span class="op">},</span></span>
-<span id="cb2-24"><a href="#cb2-24"></a>    <span class="op">{</span><span class="dv">6</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">6</span><span class="op">},</span></span>
-<span id="cb2-25"><a href="#cb2-25"></a>    <span class="op">{</span><span class="dv">6</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">6</span><span class="op">},</span></span>
-<span id="cb2-26"><a href="#cb2-26"></a>    <span class="op">{</span><span class="dv">6</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">6</span><span class="op">}</span></span>
-<span id="cb2-27"><a href="#cb2-27"></a>  <span class="op">};</span></span>
-<span id="cb2-28"><a href="#cb2-28"></a></span>
-<span id="cb2-29"><a href="#cb2-29"></a>  <span class="cf">if</span> <span class="op">(</span>string <span class="op">==</span> NULL<span class="op">)</span></span>
-<span id="cb2-30"><a href="#cb2-30"></a>    <span class="cf">return</span> t_none<span class="op">;</span></span>
-<span id="cb2-31"><a href="#cb2-31"></a>  stat <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb2-32"><a href="#cb2-32"></a>  <span class="cf">for</span> <span class="op">(</span>t <span class="op">=</span> string<span class="op">;</span> <span class="op">;</span> <span class="op">++</span>t<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-33"><a href="#cb2-33"></a>    <span class="cf">if</span> <span class="op">(*</span>t <span class="op">==</span> <span class="ch">&#39;+&#39;</span> <span class="op">||</span> <span class="op">*</span>t <span class="op">==</span> <span class="ch">&#39;-&#39;</span><span class="op">)</span>      </span>
-<span id="cb2-34"><a href="#cb2-34"></a>      input <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb2-35"><a href="#cb2-35"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>isdigit <span class="op">(*</span>t<span class="op">))</span></span>
-<span id="cb2-36"><a href="#cb2-36"></a>      input <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
-<span id="cb2-37"><a href="#cb2-37"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(*</span>t <span class="op">==</span> <span class="ch">&#39;.&#39;</span><span class="op">)</span></span>
-<span id="cb2-38"><a href="#cb2-38"></a>      input <span class="op">=</span> <span class="dv">2</span><span class="op">;</span></span>
-<span id="cb2-39"><a href="#cb2-39"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(*</span>t <span class="op">==</span> <span class="ch">&#39;\0&#39;</span><span class="op">)</span></span>
-<span id="cb2-40"><a href="#cb2-40"></a>      input <span class="op">=</span> <span class="dv">3</span><span class="op">;</span></span>
-<span id="cb2-41"><a href="#cb2-41"></a>    <span class="cf">else</span></span>
-<span id="cb2-42"><a href="#cb2-42"></a>      input <span class="op">=</span> <span class="dv">4</span><span class="op">;</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="dt">static</span> <span class="dt">int</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a>t_num_str_string_type <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>string<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a>  <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>t<span class="op">;</span></span>
+<span id="cb2-18"><a href="#cb2-18"></a>  <span class="dt">int</span> stat<span class="op">,</span> input<span class="op">;</span></span>
+<span id="cb2-19"><a href="#cb2-19"></a>  <span class="co">/* state matrix */</span></span>
+<span id="cb2-20"><a href="#cb2-20"></a>  <span class="dt">int</span> m<span class="op">[</span><span class="dv">4</span><span class="op">][</span><span class="dv">5</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a>    <span class="op">{</span><span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">6</span><span class="op">},</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a>    <span class="op">{</span><span class="dv">6</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">6</span><span class="op">},</span></span>
+<span id="cb2-23"><a href="#cb2-23"></a>    <span class="op">{</span><span class="dv">6</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">6</span><span class="op">},</span></span>
+<span id="cb2-24"><a href="#cb2-24"></a>    <span class="op">{</span><span class="dv">6</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">6</span><span class="op">}</span></span>
+<span id="cb2-25"><a href="#cb2-25"></a>  <span class="op">};</span></span>
+<span id="cb2-26"><a href="#cb2-26"></a></span>
+<span id="cb2-27"><a href="#cb2-27"></a>  <span class="cf">if</span> <span class="op">(</span>string <span class="op">==</span> NULL<span class="op">)</span></span>
+<span id="cb2-28"><a href="#cb2-28"></a>    <span class="cf">return</span> t_none<span class="op">;</span></span>
+<span id="cb2-29"><a href="#cb2-29"></a>  stat <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-30"><a href="#cb2-30"></a>  <span class="cf">for</span> <span class="op">(</span>t <span class="op">=</span> string<span class="op">;</span> <span class="op">;</span> <span class="op">++</span>t<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-31"><a href="#cb2-31"></a>    <span class="cf">if</span> <span class="op">(*</span>t <span class="op">==</span> <span class="ch">&#39;+&#39;</span> <span class="op">||</span> <span class="op">*</span>t <span class="op">==</span> <span class="ch">&#39;-&#39;</span><span class="op">)</span></span>
+<span id="cb2-32"><a href="#cb2-32"></a>      input <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-33"><a href="#cb2-33"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>isdigit <span class="op">(*</span>t<span class="op">))</span></span>
+<span id="cb2-34"><a href="#cb2-34"></a>      input <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb2-35"><a href="#cb2-35"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(*</span>t <span class="op">==</span> <span class="ch">&#39;.&#39;</span><span class="op">)</span></span>
+<span id="cb2-36"><a href="#cb2-36"></a>      input <span class="op">=</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb2-37"><a href="#cb2-37"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(*</span>t <span class="op">==</span> <span class="ch">&#39;\0&#39;</span><span class="op">)</span></span>
+<span id="cb2-38"><a href="#cb2-38"></a>      input <span class="op">=</span> <span class="dv">3</span><span class="op">;</span></span>
+<span id="cb2-39"><a href="#cb2-39"></a>    <span class="cf">else</span></span>
+<span id="cb2-40"><a href="#cb2-40"></a>      input <span class="op">=</span> <span class="dv">4</span><span class="op">;</span></span>
+<span id="cb2-41"><a href="#cb2-41"></a></span>
+<span id="cb2-42"><a href="#cb2-42"></a>    stat <span class="op">=</span> m<span class="op">[</span>stat<span class="op">][</span>input<span class="op">];</span></span>
 <span id="cb2-43"><a href="#cb2-43"></a></span>
-<span id="cb2-44"><a href="#cb2-44"></a>    stat <span class="op">=</span> m<span class="op">[</span>stat<span class="op">][</span>input<span class="op">];</span></span>
-<span id="cb2-45"><a href="#cb2-45"></a></span>
-<span id="cb2-46"><a href="#cb2-46"></a>    <span class="cf">if</span> <span class="op">(</span>stat <span class="op">&gt;=</span> <span class="dv">4</span> <span class="op">||</span> <span class="op">*</span>t <span class="op">==</span> <span class="ch">&#39;\0&#39;</span><span class="op">)</span></span>
-<span id="cb2-47"><a href="#cb2-47"></a>      <span class="cf">break</span><span class="op">;</span></span>
-<span id="cb2-48"><a href="#cb2-48"></a>  <span class="op">}</span></span>
-<span id="cb2-49"><a href="#cb2-49"></a>  <span class="cf">if</span> <span class="op">(</span>stat <span class="op">==</span> <span class="dv">4</span><span class="op">)</span></span>
-<span id="cb2-50"><a href="#cb2-50"></a>    <span class="cf">return</span> t_int<span class="op">;</span></span>
-<span id="cb2-51"><a href="#cb2-51"></a>  <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>stat <span class="op">==</span> <span class="dv">5</span><span class="op">)</span></span>
-<span id="cb2-52"><a href="#cb2-52"></a>    <span class="cf">return</span> t_double<span class="op">;</span></span>
-<span id="cb2-53"><a href="#cb2-53"></a>  <span class="cf">else</span></span>
-<span id="cb2-54"><a href="#cb2-54"></a>    <span class="cf">return</span> t_none<span class="op">;</span></span>
-<span id="cb2-55"><a href="#cb2-55"></a><span class="op">}</span></span>
-<span id="cb2-56"><a href="#cb2-56"></a></span>
-<span id="cb2-57"><a href="#cb2-57"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb2-58"><a href="#cb2-58"></a>t_num_str_real_set_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-59"><a href="#cb2-59"></a>  T_STR_CLASS <span class="op">(</span>t_num_str_parent_class<span class="op">)-&gt;</span>set_string <span class="op">(</span>self<span class="op">,</span> s<span class="op">);</span></span>
-<span id="cb2-60"><a href="#cb2-60"></a>  T_NUM_STR <span class="op">(</span>self<span class="op">)-&gt;</span>type <span class="op">=</span> t_num_str_string_type<span class="op">(</span>s<span class="op">);</span></span>
-<span id="cb2-61"><a href="#cb2-61"></a><span class="op">}</span></span>
-<span id="cb2-62"><a href="#cb2-62"></a></span>
-<span id="cb2-63"><a href="#cb2-63"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb2-64"><a href="#cb2-64"></a>t_num_str_init <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-65"><a href="#cb2-65"></a>  self<span class="op">-&gt;</span>type <span class="op">=</span> t_none<span class="op">;</span></span>
-<span id="cb2-66"><a href="#cb2-66"></a><span class="op">}</span></span>
-<span id="cb2-67"><a href="#cb2-67"></a></span>
-<span id="cb2-68"><a href="#cb2-68"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb2-69"><a href="#cb2-69"></a>t_num_str_class_init <span class="op">(</span>TNumStrClass <span class="op">*</span>class<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-70"><a href="#cb2-70"></a>  TStrClass <span class="op">*</span>t_str_class <span class="op">=</span> T_STR_CLASS <span class="op">(</span>class<span class="op">);</span></span>
-<span id="cb2-71"><a href="#cb2-71"></a></span>
-<span id="cb2-72"><a href="#cb2-72"></a>  t_str_class<span class="op">-&gt;</span>set_string <span class="op">=</span> t_num_str_real_set_string<span class="op">;</span></span>
-<span id="cb2-73"><a href="#cb2-73"></a><span class="op">}</span></span>
-<span id="cb2-74"><a href="#cb2-74"></a></span>
-<span id="cb2-75"><a href="#cb2-75"></a><span class="dt">int</span></span>
-<span id="cb2-76"><a href="#cb2-76"></a>t_num_str_get_string_type <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-77"><a href="#cb2-77"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUM_STR <span class="op">(</span>self<span class="op">),</span> <span class="op">-</span><span class="dv">1</span><span class="op">);</span></span>
-<span id="cb2-78"><a href="#cb2-78"></a></span>
-<span id="cb2-79"><a href="#cb2-79"></a>  <span class="cf">return</span> self<span class="op">-&gt;</span>type<span class="op">;</span></span>
-<span id="cb2-80"><a href="#cb2-80"></a><span class="op">}</span></span>
-<span id="cb2-81"><a href="#cb2-81"></a></span>
-<span id="cb2-82"><a href="#cb2-82"></a><span class="co">/* setter and getter */</span></span>
-<span id="cb2-83"><a href="#cb2-83"></a><span class="dt">void</span></span>
-<span id="cb2-84"><a href="#cb2-84"></a>t_num_str_set_from_t_number <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>num<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-85"><a href="#cb2-85"></a>  g_return_if_fail <span class="op">(</span>T_IS_NUM_STR <span class="op">(</span>self<span class="op">));</span></span>
-<span id="cb2-86"><a href="#cb2-86"></a>  g_return_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>num<span class="op">));</span></span>
+<span id="cb2-44"><a href="#cb2-44"></a>    <span class="cf">if</span> <span class="op">(</span>stat <span class="op">&gt;=</span> <span class="dv">4</span> <span class="op">||</span> <span class="op">*</span>t <span class="op">==</span> <span class="ch">&#39;\0&#39;</span><span class="op">)</span></span>
+<span id="cb2-45"><a href="#cb2-45"></a>      <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb2-46"><a href="#cb2-46"></a>  <span class="op">}</span></span>
+<span id="cb2-47"><a href="#cb2-47"></a>  <span class="cf">if</span> <span class="op">(</span>stat <span class="op">==</span> <span class="dv">4</span><span class="op">)</span></span>
+<span id="cb2-48"><a href="#cb2-48"></a>    <span class="cf">return</span> t_int<span class="op">;</span></span>
+<span id="cb2-49"><a href="#cb2-49"></a>  <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>stat <span class="op">==</span> <span class="dv">5</span><span class="op">)</span></span>
+<span id="cb2-50"><a href="#cb2-50"></a>    <span class="cf">return</span> t_double<span class="op">;</span></span>
+<span id="cb2-51"><a href="#cb2-51"></a>  <span class="cf">else</span></span>
+<span id="cb2-52"><a href="#cb2-52"></a>    <span class="cf">return</span> t_none<span class="op">;</span></span>
+<span id="cb2-53"><a href="#cb2-53"></a><span class="op">}</span></span>
+<span id="cb2-54"><a href="#cb2-54"></a></span>
+<span id="cb2-55"><a href="#cb2-55"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb2-56"><a href="#cb2-56"></a>t_num_str_real_set_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-57"><a href="#cb2-57"></a>  T_STR_CLASS <span class="op">(</span>t_num_str_parent_class<span class="op">)-&gt;</span>set_string <span class="op">(</span>self<span class="op">,</span> s<span class="op">);</span></span>
+<span id="cb2-58"><a href="#cb2-58"></a>  T_NUM_STR <span class="op">(</span>self<span class="op">)-&gt;</span>type <span class="op">=</span> t_num_str_string_type<span class="op">(</span>s<span class="op">);</span></span>
+<span id="cb2-59"><a href="#cb2-59"></a><span class="op">}</span></span>
+<span id="cb2-60"><a href="#cb2-60"></a></span>
+<span id="cb2-61"><a href="#cb2-61"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb2-62"><a href="#cb2-62"></a>t_num_str_init <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-63"><a href="#cb2-63"></a>  self<span class="op">-&gt;</span>type <span class="op">=</span> t_none<span class="op">;</span></span>
+<span id="cb2-64"><a href="#cb2-64"></a><span class="op">}</span></span>
+<span id="cb2-65"><a href="#cb2-65"></a></span>
+<span id="cb2-66"><a href="#cb2-66"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb2-67"><a href="#cb2-67"></a>t_num_str_class_init <span class="op">(</span>TNumStrClass <span class="op">*</span>class<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-68"><a href="#cb2-68"></a>  TStrClass <span class="op">*</span>t_str_class <span class="op">=</span> T_STR_CLASS <span class="op">(</span>class<span class="op">);</span></span>
+<span id="cb2-69"><a href="#cb2-69"></a></span>
+<span id="cb2-70"><a href="#cb2-70"></a>  t_str_class<span class="op">-&gt;</span>set_string <span class="op">=</span> t_num_str_real_set_string<span class="op">;</span></span>
+<span id="cb2-71"><a href="#cb2-71"></a><span class="op">}</span></span>
+<span id="cb2-72"><a href="#cb2-72"></a></span>
+<span id="cb2-73"><a href="#cb2-73"></a><span class="dt">int</span></span>
+<span id="cb2-74"><a href="#cb2-74"></a>t_num_str_get_string_type <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-75"><a href="#cb2-75"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUM_STR <span class="op">(</span>self<span class="op">),</span> <span class="op">-</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb2-76"><a href="#cb2-76"></a></span>
+<span id="cb2-77"><a href="#cb2-77"></a>  <span class="cf">return</span> self<span class="op">-&gt;</span>type<span class="op">;</span></span>
+<span id="cb2-78"><a href="#cb2-78"></a><span class="op">}</span></span>
+<span id="cb2-79"><a href="#cb2-79"></a></span>
+<span id="cb2-80"><a href="#cb2-80"></a><span class="co">/* setter and getter */</span></span>
+<span id="cb2-81"><a href="#cb2-81"></a><span class="dt">void</span></span>
+<span id="cb2-82"><a href="#cb2-82"></a>t_num_str_set_from_t_number <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>num<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-83"><a href="#cb2-83"></a>  g_return_if_fail <span class="op">(</span>T_IS_NUM_STR <span class="op">(</span>self<span class="op">));</span></span>
+<span id="cb2-84"><a href="#cb2-84"></a>  g_return_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>num<span class="op">));</span></span>
+<span id="cb2-85"><a href="#cb2-85"></a></span>
+<span id="cb2-86"><a href="#cb2-86"></a>  <span class="dt">char</span> <span class="op">*</span>s<span class="op">;</span></span>
 <span id="cb2-87"><a href="#cb2-87"></a></span>
-<span id="cb2-88"><a href="#cb2-88"></a>  <span class="dt">char</span> <span class="op">*</span>s<span class="op">;</span></span>
-<span id="cb2-89"><a href="#cb2-89"></a></span>
-<span id="cb2-90"><a href="#cb2-90"></a>  s <span class="op">=</span> t_number_to_s <span class="op">(</span>T_NUMBER <span class="op">(</span>num<span class="op">));</span></span>
-<span id="cb2-91"><a href="#cb2-91"></a>  t_str_set_string <span class="op">(</span>T_STR <span class="op">(</span>self<span class="op">),</span> s<span class="op">);</span></span>
-<span id="cb2-92"><a href="#cb2-92"></a>  g_free <span class="op">(</span>s<span class="op">);</span></span>
-<span id="cb2-93"><a href="#cb2-93"></a><span class="op">}</span></span>
-<span id="cb2-94"><a href="#cb2-94"></a></span>
-<span id="cb2-95"><a href="#cb2-95"></a>TNumber <span class="op">*</span></span>
-<span id="cb2-96"><a href="#cb2-96"></a>t_num_str_get_t_number <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-97"><a href="#cb2-97"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUM_STR <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb2-98"><a href="#cb2-98"></a></span>
-<span id="cb2-99"><a href="#cb2-99"></a>  <span class="dt">char</span> <span class="op">*</span>s <span class="op">=</span> t_str_get_string<span class="op">(</span>T_STR <span class="op">(</span>self<span class="op">));</span></span>
-<span id="cb2-100"><a href="#cb2-100"></a>  TNumber <span class="op">*</span>tnum<span class="op">;</span></span>
-<span id="cb2-101"><a href="#cb2-101"></a></span>
-<span id="cb2-102"><a href="#cb2-102"></a>  <span class="cf">if</span> <span class="op">(</span>self<span class="op">-&gt;</span>type <span class="op">==</span> t_int<span class="op">)</span></span>
-<span id="cb2-103"><a href="#cb2-103"></a>    tnum <span class="op">=</span> T_NUMBER <span class="op">(</span>t_int_new_with_value <span class="op">(</span>atoi <span class="op">(</span>s<span class="op">)));</span></span>
-<span id="cb2-104"><a href="#cb2-104"></a>  <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>self<span class="op">-&gt;</span>type <span class="op">==</span> t_double<span class="op">)</span></span>
-<span id="cb2-105"><a href="#cb2-105"></a>    tnum <span class="op">=</span> T_NUMBER <span class="op">(</span>t_double_new_with_value <span class="op">(</span>atof <span class="op">(</span>s<span class="op">)));</span></span>
-<span id="cb2-106"><a href="#cb2-106"></a>  <span class="cf">else</span></span>
-<span id="cb2-107"><a href="#cb2-107"></a>    tnum <span class="op">=</span> NULL<span class="op">;</span></span>
-<span id="cb2-108"><a href="#cb2-108"></a>  g_free <span class="op">(</span>s<span class="op">);</span></span>
-<span id="cb2-109"><a href="#cb2-109"></a>  <span class="cf">return</span> tnum<span class="op">;</span></span>
-<span id="cb2-110"><a href="#cb2-110"></a><span class="op">}</span></span>
+<span id="cb2-88"><a href="#cb2-88"></a>  s <span class="op">=</span> t_number_to_s <span class="op">(</span>T_NUMBER <span class="op">(</span>num<span class="op">));</span></span>
+<span id="cb2-89"><a href="#cb2-89"></a>  t_str_set_string <span class="op">(</span>T_STR <span class="op">(</span>self<span class="op">),</span> s<span class="op">);</span></span>
+<span id="cb2-90"><a href="#cb2-90"></a>  g_free <span class="op">(</span>s<span class="op">);</span></span>
+<span id="cb2-91"><a href="#cb2-91"></a><span class="op">}</span></span>
+<span id="cb2-92"><a href="#cb2-92"></a></span>
+<span id="cb2-93"><a href="#cb2-93"></a>TNumber <span class="op">*</span></span>
+<span id="cb2-94"><a href="#cb2-94"></a>t_num_str_get_t_number <span class="op">(</span>TNumStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-95"><a href="#cb2-95"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUM_STR <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb2-96"><a href="#cb2-96"></a></span>
+<span id="cb2-97"><a href="#cb2-97"></a>  <span class="dt">char</span> <span class="op">*</span>s <span class="op">=</span> t_str_get_string<span class="op">(</span>T_STR <span class="op">(</span>self<span class="op">));</span></span>
+<span id="cb2-98"><a href="#cb2-98"></a>  TNumber <span class="op">*</span>tnum<span class="op">;</span></span>
+<span id="cb2-99"><a href="#cb2-99"></a></span>
+<span id="cb2-100"><a href="#cb2-100"></a>  <span class="cf">if</span> <span class="op">(</span>self<span class="op">-&gt;</span>type <span class="op">==</span> t_int<span class="op">)</span></span>
+<span id="cb2-101"><a href="#cb2-101"></a>    tnum <span class="op">=</span> T_NUMBER <span class="op">(</span>t_int_new_with_value <span class="op">(</span>atoi <span class="op">(</span>s<span class="op">)));</span></span>
+<span id="cb2-102"><a href="#cb2-102"></a>  <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>self<span class="op">-&gt;</span>type <span class="op">==</span> t_double<span class="op">)</span></span>
+<span id="cb2-103"><a href="#cb2-103"></a>    tnum <span class="op">=</span> T_NUMBER <span class="op">(</span>t_double_new_with_value <span class="op">(</span>atof <span class="op">(</span>s<span class="op">)));</span></span>
+<span id="cb2-104"><a href="#cb2-104"></a>  <span class="cf">else</span></span>
+<span id="cb2-105"><a href="#cb2-105"></a>    tnum <span class="op">=</span> NULL<span class="op">;</span></span>
+<span id="cb2-106"><a href="#cb2-106"></a>  g_free <span class="op">(</span>s<span class="op">);</span></span>
+<span id="cb2-107"><a href="#cb2-107"></a>  <span class="cf">return</span> tnum<span class="op">;</span></span>
+<span id="cb2-108"><a href="#cb2-108"></a><span class="op">}</span></span>
+<span id="cb2-109"><a href="#cb2-109"></a></span>
+<span id="cb2-110"><a href="#cb2-110"></a><span class="co">/* create a new TNumStr instance */</span></span>
 <span id="cb2-111"><a href="#cb2-111"></a></span>
-<span id="cb2-112"><a href="#cb2-112"></a><span class="co">/* create a new TNumStr instance */</span></span>
-<span id="cb2-113"><a href="#cb2-113"></a></span>
-<span id="cb2-114"><a href="#cb2-114"></a>TNumStr <span class="op">*</span></span>
-<span id="cb2-115"><a href="#cb2-115"></a>t_num_str_new_with_tnumber <span class="op">(</span>TNumber <span class="op">*</span>num<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-116"><a href="#cb2-116"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>num<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb2-112"><a href="#cb2-112"></a>TNumStr <span class="op">*</span></span>
+<span id="cb2-113"><a href="#cb2-113"></a>t_num_str_new_with_tnumber <span class="op">(</span>TNumber <span class="op">*</span>num<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-114"><a href="#cb2-114"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>num<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb2-115"><a href="#cb2-115"></a></span>
+<span id="cb2-116"><a href="#cb2-116"></a>  TNumStr <span class="op">*</span>numstr<span class="op">;</span></span>
 <span id="cb2-117"><a href="#cb2-117"></a></span>
-<span id="cb2-118"><a href="#cb2-118"></a>  TNumStr <span class="op">*</span>numstr<span class="op">;</span></span>
-<span id="cb2-119"><a href="#cb2-119"></a></span>
-<span id="cb2-120"><a href="#cb2-120"></a>  numstr <span class="op">=</span> t_num_str_new <span class="op">();</span></span>
-<span id="cb2-121"><a href="#cb2-121"></a>  t_num_str_set_from_t_number <span class="op">(</span>numstr<span class="op">,</span> num<span class="op">);</span></span>
-<span id="cb2-122"><a href="#cb2-122"></a>  <span class="cf">return</span> numstr<span class="op">;</span></span>
-<span id="cb2-123"><a href="#cb2-123"></a><span class="op">}</span></span>
-<span id="cb2-124"><a href="#cb2-124"></a></span>
-<span id="cb2-125"><a href="#cb2-125"></a>TNumStr <span class="op">*</span></span>
-<span id="cb2-126"><a href="#cb2-126"></a>t_num_str_new <span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-127"><a href="#cb2-127"></a>  <span class="cf">return</span> T_NUM_STR <span class="op">(</span>g_object_new <span class="op">(</span>T_TYPE_NUM_STR<span class="op">,</span> NULL<span class="op">));</span></span>
-<span id="cb2-128"><a href="#cb2-128"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb2-118"><a href="#cb2-118"></a>  numstr <span class="op">=</span> t_num_str_new <span class="op">();</span></span>
+<span id="cb2-119"><a href="#cb2-119"></a>  t_num_str_set_from_t_number <span class="op">(</span>numstr<span class="op">,</span> num<span class="op">);</span></span>
+<span id="cb2-120"><a href="#cb2-120"></a>  <span class="cf">return</span> numstr<span class="op">;</span></span>
+<span id="cb2-121"><a href="#cb2-121"></a><span class="op">}</span></span>
+<span id="cb2-122"><a href="#cb2-122"></a></span>
+<span id="cb2-123"><a href="#cb2-123"></a>TNumStr <span class="op">*</span></span>
+<span id="cb2-124"><a href="#cb2-124"></a>t_num_str_new <span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-125"><a href="#cb2-125"></a>  <span class="cf">return</span> T_NUM_STR <span class="op">(</span>g_object_new <span class="op">(</span>T_TYPE_NUM_STR<span class="op">,</span> NULL<span class="op">));</span></span>
+<span id="cb2-126"><a href="#cb2-126"></a><span class="op">}</span></span></code></pre></div>
 <ul>
 <li>10-13: Definition of TNumStr type C structure. TNumStr instance
 holds a string and type. The string is placed in the parent’s (TStr)
@@ -451,8 +449,8 @@ created, it has no string (NULL). So, the type is set with t_none.</li>
 <code>set_string</code> is replaced by
 <code>t_num_str_real_set_string</code>. So <code>t_str_set_string</code>
 and <code>t_str_set_property</code> (in tstr.c) sets not only the string
-but also the type. -75-80: <code>t_num_str_get_string_type</code>
-returns the type.</li>
+but also the type.</li>
+<li>75-80: <code>t_num_str_get_string_type</code> returns the type.</li>
 <li>83-110: Setter and getter. The setter sets the numeric string with a
 TNumber object. And the getter returns a TNumber object.</li>
 <li>114-128: TNumStr instance creating functions.</li>

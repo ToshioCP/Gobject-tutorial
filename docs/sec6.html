@@ -391,9 +391,9 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb5-15"><a href="#cb5-15"></a>t_int_set_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> <span class="dt">const</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb5-16"><a href="#cb5-16"></a>  TInt <span class="op">*</span>self <span class="op">=</span> T_INT <span class="op">(</span>object<span class="op">);</span></span>
 <span id="cb5-17"><a href="#cb5-17"></a></span>
-<span id="cb5-18"><a href="#cb5-18"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_INT<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-18"><a href="#cb5-18"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_INT<span class="op">)</span></span>
 <span id="cb5-19"><a href="#cb5-19"></a>    self<span class="op">-&gt;</span>value <span class="op">=</span> g_value_get_int <span class="op">(</span>value<span class="op">);</span></span>
-<span id="cb5-20"><a href="#cb5-20"></a>  <span class="op">}</span> <span class="cf">else</span></span>
+<span id="cb5-20"><a href="#cb5-20"></a>  <span class="cf">else</span></span>
 <span id="cb5-21"><a href="#cb5-21"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
 <span id="cb5-22"><a href="#cb5-22"></a><span class="op">}</span></span>
 <span id="cb5-23"><a href="#cb5-23"></a></span>
@@ -408,7 +408,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb5-32"><a href="#cb5-32"></a><span class="op">}</span></span>
 <span id="cb5-33"><a href="#cb5-33"></a></span>
 <span id="cb5-34"><a href="#cb5-34"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb5-35"><a href="#cb5-35"></a>t_int_init <span class="op">(</span>TInt <span class="op">*</span>d<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-35"><a href="#cb5-35"></a>t_int_init <span class="op">(</span>TInt <span class="op">*</span>i<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb5-36"><a href="#cb5-36"></a><span class="op">}</span></span>
 <span id="cb5-37"><a href="#cb5-37"></a></span>
 <span id="cb5-38"><a href="#cb5-38"></a><span class="co">/* arithmetic operator */</span></span>
@@ -505,18 +505,18 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb5-129"><a href="#cb5-129"></a></span>
 <span id="cb5-130"><a href="#cb5-130"></a>TInt <span class="op">*</span></span>
 <span id="cb5-131"><a href="#cb5-131"></a>t_int_new_with_value <span class="op">(</span><span class="dt">int</span> value<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-132"><a href="#cb5-132"></a>  TInt <span class="op">*</span>d<span class="op">;</span></span>
+<span id="cb5-132"><a href="#cb5-132"></a>  TInt <span class="op">*</span>i<span class="op">;</span></span>
 <span id="cb5-133"><a href="#cb5-133"></a></span>
-<span id="cb5-134"><a href="#cb5-134"></a>  d <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_INT<span class="op">,</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> value<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb5-135"><a href="#cb5-135"></a>  <span class="cf">return</span> d<span class="op">;</span></span>
+<span id="cb5-134"><a href="#cb5-134"></a>  i <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_INT<span class="op">,</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> value<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb5-135"><a href="#cb5-135"></a>  <span class="cf">return</span> i<span class="op">;</span></span>
 <span id="cb5-136"><a href="#cb5-136"></a><span class="op">}</span></span>
 <span id="cb5-137"><a href="#cb5-137"></a></span>
 <span id="cb5-138"><a href="#cb5-138"></a>TInt <span class="op">*</span></span>
 <span id="cb5-139"><a href="#cb5-139"></a>t_int_new <span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-140"><a href="#cb5-140"></a>  TInt <span class="op">*</span>d<span class="op">;</span></span>
+<span id="cb5-140"><a href="#cb5-140"></a>  TInt <span class="op">*</span>i<span class="op">;</span></span>
 <span id="cb5-141"><a href="#cb5-141"></a></span>
-<span id="cb5-142"><a href="#cb5-142"></a>  d <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_INT<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb5-143"><a href="#cb5-143"></a>  <span class="cf">return</span> d<span class="op">;</span></span>
+<span id="cb5-142"><a href="#cb5-142"></a>  i <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_INT<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb5-143"><a href="#cb5-143"></a>  <span class="cf">return</span> i<span class="op">;</span></span>
 <span id="cb5-144"><a href="#cb5-144"></a><span class="op">}</span></span></code></pre></div>
 <ul>
 <li>4-5, 14-32, 124-127: Definition of the property “value”. This is the

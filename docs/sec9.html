@@ -221,7 +221,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <li>7: <code>G_DECLARE_INTERFACE</code> macro. The last parameter is a
 prerequisite of the interface. The prerequisite of TComparable is
 GObject. So, any other object than the descendants of GObject, for
-example GVarinat, can’t implement TComparable. A prerequisite is the
+example GVariant, can’t implement TComparable. A prerequisite is the
 GType of either an interface or a class. This macro expands to:
 <ul>
 <li>Declaration of <code>t_comparable_get_type()</code>.</li>
@@ -240,7 +240,7 @@ parent of <code>TComparableInterface</code> is
 all interface types. It is like a <code>GTypeClass</code> which is a
 base of all class types. <code>GTypeClass</code> is the first member of
 the structure <code>GObjectClass</code>. (See <code>gobject.h</code>.
-Note that <code>GObjecClass</code> is the same as
+Note that <code>GObjectClass</code> is the same as
 <code>struct _GObjectClass</code>.) The next member is a pointer
 <code>arg_error</code> to the default signal handler of “arg-error”
 signal. This signal is emitted when an argument of the public functions
@@ -460,7 +460,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb4-67"><a href="#cb4-67"></a><span class="op">}</span></span>
 <span id="cb4-68"><a href="#cb4-68"></a></span>
 <span id="cb4-69"><a href="#cb4-69"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb4-70"><a href="#cb4-70"></a>t_int_init <span class="op">(</span>TInt <span class="op">*</span>d<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-70"><a href="#cb4-70"></a>t_int_init <span class="op">(</span>TInt <span class="op">*</span>i<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb4-71"><a href="#cb4-71"></a><span class="op">}</span></span>
 <span id="cb4-72"><a href="#cb4-72"></a></span>
 <span id="cb4-73"><a href="#cb4-73"></a><span class="co">/* arithmetic operator */</span></span>
@@ -557,18 +557,18 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb4-164"><a href="#cb4-164"></a></span>
 <span id="cb4-165"><a href="#cb4-165"></a>TInt <span class="op">*</span></span>
 <span id="cb4-166"><a href="#cb4-166"></a>t_int_new_with_value <span class="op">(</span><span class="dt">int</span> value<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-167"><a href="#cb4-167"></a>  TInt <span class="op">*</span>d<span class="op">;</span></span>
+<span id="cb4-167"><a href="#cb4-167"></a>  TInt <span class="op">*</span>i<span class="op">;</span></span>
 <span id="cb4-168"><a href="#cb4-168"></a></span>
-<span id="cb4-169"><a href="#cb4-169"></a>  d <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_INT<span class="op">,</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> value<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb4-170"><a href="#cb4-170"></a>  <span class="cf">return</span> d<span class="op">;</span></span>
+<span id="cb4-169"><a href="#cb4-169"></a>  i <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_INT<span class="op">,</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> value<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb4-170"><a href="#cb4-170"></a>  <span class="cf">return</span> i<span class="op">;</span></span>
 <span id="cb4-171"><a href="#cb4-171"></a><span class="op">}</span></span>
 <span id="cb4-172"><a href="#cb4-172"></a></span>
 <span id="cb4-173"><a href="#cb4-173"></a>TInt <span class="op">*</span></span>
 <span id="cb4-174"><a href="#cb4-174"></a>t_int_new <span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-175"><a href="#cb4-175"></a>  TInt <span class="op">*</span>d<span class="op">;</span></span>
+<span id="cb4-175"><a href="#cb4-175"></a>  TInt <span class="op">*</span>i<span class="op">;</span></span>
 <span id="cb4-176"><a href="#cb4-176"></a></span>
-<span id="cb4-177"><a href="#cb4-177"></a>  d <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_INT<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb4-178"><a href="#cb4-178"></a>  <span class="cf">return</span> d<span class="op">;</span></span>
+<span id="cb4-177"><a href="#cb4-177"></a>  i <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_INT<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb4-178"><a href="#cb4-178"></a>  <span class="cf">return</span> i<span class="op">;</span></span>
 <span id="cb4-179"><a href="#cb4-179"></a><span class="op">}</span></span></code></pre></div>
 <ul>
 <li>3: It needs to include the header file of TComparable.</li>
@@ -814,7 +814,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb6-4"><a href="#cb6-4"></a><span class="pp">#include </span><span class="im">&quot;tint.h&quot;</span></span>
 <span id="cb6-5"><a href="#cb6-5"></a><span class="pp">#include </span><span class="im">&quot;tdouble.h&quot;</span></span>
 <span id="cb6-6"><a href="#cb6-6"></a><span class="pp">#include </span><span class="im">&quot;tstr.h&quot;</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a><span class="pp">#include </span><span class="im">&quot;tnumstr.h&quot;</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a></span>
 <span id="cb6-8"><a href="#cb6-8"></a></span>
 <span id="cb6-9"><a href="#cb6-9"></a></span>
 <span id="cb6-10"><a href="#cb6-10"></a><span class="dt">static</span> <span class="dt">void</span></span>
@@ -958,7 +958,7 @@ $ ninja -C _build</code></pre>
 
 TComparable: argument error.
 
-** (process:81676): CRITICAL **: 21:53:17.504: t_comparable_eq: assertion &#39;T_IS_COMPARABLE (other)&#39; failed</code></pre>
+** (process:6208): CRITICAL **: 16:27:48.206: t_comparable_eq: assertion &#39;T_IS_COMPARABLE (other)&#39; failed</code></pre>
 <p>The lines from <code>TComparable: argument error.</code> to
 <code>** (process:XXXXX)...</code> show that the comparison with TDouble
 and GObject fails.</p>

@@ -170,128 +170,126 @@ It is in the `src/tstr` directory.
   4 #include "../tnumber/tnumber.h"
   5 #include "../tnumber/tint.h"
   6 #include "../tnumber/tdouble.h"
-  7
-  8 
-  9 
- 10 struct _TNumStr {
- 11   TStr parent;
- 12   int type;
- 13 };
+  7 
+  8 struct _TNumStr {
+  9   TStr parent;
+ 10   int type;
+ 11 };
+ 12 
+ 13 G_DEFINE_TYPE(TNumStr, t_num_str, T_TYPE_STR)
  14 
- 15 G_DEFINE_TYPE(TNumStr, t_num_str, T_TYPE_STR)
- 16 
- 17 static int
- 18 t_num_str_string_type (const char *string) {
- 19   const char *t;
- 20   int stat, input;
- 21   /* state matrix */
- 22   int m[4][5] = {
- 23     {1, 2, 3, 6, 6},
- 24     {6, 2, 3, 6, 6},
- 25     {6, 2, 3, 4, 6},
- 26     {6, 3, 6, 5, 6}
- 27   };
- 28 
- 29   if (string == NULL)
- 30     return t_none;
- 31   stat = 0;
- 32   for (t = string; ; ++t) {
- 33     if (*t == '+' || *t == '-')      
- 34       input = 0;
- 35     else if (isdigit (*t))
- 36       input = 1;
- 37     else if (*t == '.')
- 38       input = 2;
- 39     else if (*t == '\0')
- 40       input = 3;
- 41     else
- 42       input = 4;
+ 15 static int
+ 16 t_num_str_string_type (const char *string) {
+ 17   const char *t;
+ 18   int stat, input;
+ 19   /* state matrix */
+ 20   int m[4][5] = {
+ 21     {1, 2, 3, 6, 6},
+ 22     {6, 2, 3, 6, 6},
+ 23     {6, 2, 3, 4, 6},
+ 24     {6, 3, 6, 5, 6}
+ 25   };
+ 26 
+ 27   if (string == NULL)
+ 28     return t_none;
+ 29   stat = 0;
+ 30   for (t = string; ; ++t) {
+ 31     if (*t == '+' || *t == '-')
+ 32       input = 0;
+ 33     else if (isdigit (*t))
+ 34       input = 1;
+ 35     else if (*t == '.')
+ 36       input = 2;
+ 37     else if (*t == '\0')
+ 38       input = 3;
+ 39     else
+ 40       input = 4;
+ 41 
+ 42     stat = m[stat][input];
  43 
- 44     stat = m[stat][input];
- 45 
- 46     if (stat >= 4 || *t == '\0')
- 47       break;
- 48   }
- 49   if (stat == 4)
- 50     return t_int;
- 51   else if (stat == 5)
- 52     return t_double;
- 53   else
- 54     return t_none;
- 55 }
- 56 
- 57 static void
- 58 t_num_str_real_set_string (TStr *self, const char *s) {
- 59   T_STR_CLASS (t_num_str_parent_class)->set_string (self, s);
- 60   T_NUM_STR (self)->type = t_num_str_string_type(s);
- 61 }
- 62 
- 63 static void
- 64 t_num_str_init (TNumStr *self) {
- 65   self->type = t_none;
- 66 }
- 67 
- 68 static void
- 69 t_num_str_class_init (TNumStrClass *class) {
- 70   TStrClass *t_str_class = T_STR_CLASS (class);
- 71 
- 72   t_str_class->set_string = t_num_str_real_set_string;
- 73 }
- 74 
- 75 int
- 76 t_num_str_get_string_type (TNumStr *self) {
- 77   g_return_val_if_fail (T_IS_NUM_STR (self), -1);
- 78 
- 79   return self->type;
- 80 }
- 81 
- 82 /* setter and getter */
- 83 void
- 84 t_num_str_set_from_t_number (TNumStr *self, TNumber *num) {
- 85   g_return_if_fail (T_IS_NUM_STR (self));
- 86   g_return_if_fail (T_IS_NUMBER (num));
+ 44     if (stat >= 4 || *t == '\0')
+ 45       break;
+ 46   }
+ 47   if (stat == 4)
+ 48     return t_int;
+ 49   else if (stat == 5)
+ 50     return t_double;
+ 51   else
+ 52     return t_none;
+ 53 }
+ 54 
+ 55 static void
+ 56 t_num_str_real_set_string (TStr *self, const char *s) {
+ 57   T_STR_CLASS (t_num_str_parent_class)->set_string (self, s);
+ 58   T_NUM_STR (self)->type = t_num_str_string_type(s);
+ 59 }
+ 60 
+ 61 static void
+ 62 t_num_str_init (TNumStr *self) {
+ 63   self->type = t_none;
+ 64 }
+ 65 
+ 66 static void
+ 67 t_num_str_class_init (TNumStrClass *class) {
+ 68   TStrClass *t_str_class = T_STR_CLASS (class);
+ 69 
+ 70   t_str_class->set_string = t_num_str_real_set_string;
+ 71 }
+ 72 
+ 73 int
+ 74 t_num_str_get_string_type (TNumStr *self) {
+ 75   g_return_val_if_fail (T_IS_NUM_STR (self), -1);
+ 76 
+ 77   return self->type;
+ 78 }
+ 79 
+ 80 /* setter and getter */
+ 81 void
+ 82 t_num_str_set_from_t_number (TNumStr *self, TNumber *num) {
+ 83   g_return_if_fail (T_IS_NUM_STR (self));
+ 84   g_return_if_fail (T_IS_NUMBER (num));
+ 85 
+ 86   char *s;
  87 
- 88   char *s;
- 89 
- 90   s = t_number_to_s (T_NUMBER (num));
- 91   t_str_set_string (T_STR (self), s);
- 92   g_free (s);
- 93 }
- 94 
- 95 TNumber *
- 96 t_num_str_get_t_number (TNumStr *self) {
- 97   g_return_val_if_fail (T_IS_NUM_STR (self), NULL);
- 98 
- 99   char *s = t_str_get_string(T_STR (self));
-100   TNumber *tnum;
-101 
-102   if (self->type == t_int)
-103     tnum = T_NUMBER (t_int_new_with_value (atoi (s)));
-104   else if (self->type == t_double)
-105     tnum = T_NUMBER (t_double_new_with_value (atof (s)));
-106   else
-107     tnum = NULL;
-108   g_free (s);
-109   return tnum;
-110 }
+ 88   s = t_number_to_s (T_NUMBER (num));
+ 89   t_str_set_string (T_STR (self), s);
+ 90   g_free (s);
+ 91 }
+ 92 
+ 93 TNumber *
+ 94 t_num_str_get_t_number (TNumStr *self) {
+ 95   g_return_val_if_fail (T_IS_NUM_STR (self), NULL);
+ 96 
+ 97   char *s = t_str_get_string(T_STR (self));
+ 98   TNumber *tnum;
+ 99 
+100   if (self->type == t_int)
+101     tnum = T_NUMBER (t_int_new_with_value (atoi (s)));
+102   else if (self->type == t_double)
+103     tnum = T_NUMBER (t_double_new_with_value (atof (s)));
+104   else
+105     tnum = NULL;
+106   g_free (s);
+107   return tnum;
+108 }
+109 
+110 /* create a new TNumStr instance */
 111 
-112 /* create a new TNumStr instance */
-113 
-114 TNumStr *
-115 t_num_str_new_with_tnumber (TNumber *num) {
-116   g_return_val_if_fail (T_IS_NUMBER (num), NULL);
+112 TNumStr *
+113 t_num_str_new_with_tnumber (TNumber *num) {
+114   g_return_val_if_fail (T_IS_NUMBER (num), NULL);
+115 
+116   TNumStr *numstr;
 117 
-118   TNumStr *numstr;
-119 
-120   numstr = t_num_str_new ();
-121   t_num_str_set_from_t_number (numstr, num);
-122   return numstr;
-123 }
-124 
-125 TNumStr *
-126 t_num_str_new (void) {
-127   return T_NUM_STR (g_object_new (T_TYPE_NUM_STR, NULL));
-128 }
+118   numstr = t_num_str_new ();
+119   t_num_str_set_from_t_number (numstr, num);
+120   return numstr;
+121 }
+122 
+123 TNumStr *
+124 t_num_str_new (void) {
+125   return T_NUM_STR (g_object_new (T_TYPE_NUM_STR, NULL));
+126 }
 ~~~
 
 - 10-13: Definition of TNumStr type C structure.

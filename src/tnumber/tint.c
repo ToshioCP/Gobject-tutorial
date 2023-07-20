@@ -15,9 +15,9 @@ static void
 t_int_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   TInt *self = T_INT (object);
 
-  if (property_id == PROP_INT) {
+  if (property_id == PROP_INT)
     self->value = g_value_get_int (value);
-  } else
+  else
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 }
 

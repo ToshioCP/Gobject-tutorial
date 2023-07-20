@@ -157,26 +157,26 @@ strings are zero-terminated. The string is an array ‘H’, ‘e’, ‘l’, �
 <p>If the string <code>s</code> is no longer in use, <code>s</code> must
 be freed, which means the allocated 7 bytes must be returned to the
 system. <code>g_free</code> frees the memory.</p>
-<p>Strings bounded by double quotes like “Hello.” is a string literal.
-It is an array of characters, but the contents of the array is not
-allowed to change. And it mustn’t be freed. If you write a character in
-a string literal or free a string literal, the result is undefined.
+<p>Strings bounded by double quotes like “Hello.” are string literals.
+They are an array of characters, but the contents of the array are not
+allowed to change. And they mustn’t be freed. If you write a character
+in a string literal or free a string literal, the result is undefined.
 Maybe bad things will happen, for example, a segmentation fault
 error.</p>
 <p>There’s a difference between arrays and pointers when you initialize
-them with string literal. If an array is initialized with string
+them with a string literal. If an array is initialized with a string
 literal, the array can be changed.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> a<span class="op">[]=</span><span class="st">&quot;Hello!&quot;</span><span class="op">;</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>a<span class="op">[</span><span class="dv">1</span><span class="op">]=</span><span class="ch">&#39;a&#39;</span><span class="op">;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>g_print <span class="op">(</span><span class="st">&quot;%s</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> a<span class="op">);</span> <span class="co">/* Hallo will appear in your display. */</span></span></code></pre></div>
 <p>The first line initializes an array <code>a</code>. The
 initialization is not simple. First, the compiler calculates the length
-of “Hello!”. It is 7 because the string literal has ‘\0’ at the end of
-it. Then 7 bytes memory is allocated in static memory or stack memory.
-It depends on the class of the array, whether <code>static</code> or
-<code>auto</code>. The memory is initialized with “Hello!”. So, the
-string in the array can me changed. This program successfully displays
-`Hallo!.</p>
+of “Hello!”. It is seven because the string literal has ‘\0’ at the end
+of it. Then seven bytes memory is allocated in static memory or stack
+memory. It depends on the class of the array, whether
+<code>static</code> or <code>auto</code>. The memory is initialized with
+“Hello!”. So, the string in the array can be changed. This program
+successfully displays `Hallo!.</p>
 <p>The first line of the program above is the same as follows.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> a<span class="op">[]</span> <span class="op">=</span> <span class="op">{</span><span class="ch">&#39;H&#39;</span><span class="op">,</span> <span class="ch">&#39;e&#39;</span><span class="op">,</span> <span class="ch">&#39;l&#39;</span><span class="op">,</span> <span class="ch">&#39;l&#39;</span><span class="op">,</span> <span class="ch">&#39;o&#39;</span><span class="op">,</span> <span class="ch">&#39;!&#39;</span><span class="op">,</span> <span class="ch">&#39;\0&#39;</span><span class="op">};</span></span></code></pre></div>
 <p>If you define a pointer with string literal, you can’t change the
@@ -350,9 +350,9 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb11-18"><a href="#cb11-18"></a>t_str_set_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> <span class="dt">const</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb11-19"><a href="#cb11-19"></a>  TStr <span class="op">*</span>self <span class="op">=</span> T_STR <span class="op">(</span>object<span class="op">);</span></span>
 <span id="cb11-20"><a href="#cb11-20"></a></span>
-<span id="cb11-21"><a href="#cb11-21"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_STRING<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb11-22"><a href="#cb11-22"></a>    t_str_set_string<span class="op">(</span>self<span class="op">,</span> g_value_get_string <span class="op">(</span>value<span class="op">));</span></span>
-<span id="cb11-23"><a href="#cb11-23"></a>  <span class="op">}</span> <span class="cf">else</span></span>
+<span id="cb11-21"><a href="#cb11-21"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_STRING<span class="op">)</span></span>
+<span id="cb11-22"><a href="#cb11-22"></a>    t_str_set_string <span class="op">(</span>self<span class="op">,</span> g_value_get_string <span class="op">(</span>value<span class="op">));</span></span>
+<span id="cb11-23"><a href="#cb11-23"></a>  <span class="cf">else</span></span>
 <span id="cb11-24"><a href="#cb11-24"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
 <span id="cb11-25"><a href="#cb11-25"></a><span class="op">}</span></span>
 <span id="cb11-26"><a href="#cb11-26"></a></span>
@@ -548,7 +548,7 @@ alt="Chaining up process in GObject and TStr" />
 <figcaption aria-hidden="true">Chaining up process in GObject and
 TStr</figcaption>
 </figure>
-<p>There are two classes, GObjectCLass and TStrClass. Each class has
+<p>There are two classes, GObjectClass and TStrClass. Each class has
 their finalize methods (functions) pointed by the pointers in the class
 structures. The finalize method of TStrClass finalizes its own part of
 the TStr instance. At the end of the function, it calls its parent’s

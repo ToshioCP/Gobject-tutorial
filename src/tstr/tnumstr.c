@@ -5,8 +5,6 @@
 #include "../tnumber/tint.h"
 #include "../tnumber/tdouble.h"
 
-
-
 struct _TNumStr {
   TStr parent;
   int type;
@@ -30,7 +28,7 @@ t_num_str_string_type (const char *string) {
     return t_none;
   stat = 0;
   for (t = string; ; ++t) {
-    if (*t == '+' || *t == '-')      
+    if (*t == '+' || *t == '-')
       input = 0;
     else if (isdigit (*t))
       input = 1;

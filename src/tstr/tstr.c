@@ -18,9 +18,9 @@ static void
 t_str_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   TStr *self = T_STR (object);
 
-  if (property_id == PROP_STRING) {
-    t_str_set_string(self, g_value_get_string (value));
-  } else
+  if (property_id == PROP_STRING)
+    t_str_set_string (self, g_value_get_string (value));
+  else
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 }
 
