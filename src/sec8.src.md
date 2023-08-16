@@ -106,16 +106,16 @@ It is in the `src/tstr` directory.
 tstr/tnumstr.h
 @@@
 
-- 9: TNumStr is a child object of TStr.
-It is a final type object.
-- 12-16: These three enum data define the type of TNumStr string.
+- 8: The macro `G_DECLARE_FINAL_TYPE` for TNumStr class.
+It is a child class of TStr and a final type class.
+- 11-15: These three enum data define the type of TNumStr string.
   - `t_none`: No string is stored or the string isn't a numeric string.
-  - `t_int`: Integer
-  - `t_double`: Double
-- 19-20: `t_num_str_get_string_type` returns the type of the string TStrNum object has.
+  - `t_int`: The string expresses an integer
+  - `t_double`: The string expresses an real number, which is double type in C language.
+- 18-19: The public function `t_num_str_get_string_type` returns the type of the string TStrNum object has.
 The returned value is `t_none`, `t_int` or `t_double`.
-- 23-31: Setter and getter from/to a TNumber object.
-- 34-38: Functions to create new TNumStr objects.
+- 22-30: Setter and getter from/to a TNumber object.
+- 33-37: Functions to create new TNumStr objects.
 
 ## C file
 
@@ -126,27 +126,25 @@ It is in the `src/tstr` directory.
 tstr/tnumstr.c
 @@@
 
-- 10-13: Definition of TNumStr type C structure.
-TNumStr instance holds a string and type.
-The string is placed in the parent's (TStr) private area, so the structure doesn't have it.
-The type is stored in the `type` element of the structure.
-- 15: `G_DEFINE_TYPE` macro.
-- 17- 55: `t_num_str_string_type` function checks the given string and returns `t_int`, `t_double` or `t_none`.
+- 9-12: TNumStr structure has its parent "TStr" and int type "type" members.
+So, TNumStr instance holds a string, which is placed in the parent's private area, and a type.
+- 14: `G_DEFINE_TYPE` macro.
+- 16- 54: The function `t_num_str_string_type` checks the given string and returns `t_int`, `t_double` or `t_none`.
 If the string is NULL or an non-numeric string, `t_none` will be returned.
 The check algorithm is explained in the first subsection "Verification of a numeric string".
-- 57-61: `t_num_str_real_set_string` function.
-It sets TNumStr's string and type with the parameter `s`.
-- 63-66: Initializes an instance.
-When the TNumStr instance is created, it has no string (NULL).
-So, the type is set with t\_none.
-- 68-73: Initializes the class.
-The class method `set_string` is replaced by `t_num_str_real_set_string`.
-So `t_str_set_string` and `t_str_set_property` (in tstr.c) sets not only the string but also the type.
-- 75-80: `t_num_str_get_string_type` returns the type.
-- 83-110: Setter and getter.
-The setter sets the numeric string with a TNumber object.
+- 60-64: The function `t_num_str_real_set_string` sets TNumStr's string and its type.
+This is a body of the class method pointed by `set_string` member of the class structure.
+The class method is initialized in the class initialization function `t_num_str_class_init`.
+- 66-69: The instance initialization function `t_num_str_init` sets the type to `t_none`
+because its parent initialization function set the pointer `priv->string` to NULL.
+- 71-76: The class initialization function `t_num_str_class_init` assigns `t_num_str_real_set_string` to the member `set_string`.
+Therefore, the function `t_str_set_string` calls `t_num_str_real_set_string`, which sets not only the string but also the type.
+The function `g_object_set` also calls it and sets both the string and type.
+- 78-83: The public function `t_num_str_get_string_type` returns the type of the string.
+- 86-113: Setter and getter.
+The setter sets the numeric string from a TNumber object.
 And the getter returns a TNumber object.
-- 114-128: TNumStr instance creating functions.
+- 117-131: These two functions create TNumStr instances.
 
 ## Child class extends parent's function.
 
@@ -163,8 +161,7 @@ TNumStr *ns = t_num_str_new ();
 t_str_set_string (T_STR (ns), "123.456");
 ```
 
-TNumStr extends the function of `t_str_set_string`.
-It sets not only a string but also its type for a TNumStr instance.
+TNumStr extends the function `t_str_set_string` and it sets not only a string but also the type for a TNumStr instance.
 
 ```c
 int t;
@@ -199,11 +196,28 @@ Compilation is done by usual way.
 First, change your current directory to `src/tstr`.
 
 ~~~
-$ meson _build
+$ cd src/tstr
+$ meson setup _build
 $ ninja -C _build
 $ _build/test1
 $ _build/test2
 $ _build/tnumstr
+String property is set to one.
+"one" and "two" is "onetwo".
+123 + 456 + 789 = 1368
+TNumStr => TNumber => TNumStr
+123 => 123 => 123
+-45 => -45 => -45
++0 => 0 => 0
+123.456 => 123.456000 => 123.456000
++123.456 => 123.456000 => 123.456000
+-123.456 => -123.456000 => -123.456000
+.456 => 0.456000 => 0.456000
+123. => 123.000000 => 123.000000
+0.0 => 0.000000 => 0.000000
+123.4567890123456789 => 123.456789 => 123.456789
+abc => (null) => abc
+(null) => (null) => (null)
 ~~~
 
 The last part of `main.c` is conversion between TNumStr and TNumber.

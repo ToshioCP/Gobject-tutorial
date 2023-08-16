@@ -120,9 +120,8 @@ And its child is an object for numeric string. A numeric string is a
 string that expresses a number. For example, “0”, “-100” and “123.45”.
 The child object (numeric string) will be explained in the next
 section.</p>
-<p>I’d like to write about strings before derivable objects. Because
-TStr is an object of a string and we need to be careful to write a
-program with strings.</p>
+<p>This section describes memory management for strings before derivable
+objects.</p>
 <h2 id="string-and-memory-management">String and memory management</h2>
 <p>TStr has a string type value. It is similar to TInt or TDouble but
 string is more complex than int and double. When you make TStr program,
@@ -152,7 +151,8 @@ strings are zero-terminated. The string is an array ‘H’, ‘e’, ‘l’, �
 <li>Requests the system to allocate 7 bytes memories.</li>
 <li>Copies the string to the memory.</li>
 <li>Returns the pointer to the newly-allocated memory.</li>
-<li>If the argument is NULL, then g_strdup returns NULL.</li>
+<li>If the argument is NULL, then no memory is allocated and it returns
+NULL.</li>
 </ul>
 <p>If the string <code>s</code> is no longer in use, <code>s</code> must
 be freed, which means the allocated 7 bytes must be returned to the
@@ -168,7 +168,7 @@ them with a string literal. If an array is initialized with a string
 literal, the array can be changed.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> a<span class="op">[]=</span><span class="st">&quot;Hello!&quot;</span><span class="op">;</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>a<span class="op">[</span><span class="dv">1</span><span class="op">]=</span><span class="ch">&#39;a&#39;</span><span class="op">;</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>g_print <span class="op">(</span><span class="st">&quot;%s</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> a<span class="op">);</span> <span class="co">/* Hallo will appear in your display. */</span></span></code></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>g_print <span class="op">(</span><span class="st">&quot;%s</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> a<span class="op">);</span> <span class="co">/* Hallo will appear on your display. */</span></span></code></pre></div>
 <p>The first line initializes an array <code>a</code>. The
 initialization is not simple. First, the compiler calculates the length
 of “Hello!”. It is seven because the string literal has ‘\0’ at the end
@@ -195,14 +195,14 @@ happens. Anyway, don’t write a program like this.</p>
 one of the following.</p>
 <ul>
 <li>Read-only memory. A string literal is read-only.</li>
-<li>stack. If the class of an array is <code>auto</code>, then the array
+<li>Stack. If the class of an array is <code>auto</code>, then the array
 is placed in the stack. stack is writable. If the array is defined in a
 function, its default class is <code>auto</code>. The stack area will
 disappear when the function returns to the caller.</li>
-<li>static area. If the class of an array is <code>static</code>, then
+<li>Static area. If the class of an array is <code>static</code>, then
 the array is placed in the static area. It keeps its value and remains
 for the life of the program. This area is writable.</li>
-<li>heap. You can allocate and free memory for a string. For allocation,
+<li>Heap. You can allocate and free memory for a string. For allocation,
 <code>g_new</code> or <code>g_new0</code> is used. For freeing,
 <code>g_free</code> is used.</li>
 </ul>
@@ -218,10 +218,10 @@ address. Therefore, you can’t modify <code>t</code> because
 memory.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> <span class="op">*</span>s <span class="op">=</span> <span class="st">&quot;Hello&quot;</span><span class="op">;</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> <span class="op">*</span>t <span class="op">=</span> g_strdup <span class="op">(</span>s<span class="op">);</span></span></code></pre></div>
-<p><code>g_strdup</code> allocates memory and initializes it with
-“Hello”, then returns the pointer to the memory. The function
-<code>g_strdup</code> is almost same as the <code>string_dup</code>
-function below.</p>
+<p>The function <code>g_strdup</code> allocates memory and initializes
+it with “Hello”, then returns the pointer to the memory. The function
+<code>g_strdup</code> is almost same as the function
+<code>string_dup</code> below.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -275,60 +275,55 @@ will be changed or freed by the object later.</p>
 <p>The rest of this section is about TStr. TStr is a child of GObject
 and it holds a string. The string is a pointer and an array of
 characters. The pointer points the array. The pointer can be NULL. If it
-is NULL, TStr has no array. TStr has a string type property.</p>
+is NULL, TStr has no array. The memory of the array comes from the heap
+area. TStr owns the memory and is responsible to free it when it becomes
+useless. TStr has a string type property.</p>
 <p>The header file <code>tstr.h</code> is as follows.</p>
 <div class="sourceCode" id="cb10"><pre
-class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1"></a><span class="pp">#ifndef __T_STR_H__</span></span>
-<span id="cb10-2"><a href="#cb10-2"></a><span class="pp">#define __T_STR_H__</span></span>
-<span id="cb10-3"><a href="#cb10-3"></a></span>
-<span id="cb10-4"><a href="#cb10-4"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a></span>
-<span id="cb10-6"><a href="#cb10-6"></a><span class="pp">#define T_TYPE_STR  (t_str_get_type ())</span></span>
-<span id="cb10-7"><a href="#cb10-7"></a>G_DECLARE_DERIVABLE_TYPE <span class="op">(</span>TStr<span class="op">,</span> t_str<span class="op">,</span> T<span class="op">,</span> STR<span class="op">,</span> GObject<span class="op">)</span></span>
-<span id="cb10-8"><a href="#cb10-8"></a></span>
-<span id="cb10-9"><a href="#cb10-9"></a><span class="kw">struct</span> _TStrClass <span class="op">{</span></span>
-<span id="cb10-10"><a href="#cb10-10"></a>  GObjectClass parent_class<span class="op">;</span></span>
-<span id="cb10-11"><a href="#cb10-11"></a>  <span class="co">/* expect that descendants will override the setter */</span></span>
-<span id="cb10-12"><a href="#cb10-12"></a>  <span class="dt">void</span> <span class="op">(*</span>set_string<span class="op">)</span>  <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">);</span></span>
-<span id="cb10-13"><a href="#cb10-13"></a><span class="op">};</span></span>
-<span id="cb10-14"><a href="#cb10-14"></a></span>
-<span id="cb10-15"><a href="#cb10-15"></a>TStr <span class="op">*</span></span>
-<span id="cb10-16"><a href="#cb10-16"></a>t_str_concat <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> TStr <span class="op">*</span>other<span class="op">);</span></span>
-<span id="cb10-17"><a href="#cb10-17"></a></span>
-<span id="cb10-18"><a href="#cb10-18"></a><span class="co">/* setter and getter */</span></span>
-<span id="cb10-19"><a href="#cb10-19"></a><span class="dt">void</span></span>
-<span id="cb10-20"><a href="#cb10-20"></a>t_str_set_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">);</span></span>
-<span id="cb10-21"><a href="#cb10-21"></a></span>
-<span id="cb10-22"><a href="#cb10-22"></a><span class="dt">char</span> <span class="op">*</span></span>
-<span id="cb10-23"><a href="#cb10-23"></a>t_str_get_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">);</span></span>
-<span id="cb10-24"><a href="#cb10-24"></a></span>
-<span id="cb10-25"><a href="#cb10-25"></a><span class="co">/* create a new TStr instance */</span></span>
-<span id="cb10-26"><a href="#cb10-26"></a>TStr <span class="op">*</span></span>
-<span id="cb10-27"><a href="#cb10-27"></a>t_str_new_with_string <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">);</span></span>
-<span id="cb10-28"><a href="#cb10-28"></a></span>
-<span id="cb10-29"><a href="#cb10-29"></a>TStr <span class="op">*</span></span>
-<span id="cb10-30"><a href="#cb10-30"></a>t_str_new <span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
-<span id="cb10-31"><a href="#cb10-31"></a><span class="pp">#endif </span><span class="co">/* __T_STR_H__ */</span></span></code></pre></div>
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a></span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="pp">#define T_TYPE_STR  (t_str_get_type ())</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>G_DECLARE_DERIVABLE_TYPE <span class="op">(</span>TStr<span class="op">,</span> t_str<span class="op">,</span> T<span class="op">,</span> STR<span class="op">,</span> GObject<span class="op">)</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a></span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="kw">struct</span> _TStrClass <span class="op">{</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a>  GObjectClass parent_class<span class="op">;</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a>  <span class="co">/* expect that descendants will override the setter */</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a>  <span class="dt">void</span> <span class="op">(*</span>set_string<span class="op">)</span>  <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">);</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="op">};</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a></span>
+<span id="cb10-14"><a href="#cb10-14"></a>TStr <span class="op">*</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a>t_str_concat <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> TStr <span class="op">*</span>other<span class="op">);</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a></span>
+<span id="cb10-17"><a href="#cb10-17"></a><span class="co">/* setter and getter */</span></span>
+<span id="cb10-18"><a href="#cb10-18"></a><span class="dt">void</span></span>
+<span id="cb10-19"><a href="#cb10-19"></a>t_str_set_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">);</span></span>
+<span id="cb10-20"><a href="#cb10-20"></a></span>
+<span id="cb10-21"><a href="#cb10-21"></a><span class="dt">char</span> <span class="op">*</span></span>
+<span id="cb10-22"><a href="#cb10-22"></a>t_str_get_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">);</span></span>
+<span id="cb10-23"><a href="#cb10-23"></a></span>
+<span id="cb10-24"><a href="#cb10-24"></a><span class="co">/* create a new TStr instance */</span></span>
+<span id="cb10-25"><a href="#cb10-25"></a>TStr <span class="op">*</span></span>
+<span id="cb10-26"><a href="#cb10-26"></a>t_str_new_with_string <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">);</span></span>
+<span id="cb10-27"><a href="#cb10-27"></a></span>
+<span id="cb10-28"><a href="#cb10-28"></a>TStr <span class="op">*</span></span>
+<span id="cb10-29"><a href="#cb10-29"></a>t_str_new <span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
 <ul>
-<li>7: Uses <code>G_DECLARE_DERIVABLE_TYPE</code> like the example in
-the previous section.</li>
-<li>9-13: TStrClass has one class method. It is <code>set_string</code>.
-This will be overridden by the child class <code>TNumStr</code>. The
-class method is called by the public function
-<code>t_str_set_string</code>. It has a string parameter and sets the
-instance string with the string (argument). TNumStr class holds a string
-like TStr, but it holds the type of the string as well. The class method
-<code>set_string</code> will be overridden and it will set not only the
-string but also the type in the child class. The detailed explanation
-will be in the later part of this section and the next section.</li>
-<li>15-16: <code>t_str_concat</code> connects two strings of TStr
-instances and returns a new TStr instance.</li>
-<li>19-23: Setter and getter.</li>
-<li>26-30: Functions to create a TStr object.</li>
+<li>6: Uses <code>G_DECLARE_DERIVABLE_TYPE</code>. The TStr class is
+derivable and its child class will be defined later.</li>
+<li>8-12: TStrClass has one class method. It is <code>set_string</code>
+member of the TStrClass structure. This will be overridden by the child
+class <code>TNumStr</code>. Therefore, Both TStr and TNumStr has
+<code>set_string</code> member in their classes but they point different
+functions.</li>
+<li>14-15: The public function <code>t_str_concat</code> connects two
+strings of TStr instances and returns a new TStr instance.</li>
+<li>18-22: Setter and getter.</li>
+<li>25-29: Functions to create a TStr object.</li>
 </ul>
 <h2 id="c-file">C file</h2>
-<p>The C file of TStr object is as follows. It is
-<code>tstr.c</code>.</p>
+<p>The C file <code>tstr.c</code> for TStr is as follows.</p>
 <div class="sourceCode" id="cb11"><pre
 class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1"></a><span class="pp">#include </span><span class="im">&quot;tstr.h&quot;</span></span>
 <span id="cb11-2"><a href="#cb11-2"></a></span>
@@ -350,121 +345,134 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb11-18"><a href="#cb11-18"></a>t_str_set_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> <span class="dt">const</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb11-19"><a href="#cb11-19"></a>  TStr <span class="op">*</span>self <span class="op">=</span> T_STR <span class="op">(</span>object<span class="op">);</span></span>
 <span id="cb11-20"><a href="#cb11-20"></a></span>
-<span id="cb11-21"><a href="#cb11-21"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_STRING<span class="op">)</span></span>
-<span id="cb11-22"><a href="#cb11-22"></a>    t_str_set_string <span class="op">(</span>self<span class="op">,</span> g_value_get_string <span class="op">(</span>value<span class="op">));</span></span>
-<span id="cb11-23"><a href="#cb11-23"></a>  <span class="cf">else</span></span>
-<span id="cb11-24"><a href="#cb11-24"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
-<span id="cb11-25"><a href="#cb11-25"></a><span class="op">}</span></span>
-<span id="cb11-26"><a href="#cb11-26"></a></span>
-<span id="cb11-27"><a href="#cb11-27"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb11-28"><a href="#cb11-28"></a>t_str_get_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb11-29"><a href="#cb11-29"></a>  TStr <span class="op">*</span>self <span class="op">=</span> T_STR <span class="op">(</span>object<span class="op">);</span></span>
-<span id="cb11-30"><a href="#cb11-30"></a></span>
-<span id="cb11-31"><a href="#cb11-31"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_STRING<span class="op">)</span></span>
-<span id="cb11-32"><a href="#cb11-32"></a>    g_value_set_string <span class="op">(</span>value<span class="op">,</span> t_str_get_string<span class="op">(</span>self<span class="op">));</span></span>
-<span id="cb11-33"><a href="#cb11-33"></a>  <span class="cf">else</span></span>
-<span id="cb11-34"><a href="#cb11-34"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
-<span id="cb11-35"><a href="#cb11-35"></a><span class="op">}</span></span>
-<span id="cb11-36"><a href="#cb11-36"></a></span>
-<span id="cb11-37"><a href="#cb11-37"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb11-38"><a href="#cb11-38"></a>t_str_real_set_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb11-39"><a href="#cb11-39"></a>  TStrPrivate <span class="op">*</span>priv <span class="op">=</span> t_str_get_instance_private <span class="op">(</span>self<span class="op">);</span></span>
-<span id="cb11-40"><a href="#cb11-40"></a></span>
-<span id="cb11-41"><a href="#cb11-41"></a>  <span class="cf">if</span> <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">)</span></span>
-<span id="cb11-42"><a href="#cb11-42"></a>    g_free <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">);</span></span>
-<span id="cb11-43"><a href="#cb11-43"></a>  priv<span class="op">-&gt;</span>string <span class="op">=</span> g_strdup <span class="op">(</span>s<span class="op">);</span></span>
-<span id="cb11-44"><a href="#cb11-44"></a><span class="op">}</span></span>
-<span id="cb11-45"><a href="#cb11-45"></a></span>
-<span id="cb11-46"><a href="#cb11-46"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb11-47"><a href="#cb11-47"></a>t_str_finalize <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb11-48"><a href="#cb11-48"></a>  TStr <span class="op">*</span>self <span class="op">=</span> T_STR <span class="op">(</span>object<span class="op">);</span></span>
-<span id="cb11-49"><a href="#cb11-49"></a>  TStrPrivate <span class="op">*</span>priv <span class="op">=</span> t_str_get_instance_private <span class="op">(</span>self<span class="op">);</span></span>
-<span id="cb11-50"><a href="#cb11-50"></a></span>
-<span id="cb11-51"><a href="#cb11-51"></a>  <span class="cf">if</span> <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">)</span></span>
-<span id="cb11-52"><a href="#cb11-52"></a>    g_free <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">);</span></span>
-<span id="cb11-53"><a href="#cb11-53"></a>  G_OBJECT_CLASS <span class="op">(</span>t_str_parent_class<span class="op">)-&gt;</span>finalize <span class="op">(</span>object<span class="op">);</span></span>
-<span id="cb11-54"><a href="#cb11-54"></a><span class="op">}</span></span>
-<span id="cb11-55"><a href="#cb11-55"></a></span>
-<span id="cb11-56"><a href="#cb11-56"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb11-57"><a href="#cb11-57"></a>t_str_init <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb11-58"><a href="#cb11-58"></a>  TStrPrivate <span class="op">*</span>priv <span class="op">=</span> t_str_get_instance_private <span class="op">(</span>self<span class="op">);</span></span>
-<span id="cb11-59"><a href="#cb11-59"></a></span>
-<span id="cb11-60"><a href="#cb11-60"></a>  priv<span class="op">-&gt;</span>string <span class="op">=</span> NULL<span class="op">;</span></span>
+<span id="cb11-21"><a href="#cb11-21"></a><span class="co">/* The returned value of the function g_value_get_string can be NULL. */</span></span>
+<span id="cb11-22"><a href="#cb11-22"></a><span class="co">/* The function t_str_set_string calls a class method, */</span></span>
+<span id="cb11-23"><a href="#cb11-23"></a><span class="co">/* which is expected to rewrite in the descendant object. */</span></span>
+<span id="cb11-24"><a href="#cb11-24"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_STRING<span class="op">)</span></span>
+<span id="cb11-25"><a href="#cb11-25"></a>    t_str_set_string <span class="op">(</span>self<span class="op">,</span> g_value_get_string <span class="op">(</span>value<span class="op">));</span></span>
+<span id="cb11-26"><a href="#cb11-26"></a>  <span class="cf">else</span></span>
+<span id="cb11-27"><a href="#cb11-27"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
+<span id="cb11-28"><a href="#cb11-28"></a><span class="op">}</span></span>
+<span id="cb11-29"><a href="#cb11-29"></a></span>
+<span id="cb11-30"><a href="#cb11-30"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb11-31"><a href="#cb11-31"></a>t_str_get_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-32"><a href="#cb11-32"></a>  TStr <span class="op">*</span>self <span class="op">=</span> T_STR <span class="op">(</span>object<span class="op">);</span></span>
+<span id="cb11-33"><a href="#cb11-33"></a>  TStrPrivate <span class="op">*</span>priv <span class="op">=</span> t_str_get_instance_private <span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb11-34"><a href="#cb11-34"></a></span>
+<span id="cb11-35"><a href="#cb11-35"></a><span class="co">/* The second argument of the function g_value_set_string can be NULL. */</span></span>
+<span id="cb11-36"><a href="#cb11-36"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_STRING<span class="op">)</span></span>
+<span id="cb11-37"><a href="#cb11-37"></a>    g_value_set_string <span class="op">(</span>value<span class="op">,</span> priv<span class="op">-&gt;</span>string<span class="op">);</span></span>
+<span id="cb11-38"><a href="#cb11-38"></a>  <span class="cf">else</span></span>
+<span id="cb11-39"><a href="#cb11-39"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
+<span id="cb11-40"><a href="#cb11-40"></a><span class="op">}</span></span>
+<span id="cb11-41"><a href="#cb11-41"></a></span>
+<span id="cb11-42"><a href="#cb11-42"></a><span class="co">/* This function just set the string. */</span></span>
+<span id="cb11-43"><a href="#cb11-43"></a><span class="co">/* So, no notify signal is emitted. */</span></span>
+<span id="cb11-44"><a href="#cb11-44"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb11-45"><a href="#cb11-45"></a>t_str_real_set_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-46"><a href="#cb11-46"></a>  TStrPrivate <span class="op">*</span>priv <span class="op">=</span> t_str_get_instance_private <span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb11-47"><a href="#cb11-47"></a></span>
+<span id="cb11-48"><a href="#cb11-48"></a>  <span class="cf">if</span> <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">)</span></span>
+<span id="cb11-49"><a href="#cb11-49"></a>    g_free <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">);</span></span>
+<span id="cb11-50"><a href="#cb11-50"></a>  priv<span class="op">-&gt;</span>string <span class="op">=</span> g_strdup <span class="op">(</span>s<span class="op">);</span></span>
+<span id="cb11-51"><a href="#cb11-51"></a><span class="op">}</span></span>
+<span id="cb11-52"><a href="#cb11-52"></a></span>
+<span id="cb11-53"><a href="#cb11-53"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb11-54"><a href="#cb11-54"></a>t_str_finalize <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-55"><a href="#cb11-55"></a>  TStr <span class="op">*</span>self <span class="op">=</span> T_STR <span class="op">(</span>object<span class="op">);</span></span>
+<span id="cb11-56"><a href="#cb11-56"></a>  TStrPrivate <span class="op">*</span>priv <span class="op">=</span> t_str_get_instance_private <span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb11-57"><a href="#cb11-57"></a></span>
+<span id="cb11-58"><a href="#cb11-58"></a>  <span class="cf">if</span> <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">)</span></span>
+<span id="cb11-59"><a href="#cb11-59"></a>    g_free <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">);</span></span>
+<span id="cb11-60"><a href="#cb11-60"></a>  G_OBJECT_CLASS <span class="op">(</span>t_str_parent_class<span class="op">)-&gt;</span>finalize <span class="op">(</span>object<span class="op">);</span></span>
 <span id="cb11-61"><a href="#cb11-61"></a><span class="op">}</span></span>
 <span id="cb11-62"><a href="#cb11-62"></a></span>
 <span id="cb11-63"><a href="#cb11-63"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb11-64"><a href="#cb11-64"></a>t_str_class_init <span class="op">(</span>TStrClass <span class="op">*</span>class<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb11-65"><a href="#cb11-65"></a>  GObjectClass <span class="op">*</span>gobject_class <span class="op">=</span> G_OBJECT_CLASS <span class="op">(</span>class<span class="op">);</span></span>
+<span id="cb11-64"><a href="#cb11-64"></a>t_str_init <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-65"><a href="#cb11-65"></a>  TStrPrivate <span class="op">*</span>priv <span class="op">=</span> t_str_get_instance_private <span class="op">(</span>self<span class="op">);</span></span>
 <span id="cb11-66"><a href="#cb11-66"></a></span>
-<span id="cb11-67"><a href="#cb11-67"></a>  gobject_class<span class="op">-&gt;</span>finalize <span class="op">=</span> t_str_finalize<span class="op">;</span></span>
-<span id="cb11-68"><a href="#cb11-68"></a>  gobject_class<span class="op">-&gt;</span>set_property <span class="op">=</span> t_str_set_property<span class="op">;</span></span>
-<span id="cb11-69"><a href="#cb11-69"></a>  gobject_class<span class="op">-&gt;</span>get_property <span class="op">=</span> t_str_get_property<span class="op">;</span></span>
-<span id="cb11-70"><a href="#cb11-70"></a>  str_properties<span class="op">[</span>PROP_STRING<span class="op">]</span> <span class="op">=</span> g_param_spec_string <span class="op">(</span><span class="st">&quot;string&quot;</span><span class="op">,</span> <span class="st">&quot;str&quot;</span><span class="op">,</span> <span class="st">&quot;string&quot;</span><span class="op">,</span> <span class="st">&quot;&quot;</span><span class="op">,</span> G_PARAM_READWRITE<span class="op">);</span></span>
-<span id="cb11-71"><a href="#cb11-71"></a>  g_object_class_install_properties <span class="op">(</span>gobject_class<span class="op">,</span> N_PROPERTIES<span class="op">,</span> str_properties<span class="op">);</span></span>
-<span id="cb11-72"><a href="#cb11-72"></a></span>
-<span id="cb11-73"><a href="#cb11-73"></a>  class<span class="op">-&gt;</span>set_string <span class="op">=</span> t_str_real_set_string<span class="op">;</span></span>
-<span id="cb11-74"><a href="#cb11-74"></a><span class="op">}</span></span>
-<span id="cb11-75"><a href="#cb11-75"></a></span>
-<span id="cb11-76"><a href="#cb11-76"></a><span class="co">/* setter and getter */</span></span>
-<span id="cb11-77"><a href="#cb11-77"></a><span class="dt">void</span></span>
-<span id="cb11-78"><a href="#cb11-78"></a>t_str_set_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb11-79"><a href="#cb11-79"></a>  g_return_if_fail <span class="op">(</span>T_IS_STR <span class="op">(</span>self<span class="op">));</span></span>
-<span id="cb11-80"><a href="#cb11-80"></a>  TStrClass <span class="op">*</span>class <span class="op">=</span> T_STR_GET_CLASS <span class="op">(</span>self<span class="op">);</span></span>
-<span id="cb11-81"><a href="#cb11-81"></a></span>
-<span id="cb11-82"><a href="#cb11-82"></a>  class<span class="op">-&gt;</span>set_string <span class="op">(</span>self<span class="op">,</span> s<span class="op">);</span></span>
-<span id="cb11-83"><a href="#cb11-83"></a><span class="op">}</span></span>
-<span id="cb11-84"><a href="#cb11-84"></a></span>
-<span id="cb11-85"><a href="#cb11-85"></a><span class="dt">char</span> <span class="op">*</span></span>
-<span id="cb11-86"><a href="#cb11-86"></a>t_str_get_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb11-87"><a href="#cb11-87"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_STR <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb11-88"><a href="#cb11-88"></a>  TStrPrivate <span class="op">*</span>priv <span class="op">=</span> t_str_get_instance_private <span class="op">(</span>self<span class="op">);</span></span>
-<span id="cb11-89"><a href="#cb11-89"></a></span>
-<span id="cb11-90"><a href="#cb11-90"></a>  <span class="cf">return</span> g_strdup <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">);</span></span>
-<span id="cb11-91"><a href="#cb11-91"></a><span class="op">}</span></span>
-<span id="cb11-92"><a href="#cb11-92"></a></span>
-<span id="cb11-93"><a href="#cb11-93"></a>TStr <span class="op">*</span></span>
-<span id="cb11-94"><a href="#cb11-94"></a>t_str_concat <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> TStr <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb11-95"><a href="#cb11-95"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_STR <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb11-96"><a href="#cb11-96"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_STR <span class="op">(</span>other<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb11-97"><a href="#cb11-97"></a></span>
-<span id="cb11-98"><a href="#cb11-98"></a>  <span class="dt">char</span> <span class="op">*</span>s1<span class="op">,</span> <span class="op">*</span>s2<span class="op">,</span> <span class="op">*</span>s3<span class="op">;</span></span>
-<span id="cb11-99"><a href="#cb11-99"></a>  TStr <span class="op">*</span>str<span class="op">;</span></span>
-<span id="cb11-100"><a href="#cb11-100"></a></span>
-<span id="cb11-101"><a href="#cb11-101"></a>  s1 <span class="op">=</span> t_str_get_string <span class="op">(</span>self<span class="op">);</span></span>
-<span id="cb11-102"><a href="#cb11-102"></a>  s2 <span class="op">=</span> t_str_get_string <span class="op">(</span>other<span class="op">);</span></span>
-<span id="cb11-103"><a href="#cb11-103"></a>  <span class="cf">if</span> <span class="op">(</span>s1 <span class="op">&amp;&amp;</span> s2<span class="op">)</span></span>
-<span id="cb11-104"><a href="#cb11-104"></a>    s3 <span class="op">=</span> g_strconcat <span class="op">(</span>s1<span class="op">,</span> s2<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb11-105"><a href="#cb11-105"></a>  <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>s1<span class="op">)</span></span>
-<span id="cb11-106"><a href="#cb11-106"></a>    s3 <span class="op">=</span> g_strdup <span class="op">(</span>s1<span class="op">);</span></span>
-<span id="cb11-107"><a href="#cb11-107"></a>  <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>s2<span class="op">)</span></span>
-<span id="cb11-108"><a href="#cb11-108"></a>    s3 <span class="op">=</span> g_strdup <span class="op">(</span>s2<span class="op">);</span></span>
-<span id="cb11-109"><a href="#cb11-109"></a>  <span class="cf">else</span></span>
-<span id="cb11-110"><a href="#cb11-110"></a>    s3 <span class="op">=</span> NULL<span class="op">;</span></span>
-<span id="cb11-111"><a href="#cb11-111"></a>  str <span class="op">=</span> t_str_new_with_string <span class="op">(</span>s3<span class="op">);</span></span>
-<span id="cb11-112"><a href="#cb11-112"></a>  <span class="cf">if</span> <span class="op">(</span>s1<span class="op">)</span> g_free <span class="op">(</span>s1<span class="op">);</span></span>
-<span id="cb11-113"><a href="#cb11-113"></a>  <span class="cf">if</span> <span class="op">(</span>s2<span class="op">)</span> g_free <span class="op">(</span>s2<span class="op">);</span></span>
-<span id="cb11-114"><a href="#cb11-114"></a>  <span class="cf">if</span> <span class="op">(</span>s3<span class="op">)</span> g_free <span class="op">(</span>s3<span class="op">);</span></span>
-<span id="cb11-115"><a href="#cb11-115"></a>  <span class="cf">return</span> str<span class="op">;</span></span>
-<span id="cb11-116"><a href="#cb11-116"></a><span class="op">}</span></span>
-<span id="cb11-117"><a href="#cb11-117"></a></span>
-<span id="cb11-118"><a href="#cb11-118"></a><span class="co">/* create a new TStr instance */</span></span>
-<span id="cb11-119"><a href="#cb11-119"></a>TStr <span class="op">*</span></span>
-<span id="cb11-120"><a href="#cb11-120"></a>t_str_new_with_string <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb11-121"><a href="#cb11-121"></a>  <span class="cf">return</span> T_STR <span class="op">(</span>g_object_new <span class="op">(</span>T_TYPE_STR<span class="op">,</span> <span class="st">&quot;string&quot;</span><span class="op">,</span> s<span class="op">,</span> NULL<span class="op">));</span></span>
-<span id="cb11-122"><a href="#cb11-122"></a><span class="op">}</span></span>
-<span id="cb11-123"><a href="#cb11-123"></a></span>
-<span id="cb11-124"><a href="#cb11-124"></a>TStr <span class="op">*</span></span>
-<span id="cb11-125"><a href="#cb11-125"></a>t_str_new <span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb11-126"><a href="#cb11-126"></a>  <span class="cf">return</span> T_STR <span class="op">(</span>g_object_new <span class="op">(</span>T_TYPE_STR<span class="op">,</span> NULL<span class="op">));</span></span>
-<span id="cb11-127"><a href="#cb11-127"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb11-67"><a href="#cb11-67"></a>  priv<span class="op">-&gt;</span>string <span class="op">=</span> NULL<span class="op">;</span></span>
+<span id="cb11-68"><a href="#cb11-68"></a><span class="op">}</span></span>
+<span id="cb11-69"><a href="#cb11-69"></a></span>
+<span id="cb11-70"><a href="#cb11-70"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb11-71"><a href="#cb11-71"></a>t_str_class_init <span class="op">(</span>TStrClass <span class="op">*</span>class<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-72"><a href="#cb11-72"></a>  GObjectClass <span class="op">*</span>gobject_class <span class="op">=</span> G_OBJECT_CLASS <span class="op">(</span>class<span class="op">);</span></span>
+<span id="cb11-73"><a href="#cb11-73"></a></span>
+<span id="cb11-74"><a href="#cb11-74"></a>  gobject_class<span class="op">-&gt;</span>finalize <span class="op">=</span> t_str_finalize<span class="op">;</span></span>
+<span id="cb11-75"><a href="#cb11-75"></a>  gobject_class<span class="op">-&gt;</span>set_property <span class="op">=</span> t_str_set_property<span class="op">;</span></span>
+<span id="cb11-76"><a href="#cb11-76"></a>  gobject_class<span class="op">-&gt;</span>get_property <span class="op">=</span> t_str_get_property<span class="op">;</span></span>
+<span id="cb11-77"><a href="#cb11-77"></a>  str_properties<span class="op">[</span>PROP_STRING<span class="op">]</span> <span class="op">=</span> g_param_spec_string <span class="op">(</span><span class="st">&quot;string&quot;</span><span class="op">,</span> <span class="st">&quot;str&quot;</span><span class="op">,</span> <span class="st">&quot;string&quot;</span><span class="op">,</span> <span class="st">&quot;&quot;</span><span class="op">,</span> G_PARAM_READWRITE<span class="op">);</span></span>
+<span id="cb11-78"><a href="#cb11-78"></a>  g_object_class_install_properties <span class="op">(</span>gobject_class<span class="op">,</span> N_PROPERTIES<span class="op">,</span> str_properties<span class="op">);</span></span>
+<span id="cb11-79"><a href="#cb11-79"></a></span>
+<span id="cb11-80"><a href="#cb11-80"></a>  class<span class="op">-&gt;</span>set_string <span class="op">=</span> t_str_real_set_string<span class="op">;</span></span>
+<span id="cb11-81"><a href="#cb11-81"></a><span class="op">}</span></span>
+<span id="cb11-82"><a href="#cb11-82"></a></span>
+<span id="cb11-83"><a href="#cb11-83"></a><span class="co">/* setter and getter */</span></span>
+<span id="cb11-84"><a href="#cb11-84"></a><span class="dt">void</span></span>
+<span id="cb11-85"><a href="#cb11-85"></a>t_str_set_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-86"><a href="#cb11-86"></a>  g_return_if_fail <span class="op">(</span>T_IS_STR <span class="op">(</span>self<span class="op">));</span></span>
+<span id="cb11-87"><a href="#cb11-87"></a>  TStrClass <span class="op">*</span>class <span class="op">=</span> T_STR_GET_CLASS <span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb11-88"><a href="#cb11-88"></a></span>
+<span id="cb11-89"><a href="#cb11-89"></a><span class="co">/* The setter calls the class method &#39;set_string&#39;, */</span></span>
+<span id="cb11-90"><a href="#cb11-90"></a><span class="co">/* which is expected to be overridden by the descendant TNumStr. */</span></span>
+<span id="cb11-91"><a href="#cb11-91"></a><span class="co">/* Therefore, the behavior of the setter is different between TStr and TNumStr. */</span></span>
+<span id="cb11-92"><a href="#cb11-92"></a>  class<span class="op">-&gt;</span>set_string <span class="op">(</span>self<span class="op">,</span> s<span class="op">);</span></span>
+<span id="cb11-93"><a href="#cb11-93"></a><span class="op">}</span></span>
+<span id="cb11-94"><a href="#cb11-94"></a></span>
+<span id="cb11-95"><a href="#cb11-95"></a><span class="dt">char</span> <span class="op">*</span></span>
+<span id="cb11-96"><a href="#cb11-96"></a>t_str_get_string <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-97"><a href="#cb11-97"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_STR <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb11-98"><a href="#cb11-98"></a>  TStrPrivate <span class="op">*</span>priv <span class="op">=</span> t_str_get_instance_private <span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb11-99"><a href="#cb11-99"></a></span>
+<span id="cb11-100"><a href="#cb11-100"></a>  <span class="cf">return</span> g_strdup <span class="op">(</span>priv<span class="op">-&gt;</span>string<span class="op">);</span></span>
+<span id="cb11-101"><a href="#cb11-101"></a><span class="op">}</span></span>
+<span id="cb11-102"><a href="#cb11-102"></a></span>
+<span id="cb11-103"><a href="#cb11-103"></a>TStr <span class="op">*</span></span>
+<span id="cb11-104"><a href="#cb11-104"></a>t_str_concat <span class="op">(</span>TStr <span class="op">*</span>self<span class="op">,</span> TStr <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-105"><a href="#cb11-105"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_STR <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb11-106"><a href="#cb11-106"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_STR <span class="op">(</span>other<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb11-107"><a href="#cb11-107"></a></span>
+<span id="cb11-108"><a href="#cb11-108"></a>  <span class="dt">char</span> <span class="op">*</span>s1<span class="op">,</span> <span class="op">*</span>s2<span class="op">,</span> <span class="op">*</span>s3<span class="op">;</span></span>
+<span id="cb11-109"><a href="#cb11-109"></a>  TStr <span class="op">*</span>str<span class="op">;</span></span>
+<span id="cb11-110"><a href="#cb11-110"></a></span>
+<span id="cb11-111"><a href="#cb11-111"></a>  s1 <span class="op">=</span> t_str_get_string <span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb11-112"><a href="#cb11-112"></a>  s2 <span class="op">=</span> t_str_get_string <span class="op">(</span>other<span class="op">);</span></span>
+<span id="cb11-113"><a href="#cb11-113"></a>  <span class="cf">if</span> <span class="op">(</span>s1 <span class="op">&amp;&amp;</span> s2<span class="op">)</span></span>
+<span id="cb11-114"><a href="#cb11-114"></a>    s3 <span class="op">=</span> g_strconcat <span class="op">(</span>s1<span class="op">,</span> s2<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb11-115"><a href="#cb11-115"></a>  <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>s1<span class="op">)</span></span>
+<span id="cb11-116"><a href="#cb11-116"></a>    s3 <span class="op">=</span> g_strdup <span class="op">(</span>s1<span class="op">);</span></span>
+<span id="cb11-117"><a href="#cb11-117"></a>  <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>s2<span class="op">)</span></span>
+<span id="cb11-118"><a href="#cb11-118"></a>    s3 <span class="op">=</span> g_strdup <span class="op">(</span>s2<span class="op">);</span></span>
+<span id="cb11-119"><a href="#cb11-119"></a>  <span class="cf">else</span></span>
+<span id="cb11-120"><a href="#cb11-120"></a>    s3 <span class="op">=</span> NULL<span class="op">;</span></span>
+<span id="cb11-121"><a href="#cb11-121"></a>  str <span class="op">=</span> t_str_new_with_string <span class="op">(</span>s3<span class="op">);</span></span>
+<span id="cb11-122"><a href="#cb11-122"></a>  <span class="cf">if</span> <span class="op">(</span>s1<span class="op">)</span> g_free <span class="op">(</span>s1<span class="op">);</span></span>
+<span id="cb11-123"><a href="#cb11-123"></a>  <span class="cf">if</span> <span class="op">(</span>s2<span class="op">)</span> g_free <span class="op">(</span>s2<span class="op">);</span></span>
+<span id="cb11-124"><a href="#cb11-124"></a>  <span class="cf">if</span> <span class="op">(</span>s3<span class="op">)</span> g_free <span class="op">(</span>s3<span class="op">);</span></span>
+<span id="cb11-125"><a href="#cb11-125"></a>  <span class="cf">return</span> str<span class="op">;</span></span>
+<span id="cb11-126"><a href="#cb11-126"></a><span class="op">}</span></span>
+<span id="cb11-127"><a href="#cb11-127"></a></span>
+<span id="cb11-128"><a href="#cb11-128"></a><span class="co">/* create a new TStr instance */</span></span>
+<span id="cb11-129"><a href="#cb11-129"></a>TStr <span class="op">*</span></span>
+<span id="cb11-130"><a href="#cb11-130"></a>t_str_new_with_string <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>s<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-131"><a href="#cb11-131"></a>  <span class="cf">return</span> T_STR <span class="op">(</span>g_object_new <span class="op">(</span>T_TYPE_STR<span class="op">,</span> <span class="st">&quot;string&quot;</span><span class="op">,</span> s<span class="op">,</span> NULL<span class="op">));</span></span>
+<span id="cb11-132"><a href="#cb11-132"></a><span class="op">}</span></span>
+<span id="cb11-133"><a href="#cb11-133"></a></span>
+<span id="cb11-134"><a href="#cb11-134"></a>TStr <span class="op">*</span></span>
+<span id="cb11-135"><a href="#cb11-135"></a>t_str_new <span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-136"><a href="#cb11-136"></a>  <span class="cf">return</span> T_STR <span class="op">(</span>g_object_new <span class="op">(</span>T_TYPE_STR<span class="op">,</span> NULL<span class="op">));</span></span>
+<span id="cb11-137"><a href="#cb11-137"></a><span class="op">}</span></span></code></pre></div>
 <ul>
-<li>3-9: <code>enum</code> defines a property id.
-<code>PROP_STRING</code> is the id of “string” property. Only one
-property is defined here, so you can define it without
+<li>3-9: <code>enum</code> defines a property id. The member
+<code>PROP_STRING</code> is the id of the “string” property. Only one
+property is defined here, so it is possible to define it without
 <code>enum</code>. However, <code>enum</code> can be applied to define
-two or more properties. So, this way is more recommended. In the same
-way, an array <code>str_properties</code> is used. it stores a static
-pointer for GParamSpec.</li>
+two or more properties and it is more common. The last member
+<code>N_PROPERTIES</code> is two because <code>enum</code> is
+zero-based. An array <code>str_properties</code> has two elements since
+<code>N_PROPERTIES</code> is two. The first element isn’t used and it is
+assigned with NULL. The second element will be assigned a pointer to a
+GParamSpec instance in the class initialization function.</li>
 <li>11-13: TStrPrivate is a C structure. It is a private data area for
 TStr. If TStr were a final type, then no descendant would exist and TStr
 instance could be a private data area. But TStr is derivable so you
@@ -472,71 +480,80 @@ can’t store such private data in TStr instance that is open to the
 descendants. The name of this structure is “&lt;object name&gt;Private”
 like <code>TStrPrivate</code>. The structure must be defined before
 <code>G_DEFINE_TYPE_WITH_PRIVATE</code>.</li>
-<li>15: <code>G_DEFINE_TYPE_WITH_PRIVATE</code> macro. This macro
-expands to:
+<li>15: <code>G_DEFINE_TYPE_WITH_PRIVATE</code> macro. It is similar to
+<code>G_DEFINE_TYPE</code> macro but it adds the private data area for
+the derivable instance. This macro expands to:
 <ul>
-<li>Declares <code>t_str_class_init</code> which is a class
+<li>Declaration of <code>t_str_class_init</code> which is a class
 initialization function.</li>
-<li>Declares <code>t_str_init</code> which is an instance initialization
-function.</li>
-<li>Defines <code>t_str_parent_class</code> static variable. It points
-to the parent class of TStr.</li>
-<li>Adds private instance data to the type. It is a C structure and its
-name is <code>TStrPrivate</code>. (See above).</li>
-<li>Defines <code>t_str_get_type ()</code> function. This function
+<li>Declaration of <code>t_str_init</code> which is an instance
+initialization function.</li>
+<li>Definition of <code>t_str_parent_class</code> static variable. It
+points to the parent class of TStr.</li>
+<li>The function call that adds private instance data to the type. It is
+a C structure and its name is <code>TStrPrivate</code>.</li>
+<li>Definition of <code>t_str_get_type ()</code> function. This function
 registers the type in its first call.</li>
-<li>Defines a private instance getter
-<code>t_str_get_instance_private ()</code>. This function has a
-parameter which is the pointer to the instance.</li>
+<li>Definition of the private instance getter
+<code>t_str_get_instance_private ()</code>.</li>
 </ul></li>
-<li>17-25: <code>t_str_set_property</code>. This is similar to
-<code>t_int_set_property</code>, but the property value is stored in the
-private area.</li>
-<li>22: It uses <code>t_str_set_string</code> function to set the
-private data area with the string from the GValue. It is important
-because <code>t_str_set_string</code> calls the class method
+<li>17-28: The function <code>t_str_set_property</code> sets the
+“string” property and it is used by <code>g_object_set</code> family
+functions. It uses <code>t_str_set_string</code> function to set the
+private data with the copy of the string from the GValue. It is
+important because <code>t_str_set_string</code> calls the class method
 <code>set_string</code>, which will be overridden by the child class.
-Therefore, the <code>t_str_set_property</code> function will set the
-string and also its type in the child class. The function
-<code>g_value_get_string</code> returns the pointer to the string that
-GValue owns. You can’t own the string. That means you can’t change or
-free the string. Therefore, it is necessary to duplicate the string
-before it is stored. The duplication is done in the function
-<code>t_str_set_string</code>.</li>
-<li>27-35: <code>t_str_get_property</code>. It uses
-<code>t_str_get_string</code> function. String duplication is done in
-the function.</li>
-<li>37-44 <code>t_str_real_set_string</code> function. This is pointed
-by <code>set_string</code> in the class. So, it is the body of the class
-method. First, it gets the pointer to the private area with
+Therefore, the behavior of <code>t_str_set_property</code> function is
+different between TStr and TNumStr, which is a child of TStr. The
+function <code>g_value_get_string</code> returns the pointer to the
+string that GValue owns. So you need to duplicate the string and it is
+done in the function <code>t_str_set_string</code>.</li>
+<li>30-40: The function <code>t_str_get_property</code> gets the
+“string” property and it is used by <code>g_object_get</code> family
+functions. It just gives <code>priv-&gt;string</code> to the function
+<code>g_value_set_string</code>. The variable <code>priv</code> points
+the private data area. The second argument <code>priv-&gt;string</code>
+is owned by the TStr instance and the function
+<code>g_value_set_string</code> duplicates it to store in the GValue
+structure.</li>
+<li>44-51 The function <code>t_str_real_set_string</code> is the body of
+the class method and pointed by <code>set_string</code> member in the
+class. First, it gets the pointer to the private area with
 <code>t_str_get_instance_private</code> function. If the instance holds
-a string, free it before setting it with a new string. It copies the
-string and put it to <code>priv-&gt;string</code>.</li>
-<li>46-54: <code>t_str_finalize</code> is called when TStr instance is
-destroyed. This function frees the string <code>priv-&gt;string</code>.
-After that, it calls the parent’s finalize method. This is called “chain
-up to its parent” and it will be explained later in this section.</li>
-<li>56-61: <code>t_str_init</code> initializes
-<code>priv-&gt;string</code>.</li>
-<li>63-74: <code>t_str_class_init</code> function initializes the class
-of TStr object.</li>
-<li>67: Overrides <code>finalize</code> method. This method is called in
-the destruction process.</li>
-<li>68-69: Overrides <code>set_property</code> and
-<code>get_property</code> method.</li>
-<li>70-71: Creates GParamSpec. Then installs the property.</li>
-<li>73: The class method <code>set_string</code> points to
-<code>t_str_real_set_string</code>. This method is expected to be
+a string, free it before setting it to a new string. It copies the given
+string and assigns it to <code>priv-&gt;string</code>. The duplication
+is important. Thanks to that, the address of the string is hidden from
+the out of the instance.</li>
+<li>53-61: The finalize function <code>t_str_finalize</code> is called
+when TStr instance is destroyed. The destruction process has two phases,
+“dispose” and “finalize”. In the disposal phase, the instance releases
+instances. In the finalization phase, the instance does the rest of all
+the finalization like freeing memories. This function frees the string
+<code>priv-&gt;string</code> if necessary. After that, it calls the
+parent’s finalize method. This is called “chain up to its parent” and it
+will be explained later in this section.</li>
+<li>63-68: The instance initialization function <code>t_str_init</code>
+assigns NULL to <code>priv-&gt;string</code>.</li>
+<li>70-81: The class initialization function
+<code>t_str_class_init</code> overrides <code>finalize</code>,
+<code>set_property</code> and <code>get_property</code> members. It
+creates the GParamSpec instance with <code>g_param_spec_string</code>
+and installs the property with
+<code>g_object_class_install_properties</code>. It assigns
+<code>t_str_real_set_string</code> to the member
+<code>set_string</code>. It is a class method and is expected to be
 replaced in the child class.</li>
-<li>77-91: Setter and getter. They are used by property set/get
-functions <code>t_str_set_property</code> and
-<code>t_str_get_property</code>. The setter
-<code>t_str_set_string</code> just calls the class method. So its
-behavior will change in the child class.</li>
-<li>93-116: <code>t_str_concat</code> function. It concatenates the
-string of <code>self</code> and <code>other</code> and creates a new
-TStr.</li>
-<li>119-127: <code>t_str_new_with_string</code> and
+<li>84-101: Setter and getter. The setter method
+<code>t_str_set_string</code> just calls the class method. So, it is
+expected to be replaced in the child class. It is used by property set
+function <code>t_str_set_property</code>. So the behavior of property
+setting will change in the child class. The getter method
+<code>t_str_get_string</code> just duplicates the string
+<code>priv-&gt;string</code> and return the copy.</li>
+<li>103-126: The public function <code>t_str_concat</code> concatenates
+the string of <code>self</code> and <code>other</code>, and creates a
+new TStr.</li>
+<li>129-137: Two functions <code>t_str_new_with_string</code> and
 <code>t_str_new</code> create a new TStr instances.</li>
 </ul>
 <h2 id="chaining-up-to-its-parent">Chaining up to its parent</h2>

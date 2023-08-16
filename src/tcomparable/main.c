@@ -1,31 +1,9 @@
 #include <glib-object.h>
 #include "tcomparable.h"
-#include "tnumber.h"
-#include "tint.h"
-#include "tdouble.h"
-#include "tstr.h"
-
-
-
-static void
-notify_cb (GObject *gobject, GParamSpec *pspec, gpointer user_data) {
-  const char *name;
-  int i;
-  double d;
-  char *s;
-
-  name = g_param_spec_get_name (pspec);
-  if (T_IS_INT (gobject) && strcmp (name, "value") == 0) {
-    g_object_get (T_INT (gobject), "value", &i, NULL);
-    g_print ("Property \"%s\" is set to %d.\n", name, i);
-  } else if (T_IS_DOUBLE (gobject) && strcmp (name, "value") == 0) {
-    g_object_get (T_DOUBLE (gobject), "value", &d, NULL);
-    g_print ("Property \"%s\" is set to %lf.\n", name, d);
-  } else if (T_IS_STR (gobject) && strcmp (name, "string") == 0) {
-    s = t_str_get_string (T_STR (gobject));
-    g_print ("Property \"%s\" is set to %s.\n", name, s);
-  }
-}
+#include "../tnumber/tnumber.h"
+#include "../tnumber/tint.h"
+#include "../tnumber/tdouble.h"
+#include "../tstr/tstr.h"
 
 static void
 t_print (const char *cmp, TComparable *c1, TComparable *c2) {
@@ -87,34 +65,23 @@ main (int argc, char **argv) {
   TInt *i;
   TDouble *d;
   TStr *str1, *str2, *str3;
-  gpointer obj;
 
   i = t_int_new_with_value (124);
   d = t_double_new_with_value (123.45);
   str1 = t_str_new_with_string (one);
   str2 = t_str_new_with_string (two);
   str3 = t_str_new_with_string (three);
-  obj = g_object_new (G_TYPE_OBJECT, NULL);
-
-  g_signal_connect (G_OBJECT (i), "notify::value", G_CALLBACK (notify_cb), NULL);
-  g_signal_connect (G_OBJECT (d), "notify::value", G_CALLBACK (notify_cb), NULL);
-  g_signal_connect (G_OBJECT (str1), "notify::string", G_CALLBACK (notify_cb), NULL);
-  g_signal_connect (G_OBJECT (str2), "notify::string", G_CALLBACK (notify_cb), NULL);
-  g_signal_connect (G_OBJECT (str3), "notify::string", G_CALLBACK (notify_cb), NULL);
 
   compare (T_COMPARABLE (i), T_COMPARABLE (d));
   compare (T_COMPARABLE (str1), T_COMPARABLE (str2));
   compare (T_COMPARABLE (str2), T_COMPARABLE (str3));
-  t_comparable_eq (T_COMPARABLE (d), obj);
-
+  compare (T_COMPARABLE (i), T_COMPARABLE (str1));
 
   g_object_unref (i);
   g_object_unref (d);
   g_object_unref (str1);
   g_object_unref (str2);
   g_object_unref (str3);
-  g_object_unref (obj);
 
   return 0;
 }
-

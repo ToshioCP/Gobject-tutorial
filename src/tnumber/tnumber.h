@@ -1,5 +1,4 @@
-#ifndef __T_NUMBER_H__
-#define __T_NUMBER_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -37,5 +36,3 @@ t_number_uminus (TNumber *self);
 
 char *
 t_number_to_s (TNumber *self);
-#endif /* __T_NUMBER_H__ */
-

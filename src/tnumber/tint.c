@@ -1,3 +1,4 @@
+#include "tnumber.h"
 #include "tint.h"
 #include "tdouble.h"
 
@@ -32,7 +33,7 @@ t_int_get_property (GObject *object, guint property_id, GValue *value, GParamSpe
 }
 
 static void
-t_int_init (TInt *i) {
+t_int_init (TInt *self) {
 }
 
 /* arithmetic operator */
@@ -72,6 +73,7 @@ t_int_mul (TNumber *self, TNumber *other) {
 static TNumber *
 t_int_div (TNumber *self, TNumber *other) {
   g_return_val_if_fail (T_IS_INT (self), NULL);
+
   int i;
   double d;
 
@@ -102,6 +104,7 @@ t_int_uminus (TNumber *self) {
 static char *
 t_int_to_s (TNumber *self) {
   g_return_val_if_fail (T_IS_INT (self), NULL);
+
   int i;
 
   g_object_get (T_INT (self), "value", &i, NULL); 
@@ -142,4 +145,3 @@ t_int_new (void) {
   i = g_object_new (T_TYPE_INT, NULL);
   return i;
 }
-

@@ -15,7 +15,7 @@ t_double_class_init (TDoubleClass *class) {
 }
 
 static void
-t_double_init (TDouble *d) {
+t_double_init (TDouble *self) {
 }
 
 int
@@ -44,6 +44,7 @@ main (int argc, char **argv) {
     g_print ("d is GObject instance.\n");
   else
     g_print ("d is not GObject instance.\n");
+  g_object_unref (d);
 
   return 0;
 }

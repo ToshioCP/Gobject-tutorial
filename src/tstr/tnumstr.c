@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <ctype.h>
 #include "tnumstr.h"
 #include "tstr.h"
@@ -52,6 +53,10 @@ t_num_str_string_type (const char *string) {
     return t_none;
 }
 
+/* This function overrides t_str_set_string. */
+/* And it also changes the behavior of setting the "string" property. */
+/* On TStr => just set the "string" property */
+/* On TNumStr => set the "string" property and set the type of the string. */
 static void
 t_num_str_real_set_string (TStr *self, const char *s) {
   T_STR_CLASS (t_num_str_parent_class)->set_string (self, s);

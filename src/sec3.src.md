@@ -12,7 +12,7 @@ This section describes how to define a child object of GObject.
 
 An example of this section is an object represents a real number.
 It is not so useful because we have already had double type in C language to represent real numbers.
-However, I think this example is not so bad for knowing the technique to define a child object.
+However, I think this example is not so bad to know the technique how to define a child object.
 
 First, you need to know the naming convention.
 An object name consists of name space and name.
@@ -77,7 +77,7 @@ The coding convention above needs to be kept all the time.
 
 The creation process of TDouble type is similar to the one of GObject.
 
-1. Registers TDouble type with type system.
+1. Registers TDouble type to the type system.
 2. The type system allocates memory for TDoubleClass and TDouble.
 3. Initializes TDoubleClass.
 4. Initializes TDouble.
@@ -85,7 +85,8 @@ The creation process of TDouble type is similar to the one of GObject.
 ## Registration
 
 Usually registration is done by convenient macro such as `G_DECLARE_FINAL_TYPE` and `G_DEFINE_TYPE`.
-So you don't need to care about registration.
+You can use `G_DEFINE_FINAL_TYPE` for a final type class instead of `G_DEFINE_TYPE` since GLib version 2.70.
+So you don't need to care about registration details.
 But, in this tutorial, it is important to understand GObject type system, so I want to show you the registration without macro, first.
 
 There are two kinds of types, static and dynamic.
@@ -150,7 +151,7 @@ This structure needs to be created before the registration.
 
 - class_size: The size of the class.
 For example, TDouble's class size is `sizeof (TDoubleClass)`.
-- base_init, base_finalize: These function initialize/finalize the dynamic members of the class.
+- base_init, base_finalize: These functions initialize/finalize the dynamic members of the class.
 In many cases, they aren't necessary, and are assigned NULL.
 For further information, see [GObject API Reference -- BaseInitFunc](https://docs.gtk.org/gobject/callback.BaseInitFunc.html)
 and [GObject API Reference -- ClassInitFunc](https://docs.gtk.org/gobject/callback.ClassInitFunc.html).
@@ -175,13 +176,14 @@ These information is kept by the type system and used when the object is created
 Class\_size and instance\_size are used to allocate memory for the class and instance.
 Class\_init and instance\_init functions are called when class or instance is initialized.
 
-`example3.c` shows how to use `g_type_register_static`.
+The C program `example3.c` shows how to use `g_type_register_static`.
 
 @@@include
 misc/example3.c
 @@@
 
 - 16-22: A class initialization function and an instance initialization function.
+The argument `class` points the class structure and the argument `self` points the instance structure.
 They do nothing here but they are necessary for the registration.
 - 24-43: `t_double_get_type` function.
 This function returns the type of the TDouble object.
@@ -192,20 +194,27 @@ Look at line 3.
 This function has a static variable `type` to keep the type of the object.
 At the first call of this function, `type` is zero.
 Then it calls `g_type_register_static` to register the object to the type system.
-At the second or subsequent call, the function just return `type`, because the static variable `type` has been assigned non-zero value by `g_type_register_static` and it keeps the value.
+At the second or subsequent call, the function just returns `type`, because the static variable `type` has been assigned non-zero value by `g_type_register_static` and it keeps the value.
 - 30-40 : Sets `info` structure and calls `g_type_register_static`.
-- 45-63: Main function.
+- 45-64: Main function.
 Gets the type of TDouble object and displays it.
-`g_object_new` is used to instantiate the object.
-Shows the address of the instance.
+The function `g_object_new` is used to instantiate the object.
+The GObject API reference says that the function returns a pointer to a GObject instance but it actually returns a gpointer.
+Gpointer is the same as `void *` and it can be assigned to a pointer that points any type.
+So, the statement `d = g_object_new (T_TYPE_DOUBLE, NULL);` is correct.
+If the function `g_object_new` returned `GObject *`, it would be necessary to cast the returned pointer.
+After the creation, it shows the address of the instance.
+Finally, the instance is released and destroyed with the function `g_object_unref`.
 
 `example3.c` is in the [src/misc](misc) directory.
 
 Execute it.
 
-@@@shell
-cd misc; _build/example3
-@@@
+~~~
+$ cd src/misc; _build/example3
+Registration was a success. The type is 56414f164880.
+Instantiation was a success. The instance address is 0x56414f167010.
+~~~
 
 ## G_DEFINE_TYPE macro
 
@@ -243,9 +252,13 @@ One important thing to be careful is to follow the convention of the naming of i
 
 Execute it.
 
-@@@shell
-cd misc; _build/example4
-@@@
+~~~
+$ cd src/misc; _build/example4
+Registration was a success. The type is 564b4ff708a0.
+Instantiation was a success. The instance address is 0x564b4ff71400.
+~~~
+
+You can use `G_DEFINE_FINAL_TYPE` instead of `G_DEFINE_TYPE` for final type classes since GLib version 2.70.
 
 ## G_DECLARE_FINAL_TYPE macro
 
@@ -287,7 +300,7 @@ For example, if the object is `TDouble`, then
 
 needs to be defined before `G_DECLARE_FINAL_TYPE`.
 
-`example5.c` uses this macro.
+The C file `example5.c` uses this macro.
 It works like `example3.c` or `example4.c`.
 
 @@@include
@@ -296,14 +309,18 @@ misc/example5.c
 
 Execute it.
 
-@@@shell
-cd misc; _build/example5
-@@@
+~~~
+$ cd src/misc; _build/example5
+Registration was a success. The type is 5560b4cf58a0.
+Instantiation was a success. The instance address is 0x5560b4cf6400.
+d is TDouble instance.
+d is GObject instance.
+~~~
 
 ## Separate the file into main.c, tdouble.h and tdouble.c
 
 Now it's time to separate the contents into three files, `main.c`, `tdouble.h` and `tdouble.c`.
-An object is defined by two files, header file and C source file.
+An object is defined by two files, a header file and C source file.
 
 tdouble.h
 
@@ -311,16 +328,16 @@ tdouble.h
 tdouble1/tdouble.h
 @@@
 
-- The contents of header files are public, i.e. it is open to any files.
+- Header files are public, i.e. it is open to any files.
 Header files include macros, which gives type information, cast and type check, and public functions.
-- 1,2,18: These directives prevent the compiler from reading the header file two times or more.
-If your compiler supprts `#pragma once` directive, you can use it instead.
+- 1: The directive `#pragma once` prevent the compiler from reading the header file two times or more.
 It is not officially defined but is supported widely in many compilers.
-- 6,7: `T_TYPE_DOUBLE` is public.
-`G_DECLARE_FINAL_TYPE` is also expanded to public definitions.
-- 9-13: Function declarations.
+- 5-6: `T_TYPE_DOUBLE` is public.
+`G_DECLARE_FINAL_TYPE` is expanded to public definitions.
+- 8-12: Public function declarations.
 They are getter and setter of the value of the object.
-- 15-16: Object instantiation function.
+They are called "instance methods", which are used in object-oriented languages.
+- 14-15: Object instantiation function.
 
 tdouble.c
 
@@ -333,19 +350,17 @@ Since `G_DECLARE_FINAL_TYPE` macro emits `typeder struct _TDouble TDouble`, the 
 - 8: `G_DEFINE_TYPE` macro.
 - 10-16: class and instance initialization functions.
 At present, they don't do anything.
-- 18-24: Getter. The argument `value` is a pointer to double type variable.
-Assigns the object value (`d->value`) to the variable.
+- 18-24: Getter. The argument `value` is the pointer to a double type variable.
+Assigns the object value (`self->value`) to the variable.
 If it succeeds, it returns TRUE.
-`g_return_val_if_fail` is used to check the argument type.
-If the argument `d` is not TDouble type, it outputs error to the log and immediately returns FALSE.
+The function `g_return_val_if_fail` is used to check the argument type.
+If the argument `self` is not TDouble type, it outputs error to the log and immediately returns FALSE.
 This function is used to report a programmer's error.
 You shouldn't use it for a runtime error.
 See [Glib API Reference -- Error Reporting](https://docs.gtk.org/glib/error-reporting.html) for further information.
-`g_return_val_if_fail` isn't used in static class functions, they are private, because static functions are called only from functions in the same file.
-Such functions know the parameters type well.
-`g_return_val_if_fail` is used in public functions.
+The function `g_return_val_if_fail` isn't used in static class functions, which are private, because static functions are called only from functions in the same file and the caller knows the type of parameters.
 - 26-31: Setter.
-`g_return_if_fail` function is used to check the argument type.
+The function `g_return_if_fail` is used to check the argument type.
 This function doesn't return any value.
 Because the type of `t_double_set_value` is `void` so no value will be returned.
 Therefore, we use `g_return_if_fail` instead of `g_return_val_if_fail`.
@@ -366,23 +381,28 @@ This is necessary for accessing TDouble object.
 - 9: Instantiate TDouble object and set `d` to point the object.
 - 10-13: Tests the getter of the object.
 - 15-20: Tests the setter of the object.
+- 21: Releases the instance `d`.
 
 The source files are located in [src/tdouble1](tdouble1).
 Change your current directory to the directory above and type the following.
 
 ~~~
-meson _build
-ninja -C _build
+$ cd src/tdouble1
+$ meson setup _build
+$ ninja -C _build
 ~~~
 
 Then, execute the program.
 
-@@@shell
-cd tdouble1; _build/example6
-@@@
+~~~
+$ cd src/tdouble1; _build/example6
+t_double_get_value succesfully assigned 10.000000 to value.
+Now, set d (tDouble object) with -20.000000.
+t_double_get_value succesfully assigned -20.000000 to value.
+~~~
 
 This example is very simple.
-But any object has header file and C source file as the example above has.
+But any object has header file and C source file like this.
 And they follow the convention.
 You probably aware of the importance of the convention.
 For the further information refer to [GObject API Reference -- Conventions](https://docs.gtk.org/gobject/concepts.html#conventions).
@@ -391,10 +411,11 @@ For the further information refer to [GObject API Reference -- Conventions](http
 
 Functions of objects are open to other objects.
 They are like public methods in object oriented languages.
+They are actually called "instance method" in the GObject API Reference.
 
 It is natural to add calculation operators to TDouble objects because they represent real numbers.
 For example, `t_double_add` adds the value of the instance and another instance.
-Then it creates a new TDouble instance which value is the sum of the values.
+Then it creates a new TDouble instance which has a value of the sum of them.
 
 ~~~C
 TDouble *
@@ -409,8 +430,8 @@ t_double_add (TDouble *self, TDouble *other) {
 }
 ~~~
 
-`self` is the instance the function belongs to.
-`other` is another TDouble instance.
+The first argument `self` is the instance the function belongs to.
+The second argument `other` is another TDouble instance.
 
 The value of `self` can be accessed by `self->value`, but don't use `other->value` to get the value of `other`.
 Use a function `t_double_get_value` instead.
@@ -422,4 +443,3 @@ When an object A access to another object B, A must use a public function provid
 
 Write functions of TDouble object for subtraction, multiplication, division and sign changing (unary minus).
 Compare your program to `tdouble.c` in [src/tdouble2](tdouble2) directory.
-

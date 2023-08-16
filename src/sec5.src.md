@@ -39,7 +39,7 @@ The example above creates an instance of GtkWindow and sets the properties.
 - The "default-width" property is set to 800.
 - The "default-height" property is set to 600.
 
-The last parameter of `g_object_new` is `NULL` which represents the end of the list of properties.
+The last parameter of `g_object_new` is `NULL` which is the end of the list of properties.
 
 If you have already created a GtkWindow instance and you want to set its title, you can use `g_object_set`.
 
@@ -103,13 +103,13 @@ G\_MINDOUBLE is the minimum positive value which can be held in a double.
 - `G_PARAM_READWRITE` is a flag.
 `G_PARAM_READWRITE` means that the parameter is readable and writable.
 
-For further information, refer to GObject API reference.
+For further information, refer to the GObject API reference.
 
 - [GParamSpec and its subclasses](https://docs.gtk.org/gobject/index.html#classes)
 - [g\_param\_spec\_double and similar functions](https://docs.gtk.org/gobject/index.html#functions)
 - [GValue](https://docs.gtk.org/gobject/struct.Value.html)
 
-When GObject property is registered, GParamSpec is used.
+GParamSpec is used for the registration for GObject properties.
 This is extracted from tdouble.c in [src/tdouble6](tdouble6).
 
 ~~~C
@@ -127,11 +127,11 @@ t_double_class_init (TDoubleClass *class) {
 }
 ~~~
 
-`double_property` is a static variable.
+The variable `double_property` is static.
 GParamSpec instance is assigned to `double_property`.
 
-`g_object_class_install_property` installs a property.
-This function must be called after `set_property` and `get_property` methods are overridden.
+The function `g_object_class_install_property` installs a property.
+It must be called after `set_property` and `get_property` methods are overridden.
 These methods will be explained later.
 The arguments are TDoubleClass class, PROP\_DOUBLE (property id) and GParamSpec instance.
 Property id is used to identify the property in `tdouble.c`.
@@ -142,19 +142,19 @@ It is a positive integer.
 Property values vary from instance to instance.
 Therefore, the value is stored to each instance of the object.
 
-`g_object_set` is given a value as an argument and stores the value.
+The function `g_object_set` is given a value as an argument and stores the value.
 But how does `g_object_set` know the instance to store?
-`g_object_set` is compiled before the object is made.
-So, `g_object_set` doesn't know where to store the value at all.
+It is compiled before the object is made.
+So, it doesn't know where to store the value at all.
 That part needs to be programmed by the writer of the object with overriding.
 
-`g_object_set` first checks the property and value, then it creates GValue (generic value) from the value.
+The function `g_object_set` first checks the property and value, then it creates GValue (generic value) from the value.
 And it calls a function pointed by `set_property` in the class.
 Look at the diagram below.
 
 ![Overriding `set_property` class method](../image/class_property1.png){width=15cm height=7.5cm}
 
-`set_property` in GObjectClass class points `g_object_do_set_property` in GObject program, which is made by compiling `gobject.c`.
+The member `set_property` in GObjectClass class points `g_object_do_set_property` in GObject program, which is made by compiling `gobject.c`.
 The GObjectClass part of the TDoubleClass structure (it is the same as TDoubleClass because TDoubleClass doesn't have its own area) is initialized by copying from the contents of GObjectClass.
 Therefore, `set_property` in TDoubleClass class points `g_object_do_set_property` in GObject program.
 But `g_object_do_set_property` doesn't store the value to the TDouble instance.
@@ -162,6 +162,9 @@ The writer of TDouble object makes `t_double_set_property` function in `tdouble.
 And assigns the address of `t_double_set_property` to `set_property` in TDoubleClass class.
 It is shown with a red curve in the diagram.
 As a result, `g_object_set` calls `t_double_set_property` instead of `g_object_do_set_property` (red dotted curve) and the value will be stored in the TDouble instance.
+See the function `t_double_class_init` above.
+It changes the member `gobject_class->set_property` to point the function `t_double_set_property`.
+The function `g_object_set` sees the TDoubleClass and call the function pointed by the member `set_property`.
 
 The program of `t_double_set_property` and `t_double_get_property` will shown later.
 
@@ -214,14 +217,14 @@ struct  _GObjectClass
   ... ... ...
   ... ... ...
   /* overridable methods */
-  void       (*set_property)		(GObject        *object,
-                                         guint           property_id,
-                                         const GValue   *value,
-                                         GParamSpec     *pspec);
-  void       (*get_property)		(GObject        *object,
-                                         guint           property_id,
-                                         GValue         *value,
-                                         GParamSpec     *pspec);
+  void       (*set_property)    (GObject        *object,
+                                 guint           property_id,
+                                 const GValue   *value,
+                                 GParamSpec     *pspec);
+  void       (*get_property)    (GObject        *object,
+                                 guint           property_id,
+                                 GValue         *value,
+                                 GParamSpec     *pspec);
   ... ... ...
   ... ... ...
 };
@@ -268,10 +271,10 @@ But if you just set the instance member in your setter, notify signal isn't emit
 
 ~~~C
 void
-t_double_set_value (TDouble *d, double value) {
-  g_return_if_fail (T_IS_DOUBLE (d));
+t_double_set_value (TDouble *self, double value) {
+  g_return_if_fail (T_IS_DOUBLE (self));
 
-  d->value = value; /* Just set d->value. No "notify" signal is emitted. */
+  self->value = value; /* Just set d->value. No "notify" signal is emitted. */
 }
 ~~~
 

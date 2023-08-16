@@ -13,7 +13,7 @@ struct _TDouble {
 G_DEFINE_TYPE (TDouble, t_double, G_TYPE_OBJECT)
 
 static void
-div_by_zero_default_cb (TDouble *d) {
+div_by_zero_default_cb (TDouble *self) {
   g_printerr ("\nError: division by zero.\n\n");
 }
 
@@ -61,7 +61,7 @@ t_double_class_init (TDoubleClass *class) {
 }
 
 static void
-t_double_init (TDouble *d) {
+t_double_init (TDouble *self) {
 }
 
 /* arithmetic operator */

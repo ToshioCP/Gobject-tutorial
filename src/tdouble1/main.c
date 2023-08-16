@@ -18,6 +18,7 @@ main (int argc, char **argv) {
     g_print ("t_double_get_value succesfully assigned %lf to value.\n", value);
   else
     g_print ("t_double_get_value failed.\n");
+  g_object_unref (d);
 
   return 0;
 }

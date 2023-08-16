@@ -149,7 +149,7 @@ properties.</p>
 <li>The “default-height” property is set to 600.</li>
 </ul>
 <p>The last parameter of <code>g_object_new</code> is <code>NULL</code>
-which represents the end of the list of properties.</p>
+which is the end of the list of properties.</p>
 <p>If you have already created a GtkWindow instance and you want to set
 its title, you can use <code>g_object_set</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>GtkWindow <span class="op">*</span>win<span class="op">;</span></span>
@@ -204,7 +204,7 @@ minimum positive value which can be held in a double.</li>
 <code>G_PARAM_READWRITE</code> means that the parameter is readable and
 writable.</li>
 </ul>
-<p>For further information, refer to GObject API reference.</p>
+<p>For further information, refer to the GObject API reference.</p>
 <ul>
 <li><a href="https://docs.gtk.org/gobject/index.html#classes">GParamSpec
 and its subclasses</a></li>
@@ -214,8 +214,8 @@ and similar functions</a></li>
 <li><a
 href="https://docs.gtk.org/gobject/struct.Value.html">GValue</a></li>
 </ul>
-<p>When GObject property is registered, GParamSpec is used. This is
-extracted from tdouble.c in src/tdouble6.</p>
+<p>GParamSpec is used for the registration for GObject properties. This
+is extracted from tdouble.c in src/tdouble6.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define PROP_DOUBLE 1</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> GParamSpec <span class="op">*</span>double_property <span class="op">=</span> NULL<span class="op">;</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -228,10 +228,10 @@ extracted from tdouble.c in src/tdouble6.</p>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  double_property <span class="op">=</span> g_param_spec_double <span class="op">(</span><span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="st">&quot;val&quot;</span><span class="op">,</span> <span class="st">&quot;Double value&quot;</span><span class="op">,</span> <span class="op">-</span>G_MAXDOUBLE<span class="op">,</span> G_MAXDOUBLE<span class="op">,</span> <span class="fl">0.0</span><span class="op">,</span> G_PARAM_READWRITE<span class="op">);</span></span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  g_object_class_install_property <span class="op">(</span>gobject_class<span class="op">,</span> PROP_DOUBLE<span class="op">,</span> double_property<span class="op">);</span></span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p><code>double_property</code> is a static variable. GParamSpec
+<p>The variable <code>double_property</code> is static. GParamSpec
 instance is assigned to <code>double_property</code>.</p>
-<p><code>g_object_class_install_property</code> installs a property.
-This function must be called after <code>set_property</code> and
+<p>The function <code>g_object_class_install_property</code> installs a
+property. It must be called after <code>set_property</code> and
 <code>get_property</code> methods are overridden. These methods will be
 explained later. The arguments are TDoubleClass class, PROP_DOUBLE
 (property id) and GParamSpec instance. Property id is used to identify
@@ -241,23 +241,22 @@ id="overriding-set_property-and-get_property-class-methods">Overriding
 set_property and get_property class methods</h2>
 <p>Property values vary from instance to instance. Therefore, the value
 is stored to each instance of the object.</p>
-<p><code>g_object_set</code> is given a value as an argument and stores
-the value. But how does <code>g_object_set</code> know the instance to
-store? <code>g_object_set</code> is compiled before the object is made.
-So, <code>g_object_set</code> doesn’t know where to store the value at
-all. That part needs to be programmed by the writer of the object with
-overriding.</p>
-<p><code>g_object_set</code> first checks the property and value, then
-it creates GValue (generic value) from the value. And it calls a
-function pointed by <code>set_property</code> in the class. Look at the
-diagram below.</p>
+<p>The function <code>g_object_set</code> is given a value as an
+argument and stores the value. But how does <code>g_object_set</code>
+know the instance to store? It is compiled before the object is made.
+So, it doesn’t know where to store the value at all. That part needs to
+be programmed by the writer of the object with overriding.</p>
+<p>The function <code>g_object_set</code> first checks the property and
+value, then it creates GValue (generic value) from the value. And it
+calls a function pointed by <code>set_property</code> in the class. Look
+at the diagram below.</p>
 <figure>
 <img src="image/class_property1.png"
 alt="Overriding set_property class method" />
 <figcaption aria-hidden="true">Overriding <code>set_property</code>
 class method</figcaption>
 </figure>
-<p><code>set_property</code> in GObjectClass class points
+<p>The member <code>set_property</code> in GObjectClass class points
 <code>g_object_do_set_property</code> in GObject program, which is made
 by compiling <code>gobject.c</code>. The GObjectClass part of the
 TDoubleClass structure (it is the same as TDoubleClass because
@@ -272,7 +271,12 @@ And assigns the address of <code>t_double_set_property</code> to
 curve in the diagram. As a result, <code>g_object_set</code> calls
 <code>t_double_set_property</code> instead of
 <code>g_object_do_set_property</code> (red dotted curve) and the value
-will be stored in the TDouble instance.</p>
+will be stored in the TDouble instance. See the function
+<code>t_double_class_init</code> above. It changes the member
+<code>gobject_class-&gt;set_property</code> to point the function
+<code>t_double_set_property</code>. The function
+<code>g_object_set</code> sees the TDoubleClass and call the function
+pointed by the member <code>set_property</code>.</p>
 <p>The program of <code>t_double_set_property</code> and
 <code>t_double_get_property</code> will shown later.</p>
 <h2 id="gvalue">GValue</h2>
@@ -370,14 +374,14 @@ GObjectClass structure.</p>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span> <span class="op">...</span> <span class="op">...</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span> <span class="op">...</span> <span class="op">...</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* overridable methods */</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span>       <span class="op">(*</span>set_property<span class="op">)</span>        <span class="op">(</span>GObject        <span class="op">*</span>object<span class="op">,</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                                         guint           property_id<span class="op">,</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                                         <span class="dt">const</span> GValue   <span class="op">*</span>value<span class="op">,</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                                         GParamSpec     <span class="op">*</span>pspec<span class="op">);</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span>       <span class="op">(*</span>get_property<span class="op">)</span>        <span class="op">(</span>GObject        <span class="op">*</span>object<span class="op">,</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>                                         guint           property_id<span class="op">,</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>                                         GValue         <span class="op">*</span>value<span class="op">,</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>                                         GParamSpec     <span class="op">*</span>pspec<span class="op">);</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span>       <span class="op">(*</span>set_property<span class="op">)</span>    <span class="op">(</span>GObject        <span class="op">*</span>object<span class="op">,</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                                 guint           property_id<span class="op">,</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                                 <span class="dt">const</span> GValue   <span class="op">*</span>value<span class="op">,</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                                 GParamSpec     <span class="op">*</span>pspec<span class="op">);</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span>       <span class="op">(*</span>get_property<span class="op">)</span>    <span class="op">(</span>GObject        <span class="op">*</span>object<span class="op">,</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>                                 guint           property_id<span class="op">,</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>                                 GValue         <span class="op">*</span>value<span class="op">,</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>                                 GParamSpec     <span class="op">*</span>pspec<span class="op">);</span></span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span> <span class="op">...</span> <span class="op">...</span></span>
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span> <span class="op">...</span> <span class="op">...</span></span>
 <span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
@@ -431,10 +435,10 @@ explicitly when the value of the property is actually changed.</p>
 just set the instance member in your setter, notify signal isn’t
 emitted.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>t_double_set_value <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">,</span> <span class="dt">double</span> value<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  g_return_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>d<span class="op">));</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>t_double_set_value <span class="op">(</span>TDouble <span class="op">*</span>self<span class="op">,</span> <span class="dt">double</span> value<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  g_return_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">));</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  d<span class="op">-&gt;</span>value <span class="op">=</span> value<span class="op">;</span> <span class="co">/* Just set d-&gt;value. No &quot;notify&quot; signal is emitted. */</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  self<span class="op">-&gt;</span>value <span class="op">=</span> value<span class="op">;</span> <span class="co">/* Just set d-&gt;value. No &quot;notify&quot; signal is emitted. */</span></span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>Users must be confused if they want to catch the “notify” signal. One
 solution is use <code>g_object_set</code> in your setter. Then, notify

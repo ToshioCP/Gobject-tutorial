@@ -14,9 +14,9 @@ notify_cb (GObject *gobject, GParamSpec *pspec, gpointer user_data) {
 }
 
 static int
-get_value (TInt *i) {
+get_value (TInt *self) {
   int v;
-  g_object_get (i, "value", &v, NULL);
+  g_object_get (self, "value", &v, NULL);
   return v;
 }
 
@@ -71,4 +71,3 @@ main (int argc, char **argv) {
 
   return 0;
 }
-

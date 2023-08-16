@@ -1,5 +1,4 @@
-#ifndef __T_NUM_STR_H__
-#define __T_NUM_STR_H__
+#pragma once
 
 #include <glib-object.h>
 #include "tstr.h"
@@ -36,5 +35,3 @@ t_num_str_new_with_tnumber (TNumber *num);
 
 TNumStr *
 t_num_str_new (void);
-#endif /* __T_NUM_STR_H__ */
-

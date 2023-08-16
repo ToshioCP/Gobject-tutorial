@@ -1,9 +1,15 @@
-#include "tdouble.h"
-#include "tint.h"
+#include "../tnumber/tnumber.h"
+#include "../tnumber/tdouble.h"
+#include "../tnumber/tint.h"
 #include "tcomparable.h"
 
-#define PROP_DOUBLE 1
-static GParamSpec *double_property = NULL;
+enum {
+  PROP_0,
+  PROP_DOUBLE,
+  N_PROPERTIES
+};
+
+static GParamSpec *double_properties[N_PROPERTIES] = {NULL, };
 
 struct _TDouble {
   TNumber parent;
@@ -17,10 +23,10 @@ G_DEFINE_TYPE_WITH_CODE (TDouble, t_double, T_TYPE_NUMBER,
 
 static int
 t_double_comparable_cmp (TComparable *self, TComparable *other) {
-  g_return_val_if_fail (T_IS_DOUBLE (self), -2);
-  if (! T_IS_NUMBER (other))
+  if (! T_IS_NUMBER (other)) {
     g_signal_emit_by_name (self, "arg-error");
-  g_return_val_if_fail (T_IS_NUMBER (other), -2);
+    return -2;
+  }
 
   int i;
   double s, o;
@@ -67,7 +73,7 @@ t_double_get_property (GObject *object, guint property_id, GValue *value, GParam
 }
 
 static void
-t_double_init (TDouble *d) {
+t_double_init (TDouble *self) {
 }
 
 /* arithmetic operator */
@@ -107,6 +113,7 @@ t_double_mul (TNumber *self, TNumber *other) {
 static TNumber *
 t_double_div (TNumber *self, TNumber *other) {
   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
+
   int i;
   double d;
 
@@ -137,6 +144,7 @@ t_double_uminus (TNumber *self) {
 static char *
 t_double_to_s (TNumber *self) {
   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
+
   double d;
 
   g_object_get (T_DOUBLE (self), "value", &d, NULL);
@@ -158,8 +166,8 @@ t_double_class_init (TDoubleClass *class) {
 
   gobject_class->set_property = t_double_set_property;
   gobject_class->get_property = t_double_get_property;
-  double_property = g_param_spec_double ("value", "val", "Double value", -G_MAXDOUBLE, G_MAXDOUBLE, 0, G_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class, PROP_DOUBLE, double_property);
+  double_properties[PROP_DOUBLE] = g_param_spec_double ("value", "val", "Double value", -G_MAXDOUBLE, G_MAXDOUBLE, 0, G_PARAM_READWRITE);
+  g_object_class_install_properties (gobject_class, N_PROPERTIES, double_properties);
 }
 
 TDouble *
@@ -177,4 +185,3 @@ t_double_new (void) {
   d = g_object_new (T_TYPE_DOUBLE, NULL);
   return d;
 }
-

@@ -2,12 +2,12 @@
 #include "tdouble.h"
 
 static void
-div_by_zero_cb (TDouble *d, gpointer user_data) {
+div_by_zero_cb (TDouble *self, gpointer user_data) {
   g_printerr ("\nError happens in main.c.\n");
 }
 
 static void
-div_by_zero_after_cb (TDouble *d, gpointer user_data) {
+div_by_zero_after_cb (TDouble *self, gpointer user_data) {
   g_print ("Error has happened in main.c and an error message has been displayed.\n\n");
 }
 
@@ -72,4 +72,3 @@ main (int argc, char **argv) {
 
   return 0;
 }
-

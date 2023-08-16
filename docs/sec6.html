@@ -146,51 +146,49 @@ above. In addition, <code>to_s</code> function will be added. It
 converts the value of TNumber into a string. It is like sprintf
 function. And we will rewrite TInt and TDouble to implement the
 functions.</p>
-<h2 id="tnumber-object">TNumber object</h2>
-<p><code>tnumber.h</code> is a header file for TNumber object.</p>
+<h2 id="tnumber-class">TNumber class</h2>
+<p><code>tnumber.h</code> is a header file for the TNumber class.</p>
 <div class="sourceCode" id="cb2"><pre
-class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a><span class="pp">#ifndef __T_NUMBER_H__</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="pp">#define __T_NUMBER_H__</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a></span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
-<span id="cb2-5"><a href="#cb2-5"></a></span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="pp">#define T_TYPE_NUMBER             (t_number_get_type ())</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a>G_DECLARE_DERIVABLE_TYPE <span class="op">(</span>TNumber<span class="op">,</span> t_number<span class="op">,</span> T<span class="op">,</span> NUMBER<span class="op">,</span> GObject<span class="op">)</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a></span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="kw">struct</span> _TNumberClass <span class="op">{</span></span>
-<span id="cb2-10"><a href="#cb2-10"></a>  GObjectClass parent_class<span class="op">;</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a>  TNumber<span class="op">*</span> <span class="op">(*</span>add<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a>  TNumber<span class="op">*</span> <span class="op">(*</span>sub<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
-<span id="cb2-13"><a href="#cb2-13"></a>  TNumber<span class="op">*</span> <span class="op">(*</span>mul<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a>  TNumber<span class="op">*</span> <span class="op">(*</span>div<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
-<span id="cb2-15"><a href="#cb2-15"></a>  TNumber<span class="op">*</span> <span class="op">(*</span>uminus<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">);</span></span>
-<span id="cb2-16"><a href="#cb2-16"></a>  <span class="dt">char</span> <span class="op">*</span> <span class="op">(*</span>to_s<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">);</span></span>
-<span id="cb2-17"><a href="#cb2-17"></a>  <span class="co">/* signal */</span></span>
-<span id="cb2-18"><a href="#cb2-18"></a>  <span class="dt">void</span> <span class="op">(*</span>div_by_zero<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">);</span></span>
-<span id="cb2-19"><a href="#cb2-19"></a><span class="op">};</span></span>
-<span id="cb2-20"><a href="#cb2-20"></a></span>
-<span id="cb2-21"><a href="#cb2-21"></a><span class="co">/* arithmetic operator */</span></span>
-<span id="cb2-22"><a href="#cb2-22"></a><span class="co">/* These operators create a new instance and return a pointer to it. */</span></span>
-<span id="cb2-23"><a href="#cb2-23"></a>TNumber <span class="op">*</span></span>
-<span id="cb2-24"><a href="#cb2-24"></a>t_number_add <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
-<span id="cb2-25"><a href="#cb2-25"></a></span>
-<span id="cb2-26"><a href="#cb2-26"></a>TNumber <span class="op">*</span></span>
-<span id="cb2-27"><a href="#cb2-27"></a>t_number_sub <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
-<span id="cb2-28"><a href="#cb2-28"></a></span>
-<span id="cb2-29"><a href="#cb2-29"></a>TNumber <span class="op">*</span></span>
-<span id="cb2-30"><a href="#cb2-30"></a>t_number_mul <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
-<span id="cb2-31"><a href="#cb2-31"></a></span>
-<span id="cb2-32"><a href="#cb2-32"></a>TNumber <span class="op">*</span></span>
-<span id="cb2-33"><a href="#cb2-33"></a>t_number_div <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
-<span id="cb2-34"><a href="#cb2-34"></a></span>
-<span id="cb2-35"><a href="#cb2-35"></a>TNumber <span class="op">*</span></span>
-<span id="cb2-36"><a href="#cb2-36"></a>t_number_uminus <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">);</span></span>
-<span id="cb2-37"><a href="#cb2-37"></a></span>
-<span id="cb2-38"><a href="#cb2-38"></a><span class="dt">char</span> <span class="op">*</span></span>
-<span id="cb2-39"><a href="#cb2-39"></a>t_number_to_s <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">);</span></span>
-<span id="cb2-40"><a href="#cb2-40"></a><span class="pp">#endif </span><span class="co">/* __T_NUMBER_H__ */</span></span></code></pre></div>
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="pp">#define T_TYPE_NUMBER             (t_number_get_type ())</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>G_DECLARE_DERIVABLE_TYPE <span class="op">(</span>TNumber<span class="op">,</span> t_number<span class="op">,</span> T<span class="op">,</span> NUMBER<span class="op">,</span> GObject<span class="op">)</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="kw">struct</span> _TNumberClass <span class="op">{</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>  GObjectClass parent_class<span class="op">;</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>  TNumber<span class="op">*</span> <span class="op">(*</span>add<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a>  TNumber<span class="op">*</span> <span class="op">(*</span>sub<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a>  TNumber<span class="op">*</span> <span class="op">(*</span>mul<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a>  TNumber<span class="op">*</span> <span class="op">(*</span>div<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a>  TNumber<span class="op">*</span> <span class="op">(*</span>uminus<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">);</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a>  <span class="dt">char</span> <span class="op">*</span> <span class="op">(*</span>to_s<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">);</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a>  <span class="co">/* signal */</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a>  <span class="dt">void</span> <span class="op">(*</span>div_by_zero<span class="op">)</span> <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">);</span></span>
+<span id="cb2-18"><a href="#cb2-18"></a><span class="op">};</span></span>
+<span id="cb2-19"><a href="#cb2-19"></a></span>
+<span id="cb2-20"><a href="#cb2-20"></a><span class="co">/* arithmetic operator */</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a><span class="co">/* These operators create a new instance and return a pointer to it. */</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a>TNumber <span class="op">*</span></span>
+<span id="cb2-23"><a href="#cb2-23"></a>t_number_add <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
+<span id="cb2-24"><a href="#cb2-24"></a></span>
+<span id="cb2-25"><a href="#cb2-25"></a>TNumber <span class="op">*</span></span>
+<span id="cb2-26"><a href="#cb2-26"></a>t_number_sub <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
+<span id="cb2-27"><a href="#cb2-27"></a></span>
+<span id="cb2-28"><a href="#cb2-28"></a>TNumber <span class="op">*</span></span>
+<span id="cb2-29"><a href="#cb2-29"></a>t_number_mul <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
+<span id="cb2-30"><a href="#cb2-30"></a></span>
+<span id="cb2-31"><a href="#cb2-31"></a>TNumber <span class="op">*</span></span>
+<span id="cb2-32"><a href="#cb2-32"></a>t_number_div <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">);</span></span>
+<span id="cb2-33"><a href="#cb2-33"></a></span>
+<span id="cb2-34"><a href="#cb2-34"></a>TNumber <span class="op">*</span></span>
+<span id="cb2-35"><a href="#cb2-35"></a>t_number_uminus <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">);</span></span>
+<span id="cb2-36"><a href="#cb2-36"></a></span>
+<span id="cb2-37"><a href="#cb2-37"></a><span class="dt">char</span> <span class="op">*</span></span>
+<span id="cb2-38"><a href="#cb2-38"></a>t_number_to_s <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">);</span></span></code></pre></div>
 <ul>
-<li>7: <code>G_DECLARE_DERIVABLE_TYPE</code> macro. This is similar to
+<li>6: <code>G_DECLARE_DERIVABLE_TYPE</code> macro. This is similar to
 <code>G_DECLARE_FINAL_TYPE</code> macro. The difference is derivable or
 final. <code>G_DECLARE_DERIVABLE_TYPE</code> is expanded to:
 <ul>
@@ -208,16 +206,16 @@ header file.</li>
 <code>T_NUMBER_GET_CLASS</code> are defined.</li>
 <li><code>g_autoptr()</code> support.</li>
 </ul></li>
-<li>9-19: Definition of the structure of TNumberClass.</li>
-<li>11-16: These are pointers to functions. They are called class
-methods or virtual functions. They are expected to be overridden by a
-function in the descendant object. The methods are five arithmetic
-operators and <code>to_s</code> function. <code>to_s</code> function is
-similar to sprintf function.</li>
-<li>18: A pointer to the default signal handler of “div-by-zero” signal.
+<li>8-18: Definition of the structure of TNumberClass.</li>
+<li>10-15: These are pointers to functions. They are called class
+methods or virtual functions. They are expected to be overridden in the
+descendant object. The methods are five arithmetic operators and
+<code>to_s</code> function. <code>to_s</code> function is similar to
+sprintf function.</li>
+<li>17: A pointer to the default signal handler of “div-by-zero” signal.
 The offset of this pointer is given to <code>g_signal_new</code> as an
 argument.</li>
-<li>21-40: Functions. They are public.</li>
+<li>22-38: Functions. They are public.</li>
 </ul>
 <p><code>tnumber.c</code> is as follows.</p>
 <div class="sourceCode" id="cb3"><pre
@@ -259,7 +257,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb3-36"><a href="#cb3-36"></a><span class="op">}</span></span>
 <span id="cb3-37"><a href="#cb3-37"></a></span>
 <span id="cb3-38"><a href="#cb3-38"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb3-39"><a href="#cb3-39"></a>t_number_init <span class="op">(</span>TNumber <span class="op">*</span>inst<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-39"><a href="#cb3-39"></a>t_number_init <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb3-40"><a href="#cb3-40"></a><span class="op">}</span></span>
 <span id="cb3-41"><a href="#cb3-41"></a></span>
 <span id="cb3-42"><a href="#cb3-42"></a>TNumber <span class="op">*</span></span>
@@ -268,51 +266,57 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb3-45"><a href="#cb3-45"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>other<span class="op">),</span> NULL<span class="op">);</span></span>
 <span id="cb3-46"><a href="#cb3-46"></a></span>
 <span id="cb3-47"><a href="#cb3-47"></a>  TNumberClass <span class="op">*</span>class <span class="op">=</span> T_NUMBER_GET_CLASS<span class="op">(</span>self<span class="op">);</span></span>
-<span id="cb3-48"><a href="#cb3-48"></a>  <span class="cf">return</span> class<span class="op">-&gt;</span>add <span class="op">?</span> class<span class="op">-&gt;</span>add <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">:</span> NULL<span class="op">;</span></span>
-<span id="cb3-49"><a href="#cb3-49"></a><span class="op">}</span></span>
-<span id="cb3-50"><a href="#cb3-50"></a></span>
-<span id="cb3-51"><a href="#cb3-51"></a>TNumber <span class="op">*</span></span>
-<span id="cb3-52"><a href="#cb3-52"></a>t_number_sub <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-53"><a href="#cb3-53"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb3-54"><a href="#cb3-54"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>other<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb3-55"><a href="#cb3-55"></a></span>
-<span id="cb3-56"><a href="#cb3-56"></a>  TNumberClass <span class="op">*</span>class <span class="op">=</span> T_NUMBER_GET_CLASS<span class="op">(</span>self<span class="op">);</span></span>
-<span id="cb3-57"><a href="#cb3-57"></a>  <span class="cf">return</span> class<span class="op">-&gt;</span>sub <span class="op">?</span> class<span class="op">-&gt;</span>sub <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">:</span> NULL<span class="op">;</span></span>
-<span id="cb3-58"><a href="#cb3-58"></a><span class="op">}</span></span>
-<span id="cb3-59"><a href="#cb3-59"></a></span>
-<span id="cb3-60"><a href="#cb3-60"></a>TNumber <span class="op">*</span></span>
-<span id="cb3-61"><a href="#cb3-61"></a>t_number_mul <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-62"><a href="#cb3-62"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb3-63"><a href="#cb3-63"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>other<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb3-64"><a href="#cb3-64"></a></span>
-<span id="cb3-65"><a href="#cb3-65"></a>  TNumberClass <span class="op">*</span>class <span class="op">=</span> T_NUMBER_GET_CLASS<span class="op">(</span>self<span class="op">);</span></span>
-<span id="cb3-66"><a href="#cb3-66"></a>  <span class="cf">return</span> class<span class="op">-&gt;</span>mul <span class="op">?</span> class<span class="op">-&gt;</span>mul <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">:</span> NULL<span class="op">;</span></span>
-<span id="cb3-67"><a href="#cb3-67"></a><span class="op">}</span></span>
+<span id="cb3-48"><a href="#cb3-48"></a></span>
+<span id="cb3-49"><a href="#cb3-49"></a>  <span class="cf">return</span> class<span class="op">-&gt;</span>add <span class="op">?</span> class<span class="op">-&gt;</span>add <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">:</span> NULL<span class="op">;</span></span>
+<span id="cb3-50"><a href="#cb3-50"></a><span class="op">}</span></span>
+<span id="cb3-51"><a href="#cb3-51"></a></span>
+<span id="cb3-52"><a href="#cb3-52"></a>TNumber <span class="op">*</span></span>
+<span id="cb3-53"><a href="#cb3-53"></a>t_number_sub <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-54"><a href="#cb3-54"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb3-55"><a href="#cb3-55"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>other<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb3-56"><a href="#cb3-56"></a></span>
+<span id="cb3-57"><a href="#cb3-57"></a>  TNumberClass <span class="op">*</span>class <span class="op">=</span> T_NUMBER_GET_CLASS<span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb3-58"><a href="#cb3-58"></a></span>
+<span id="cb3-59"><a href="#cb3-59"></a>  <span class="cf">return</span> class<span class="op">-&gt;</span>sub <span class="op">?</span> class<span class="op">-&gt;</span>sub <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">:</span> NULL<span class="op">;</span></span>
+<span id="cb3-60"><a href="#cb3-60"></a><span class="op">}</span></span>
+<span id="cb3-61"><a href="#cb3-61"></a></span>
+<span id="cb3-62"><a href="#cb3-62"></a>TNumber <span class="op">*</span></span>
+<span id="cb3-63"><a href="#cb3-63"></a>t_number_mul <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-64"><a href="#cb3-64"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb3-65"><a href="#cb3-65"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>other<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb3-66"><a href="#cb3-66"></a></span>
+<span id="cb3-67"><a href="#cb3-67"></a>  TNumberClass <span class="op">*</span>class <span class="op">=</span> T_NUMBER_GET_CLASS<span class="op">(</span>self<span class="op">);</span></span>
 <span id="cb3-68"><a href="#cb3-68"></a></span>
-<span id="cb3-69"><a href="#cb3-69"></a>TNumber <span class="op">*</span></span>
-<span id="cb3-70"><a href="#cb3-70"></a>t_number_div <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-71"><a href="#cb3-71"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb3-72"><a href="#cb3-72"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>other<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb3-73"><a href="#cb3-73"></a></span>
-<span id="cb3-74"><a href="#cb3-74"></a>  TNumberClass <span class="op">*</span>class <span class="op">=</span> T_NUMBER_GET_CLASS<span class="op">(</span>self<span class="op">);</span></span>
-<span id="cb3-75"><a href="#cb3-75"></a>  <span class="cf">return</span> class<span class="op">-&gt;</span>div <span class="op">?</span> class<span class="op">-&gt;</span>div <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">:</span> NULL<span class="op">;</span></span>
-<span id="cb3-76"><a href="#cb3-76"></a><span class="op">}</span></span>
-<span id="cb3-77"><a href="#cb3-77"></a></span>
-<span id="cb3-78"><a href="#cb3-78"></a>TNumber <span class="op">*</span></span>
-<span id="cb3-79"><a href="#cb3-79"></a>t_number_uminus <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-80"><a href="#cb3-80"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb3-69"><a href="#cb3-69"></a>  <span class="cf">return</span> class<span class="op">-&gt;</span>mul <span class="op">?</span> class<span class="op">-&gt;</span>mul <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">:</span> NULL<span class="op">;</span></span>
+<span id="cb3-70"><a href="#cb3-70"></a><span class="op">}</span></span>
+<span id="cb3-71"><a href="#cb3-71"></a></span>
+<span id="cb3-72"><a href="#cb3-72"></a>TNumber <span class="op">*</span></span>
+<span id="cb3-73"><a href="#cb3-73"></a>t_number_div <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-74"><a href="#cb3-74"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb3-75"><a href="#cb3-75"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>other<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb3-76"><a href="#cb3-76"></a></span>
+<span id="cb3-77"><a href="#cb3-77"></a>  TNumberClass <span class="op">*</span>class <span class="op">=</span> T_NUMBER_GET_CLASS<span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb3-78"><a href="#cb3-78"></a></span>
+<span id="cb3-79"><a href="#cb3-79"></a>  <span class="cf">return</span> class<span class="op">-&gt;</span>div <span class="op">?</span> class<span class="op">-&gt;</span>div <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">:</span> NULL<span class="op">;</span></span>
+<span id="cb3-80"><a href="#cb3-80"></a><span class="op">}</span></span>
 <span id="cb3-81"><a href="#cb3-81"></a></span>
-<span id="cb3-82"><a href="#cb3-82"></a>  TNumberClass <span class="op">*</span>class <span class="op">=</span> T_NUMBER_GET_CLASS<span class="op">(</span>self<span class="op">);</span></span>
-<span id="cb3-83"><a href="#cb3-83"></a>  <span class="cf">return</span> class<span class="op">-&gt;</span>uminus <span class="op">?</span> class<span class="op">-&gt;</span>uminus <span class="op">(</span>self<span class="op">)</span> <span class="op">:</span> NULL<span class="op">;</span></span>
-<span id="cb3-84"><a href="#cb3-84"></a><span class="op">}</span></span>
+<span id="cb3-82"><a href="#cb3-82"></a>TNumber <span class="op">*</span></span>
+<span id="cb3-83"><a href="#cb3-83"></a>t_number_uminus <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-84"><a href="#cb3-84"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
 <span id="cb3-85"><a href="#cb3-85"></a></span>
-<span id="cb3-86"><a href="#cb3-86"></a><span class="dt">char</span> <span class="op">*</span></span>
-<span id="cb3-87"><a href="#cb3-87"></a>t_number_to_s <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-88"><a href="#cb3-88"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb3-89"><a href="#cb3-89"></a></span>
-<span id="cb3-90"><a href="#cb3-90"></a>  TNumberClass <span class="op">*</span>class <span class="op">=</span> T_NUMBER_GET_CLASS<span class="op">(</span>self<span class="op">);</span></span>
-<span id="cb3-91"><a href="#cb3-91"></a>  <span class="cf">return</span> class<span class="op">-&gt;</span>to_s <span class="op">?</span> class<span class="op">-&gt;</span>to_s <span class="op">(</span>self<span class="op">)</span> <span class="op">:</span> NULL<span class="op">;</span></span>
-<span id="cb3-92"><a href="#cb3-92"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb3-86"><a href="#cb3-86"></a>  TNumberClass <span class="op">*</span>class <span class="op">=</span> T_NUMBER_GET_CLASS<span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb3-87"><a href="#cb3-87"></a></span>
+<span id="cb3-88"><a href="#cb3-88"></a>  <span class="cf">return</span> class<span class="op">-&gt;</span>uminus <span class="op">?</span> class<span class="op">-&gt;</span>uminus <span class="op">(</span>self<span class="op">)</span> <span class="op">:</span> NULL<span class="op">;</span></span>
+<span id="cb3-89"><a href="#cb3-89"></a><span class="op">}</span></span>
+<span id="cb3-90"><a href="#cb3-90"></a></span>
+<span id="cb3-91"><a href="#cb3-91"></a><span class="dt">char</span> <span class="op">*</span></span>
+<span id="cb3-92"><a href="#cb3-92"></a>t_number_to_s <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-93"><a href="#cb3-93"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_NUMBER <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb3-94"><a href="#cb3-94"></a></span>
+<span id="cb3-95"><a href="#cb3-95"></a>  TNumberClass <span class="op">*</span>class <span class="op">=</span> T_NUMBER_GET_CLASS<span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb3-96"><a href="#cb3-96"></a></span>
+<span id="cb3-97"><a href="#cb3-97"></a>  <span class="cf">return</span> class<span class="op">-&gt;</span>to_s <span class="op">?</span> class<span class="op">-&gt;</span>to_s <span class="op">(</span>self<span class="op">)</span> <span class="op">:</span> NULL<span class="op">;</span></span>
+<span id="cb3-98"><a href="#cb3-98"></a><span class="op">}</span></span></code></pre></div>
 <ul>
 <li>5: <code>G_DEFINE_ABSTRACT_TYPE</code> macro. This macro is used to
 define an abstract type object. Abstract type isn’t instantiated. This
@@ -324,14 +328,14 @@ macro is expanded to:
 <li>Definition of <code>t_number_parent_class</code> static variable
 that points the parent class.</li>
 </ul></li>
-<li>3, 7-10, 25-35: Defines division-by-zero signal.
+<li>3, 7-10, 26-35: Defines division-by-zero signal. The function
 <code>div_by_zero_default_cb</code> is a default handler of
 “div-by-zero” signal. Default handler doesn’t have user data parameter.
-<code>g_signal_new</code> is used instead of
-<code>g_signal_new_class_handler</code>. <code>g_signal_new</code>
-specifies a handler as the offset from the top of the class to the
-pointer to the handler.</li>
-<li>12-36: <code>t_number_class_init</code>.</li>
+The function <code>g_signal_new</code> is used instead of
+<code>g_signal_new_class_handler</code>. It specifies a handler as the
+offset from the top of the class to the pointer to the handler.</li>
+<li>12-36: The class initialization function
+<code>t_number_class_init</code>.</li>
 <li>16-21: These class methods are virtual functions. They are expected
 to be overridden in the descendant object of TNumber. NULL is assigned
 here so that nothing happens when the methods are called.</li>
@@ -343,226 +347,229 @@ here so that nothing happens when the methods are called.</li>
 an instance. But abstract object isn’t instantiated. So, nothing is done
 in this function. But you can’t leave out the definition of this
 function.</li>
-<li>42-92: Public functions. These functions just call the corresponding
+<li>42-98: Public functions. These functions just call the corresponding
 class methods if the pointer to the class method is not NULL.</li>
 </ul>
 <h2 id="tint-object.">TInt object.</h2>
-<p><code>tint.h</code> is a header file of TInt object. TInt is a child
-object of TNumber.</p>
+<p><code>tint.h</code> is a header file of the TInt class. TInt is a
+child class of TNumber.</p>
 <div class="sourceCode" id="cb4"><pre
-class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1"></a><span class="pp">#ifndef __T_INT_H__</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="pp">#define __T_INT_H__</span></span>
-<span id="cb4-3"><a href="#cb4-3"></a></span>
-<span id="cb4-4"><a href="#cb4-4"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
-<span id="cb4-5"><a href="#cb4-5"></a><span class="pp">#include </span><span class="im">&quot;tnumber.h&quot;</span></span>
-<span id="cb4-6"><a href="#cb4-6"></a></span>
-<span id="cb4-7"><a href="#cb4-7"></a><span class="pp">#define T_TYPE_INT  (t_int_get_type ())</span></span>
-<span id="cb4-8"><a href="#cb4-8"></a>G_DECLARE_FINAL_TYPE <span class="op">(</span>TInt<span class="op">,</span> t_int<span class="op">,</span> T<span class="op">,</span> INT<span class="op">,</span> TNumber<span class="op">)</span></span>
-<span id="cb4-9"><a href="#cb4-9"></a></span>
-<span id="cb4-10"><a href="#cb4-10"></a><span class="co">/* create a new TInt instance */</span></span>
-<span id="cb4-11"><a href="#cb4-11"></a>TInt <span class="op">*</span></span>
-<span id="cb4-12"><a href="#cb4-12"></a>t_int_new_with_value <span class="op">(</span><span class="dt">int</span> value<span class="op">);</span></span>
-<span id="cb4-13"><a href="#cb4-13"></a></span>
-<span id="cb4-14"><a href="#cb4-14"></a>TInt <span class="op">*</span></span>
-<span id="cb4-15"><a href="#cb4-15"></a>t_int_new <span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a><span class="pp">#endif </span><span class="co">/* __T_INT_H__ */</span></span></code></pre></div>
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="pp">#define T_TYPE_INT  (t_int_get_type ())</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>G_DECLARE_FINAL_TYPE <span class="op">(</span>TInt<span class="op">,</span> t_int<span class="op">,</span> T<span class="op">,</span> INT<span class="op">,</span> TNumber<span class="op">)</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a></span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="co">/* create a new TInt instance */</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>TInt <span class="op">*</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a>t_int_new_with_value <span class="op">(</span><span class="dt">int</span> value<span class="op">);</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a></span>
+<span id="cb4-12"><a href="#cb4-12"></a>TInt <span class="op">*</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a>t_int_new <span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
 <ul>
-<li>10-16:Declares public functions. Arithmetic functions and
+<li>9-13:Declares public functions. Arithmetic functions and
 <code>to_s</code> are declared in TNumber, so TInt doesn’t declare those
 functions. Only instance creation functions are declared.</li>
 </ul>
-<p><code>tint.c</code> implements virtual functions (class methods). And
-the pointers of the methods in TNumberClass are rewritten here.</p>
+<p>The C file <code>tint.c</code> implements virtual functions (class
+methods). And the pointers of the methods in TNumberClass are rewritten
+here.</p>
 <div class="sourceCode" id="cb5"><pre
-class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1"></a><span class="pp">#include </span><span class="im">&quot;tint.h&quot;</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="pp">#include </span><span class="im">&quot;tdouble.h&quot;</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a></span>
-<span id="cb5-4"><a href="#cb5-4"></a><span class="pp">#define PROP_INT 1</span></span>
-<span id="cb5-5"><a href="#cb5-5"></a><span class="dt">static</span> GParamSpec <span class="op">*</span>int_property <span class="op">=</span> NULL<span class="op">;</span></span>
-<span id="cb5-6"><a href="#cb5-6"></a></span>
-<span id="cb5-7"><a href="#cb5-7"></a><span class="kw">struct</span> _TInt <span class="op">{</span></span>
-<span id="cb5-8"><a href="#cb5-8"></a>  TNumber parent<span class="op">;</span></span>
-<span id="cb5-9"><a href="#cb5-9"></a>  <span class="dt">int</span> value<span class="op">;</span></span>
-<span id="cb5-10"><a href="#cb5-10"></a><span class="op">};</span></span>
-<span id="cb5-11"><a href="#cb5-11"></a></span>
-<span id="cb5-12"><a href="#cb5-12"></a>G_DEFINE_TYPE <span class="op">(</span>TInt<span class="op">,</span> t_int<span class="op">,</span> T_TYPE_NUMBER<span class="op">)</span></span>
-<span id="cb5-13"><a href="#cb5-13"></a></span>
-<span id="cb5-14"><a href="#cb5-14"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb5-15"><a href="#cb5-15"></a>t_int_set_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> <span class="dt">const</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-16"><a href="#cb5-16"></a>  TInt <span class="op">*</span>self <span class="op">=</span> T_INT <span class="op">(</span>object<span class="op">);</span></span>
-<span id="cb5-17"><a href="#cb5-17"></a></span>
-<span id="cb5-18"><a href="#cb5-18"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_INT<span class="op">)</span></span>
-<span id="cb5-19"><a href="#cb5-19"></a>    self<span class="op">-&gt;</span>value <span class="op">=</span> g_value_get_int <span class="op">(</span>value<span class="op">);</span></span>
-<span id="cb5-20"><a href="#cb5-20"></a>  <span class="cf">else</span></span>
-<span id="cb5-21"><a href="#cb5-21"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
-<span id="cb5-22"><a href="#cb5-22"></a><span class="op">}</span></span>
-<span id="cb5-23"><a href="#cb5-23"></a></span>
-<span id="cb5-24"><a href="#cb5-24"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb5-25"><a href="#cb5-25"></a>t_int_get_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-26"><a href="#cb5-26"></a>  TInt <span class="op">*</span>self <span class="op">=</span> T_INT <span class="op">(</span>object<span class="op">);</span></span>
-<span id="cb5-27"><a href="#cb5-27"></a></span>
-<span id="cb5-28"><a href="#cb5-28"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_INT<span class="op">)</span></span>
-<span id="cb5-29"><a href="#cb5-29"></a>    g_value_set_int <span class="op">(</span>value<span class="op">,</span> self<span class="op">-&gt;</span>value<span class="op">);</span></span>
-<span id="cb5-30"><a href="#cb5-30"></a>  <span class="cf">else</span></span>
-<span id="cb5-31"><a href="#cb5-31"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
-<span id="cb5-32"><a href="#cb5-32"></a><span class="op">}</span></span>
-<span id="cb5-33"><a href="#cb5-33"></a></span>
-<span id="cb5-34"><a href="#cb5-34"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb5-35"><a href="#cb5-35"></a>t_int_init <span class="op">(</span>TInt <span class="op">*</span>i<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-36"><a href="#cb5-36"></a><span class="op">}</span></span>
-<span id="cb5-37"><a href="#cb5-37"></a></span>
-<span id="cb5-38"><a href="#cb5-38"></a><span class="co">/* arithmetic operator */</span></span>
-<span id="cb5-39"><a href="#cb5-39"></a><span class="co">/* These operators create a new instance and return a pointer to it. */</span></span>
-<span id="cb5-40"><a href="#cb5-40"></a><span class="pp">#define t_int_binary_op(op) \</span></span>
-<span id="cb5-41"><a href="#cb5-41"></a><span class="pp">  int i; \</span></span>
-<span id="cb5-42"><a href="#cb5-42"></a><span class="pp">  double d; \</span></span>
-<span id="cb5-43"><a href="#cb5-43"></a><span class="pp">  if (T_IS_INT (other)) { \</span></span>
-<span id="cb5-44"><a href="#cb5-44"></a><span class="pp">    g_object_get (T_INT (other), &quot;value&quot;, &amp;i, NULL); \</span></span>
-<span id="cb5-45"><a href="#cb5-45"></a><span class="pp">    return  T_NUMBER (t_int_new_with_value (T_INT(self)-&gt;value op i)); \</span></span>
-<span id="cb5-46"><a href="#cb5-46"></a><span class="pp">  } else { \</span></span>
-<span id="cb5-47"><a href="#cb5-47"></a><span class="pp">    g_object_get (T_DOUBLE (other), &quot;value&quot;, &amp;d, NULL); \</span></span>
-<span id="cb5-48"><a href="#cb5-48"></a><span class="pp">    return  T_NUMBER (t_int_new_with_value (T_INT(self)-&gt;value op (int) d)); \</span></span>
-<span id="cb5-49"><a href="#cb5-49"></a><span class="pp">  }</span></span>
-<span id="cb5-50"><a href="#cb5-50"></a></span>
-<span id="cb5-51"><a href="#cb5-51"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
-<span id="cb5-52"><a href="#cb5-52"></a>t_int_add <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-53"><a href="#cb5-53"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_INT <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb5-54"><a href="#cb5-54"></a></span>
-<span id="cb5-55"><a href="#cb5-55"></a>  t_int_binary_op <span class="op">(+)</span></span>
-<span id="cb5-56"><a href="#cb5-56"></a><span class="op">}</span></span>
-<span id="cb5-57"><a href="#cb5-57"></a></span>
-<span id="cb5-58"><a href="#cb5-58"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
-<span id="cb5-59"><a href="#cb5-59"></a>t_int_sub <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-60"><a href="#cb5-60"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_INT <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb5-61"><a href="#cb5-61"></a></span>
-<span id="cb5-62"><a href="#cb5-62"></a>  t_int_binary_op <span class="op">(-)</span></span>
-<span id="cb5-63"><a href="#cb5-63"></a><span class="op">}</span></span>
-<span id="cb5-64"><a href="#cb5-64"></a></span>
-<span id="cb5-65"><a href="#cb5-65"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
-<span id="cb5-66"><a href="#cb5-66"></a>t_int_mul <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-67"><a href="#cb5-67"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_INT <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb5-68"><a href="#cb5-68"></a></span>
-<span id="cb5-69"><a href="#cb5-69"></a>  t_int_binary_op <span class="op">(*)</span></span>
-<span id="cb5-70"><a href="#cb5-70"></a><span class="op">}</span></span>
-<span id="cb5-71"><a href="#cb5-71"></a></span>
-<span id="cb5-72"><a href="#cb5-72"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
-<span id="cb5-73"><a href="#cb5-73"></a>t_int_div <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-74"><a href="#cb5-74"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_INT <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb5-75"><a href="#cb5-75"></a>  <span class="dt">int</span> i<span class="op">;</span></span>
-<span id="cb5-76"><a href="#cb5-76"></a>  <span class="dt">double</span> d<span class="op">;</span></span>
-<span id="cb5-77"><a href="#cb5-77"></a></span>
-<span id="cb5-78"><a href="#cb5-78"></a>  <span class="cf">if</span> <span class="op">(</span>T_IS_INT <span class="op">(</span>other<span class="op">))</span> <span class="op">{</span></span>
-<span id="cb5-79"><a href="#cb5-79"></a>    g_object_get <span class="op">(</span>T_INT <span class="op">(</span>other<span class="op">),</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="op">&amp;</span>i<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb5-80"><a href="#cb5-80"></a>    <span class="cf">if</span> <span class="op">(</span>i <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-81"><a href="#cb5-81"></a>      g_signal_emit_by_name <span class="op">(</span>self<span class="op">,</span> <span class="st">&quot;div-by-zero&quot;</span><span class="op">);</span></span>
-<span id="cb5-82"><a href="#cb5-82"></a>      <span class="cf">return</span> NULL<span class="op">;</span></span>
-<span id="cb5-83"><a href="#cb5-83"></a>    <span class="op">}</span> <span class="cf">else</span></span>
-<span id="cb5-84"><a href="#cb5-84"></a>      <span class="cf">return</span>  T_NUMBER <span class="op">(</span>t_int_new_with_value <span class="op">(</span>T_INT<span class="op">(</span>self<span class="op">)-&gt;</span>value <span class="op">/</span> i<span class="op">));</span></span>
-<span id="cb5-85"><a href="#cb5-85"></a>  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb5-86"><a href="#cb5-86"></a>    g_object_get <span class="op">(</span>T_DOUBLE <span class="op">(</span>other<span class="op">),</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="op">&amp;</span>d<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb5-87"><a href="#cb5-87"></a>    <span class="cf">if</span> <span class="op">(</span>d <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-88"><a href="#cb5-88"></a>      g_signal_emit_by_name <span class="op">(</span>self<span class="op">,</span> <span class="st">&quot;div-by-zero&quot;</span><span class="op">);</span></span>
-<span id="cb5-89"><a href="#cb5-89"></a>      <span class="cf">return</span> NULL<span class="op">;</span></span>
-<span id="cb5-90"><a href="#cb5-90"></a>    <span class="op">}</span> <span class="cf">else</span></span>
-<span id="cb5-91"><a href="#cb5-91"></a>      <span class="cf">return</span>  T_NUMBER <span class="op">(</span>t_int_new_with_value <span class="op">(</span>T_INT<span class="op">(</span>self<span class="op">)-&gt;</span>value <span class="op">/</span> <span class="op">(</span><span class="dt">int</span><span class="op">)</span>  d<span class="op">));</span></span>
-<span id="cb5-92"><a href="#cb5-92"></a>  <span class="op">}</span></span>
-<span id="cb5-93"><a href="#cb5-93"></a><span class="op">}</span></span>
-<span id="cb5-94"><a href="#cb5-94"></a></span>
-<span id="cb5-95"><a href="#cb5-95"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
-<span id="cb5-96"><a href="#cb5-96"></a>t_int_uminus <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-97"><a href="#cb5-97"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_INT <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb5-98"><a href="#cb5-98"></a></span>
-<span id="cb5-99"><a href="#cb5-99"></a>  <span class="cf">return</span> T_NUMBER <span class="op">(</span>t_int_new_with_value <span class="op">(-</span> T_INT<span class="op">(</span>self<span class="op">)-&gt;</span>value<span class="op">));</span></span>
-<span id="cb5-100"><a href="#cb5-100"></a><span class="op">}</span></span>
-<span id="cb5-101"><a href="#cb5-101"></a></span>
-<span id="cb5-102"><a href="#cb5-102"></a><span class="dt">static</span> <span class="dt">char</span> <span class="op">*</span></span>
-<span id="cb5-103"><a href="#cb5-103"></a>t_int_to_s <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-104"><a href="#cb5-104"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_INT <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb5-105"><a href="#cb5-105"></a>  <span class="dt">int</span> i<span class="op">;</span></span>
-<span id="cb5-106"><a href="#cb5-106"></a></span>
-<span id="cb5-107"><a href="#cb5-107"></a>  g_object_get <span class="op">(</span>T_INT <span class="op">(</span>self<span class="op">),</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="op">&amp;</span>i<span class="op">,</span> NULL<span class="op">);</span> </span>
-<span id="cb5-108"><a href="#cb5-108"></a>  <span class="cf">return</span> g_strdup_printf <span class="op">(</span><span class="st">&quot;%d&quot;</span><span class="op">,</span> i<span class="op">);</span></span>
-<span id="cb5-109"><a href="#cb5-109"></a><span class="op">}</span></span>
-<span id="cb5-110"><a href="#cb5-110"></a></span>
-<span id="cb5-111"><a href="#cb5-111"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb5-112"><a href="#cb5-112"></a>t_int_class_init <span class="op">(</span>TIntClass <span class="op">*</span>class<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-113"><a href="#cb5-113"></a>  TNumberClass <span class="op">*</span>tnumber_class <span class="op">=</span> T_NUMBER_CLASS <span class="op">(</span>class<span class="op">);</span></span>
-<span id="cb5-114"><a href="#cb5-114"></a>  GObjectClass <span class="op">*</span>gobject_class <span class="op">=</span> G_OBJECT_CLASS <span class="op">(</span>class<span class="op">);</span></span>
-<span id="cb5-115"><a href="#cb5-115"></a></span>
-<span id="cb5-116"><a href="#cb5-116"></a>  <span class="co">/* override virtual functions */</span></span>
-<span id="cb5-117"><a href="#cb5-117"></a>  tnumber_class<span class="op">-&gt;</span>add <span class="op">=</span> t_int_add<span class="op">;</span></span>
-<span id="cb5-118"><a href="#cb5-118"></a>  tnumber_class<span class="op">-&gt;</span>sub <span class="op">=</span> t_int_sub<span class="op">;</span></span>
-<span id="cb5-119"><a href="#cb5-119"></a>  tnumber_class<span class="op">-&gt;</span>mul <span class="op">=</span> t_int_mul<span class="op">;</span></span>
-<span id="cb5-120"><a href="#cb5-120"></a>  tnumber_class<span class="op">-&gt;</span>div <span class="op">=</span> t_int_div<span class="op">;</span></span>
-<span id="cb5-121"><a href="#cb5-121"></a>  tnumber_class<span class="op">-&gt;</span>uminus <span class="op">=</span> t_int_uminus<span class="op">;</span></span>
-<span id="cb5-122"><a href="#cb5-122"></a>  tnumber_class<span class="op">-&gt;</span>to_s <span class="op">=</span> t_int_to_s<span class="op">;</span></span>
-<span id="cb5-123"><a href="#cb5-123"></a></span>
-<span id="cb5-124"><a href="#cb5-124"></a>  gobject_class<span class="op">-&gt;</span>set_property <span class="op">=</span> t_int_set_property<span class="op">;</span></span>
-<span id="cb5-125"><a href="#cb5-125"></a>  gobject_class<span class="op">-&gt;</span>get_property <span class="op">=</span> t_int_get_property<span class="op">;</span></span>
-<span id="cb5-126"><a href="#cb5-126"></a>  int_property <span class="op">=</span> g_param_spec_int <span class="op">(</span><span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="st">&quot;val&quot;</span><span class="op">,</span> <span class="st">&quot;Integer value&quot;</span><span class="op">,</span> G_MININT<span class="op">,</span> G_MAXINT<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> G_PARAM_READWRITE<span class="op">);</span></span>
-<span id="cb5-127"><a href="#cb5-127"></a>  g_object_class_install_property <span class="op">(</span>gobject_class<span class="op">,</span> PROP_INT<span class="op">,</span> int_property<span class="op">);</span></span>
-<span id="cb5-128"><a href="#cb5-128"></a><span class="op">}</span></span>
-<span id="cb5-129"><a href="#cb5-129"></a></span>
-<span id="cb5-130"><a href="#cb5-130"></a>TInt <span class="op">*</span></span>
-<span id="cb5-131"><a href="#cb5-131"></a>t_int_new_with_value <span class="op">(</span><span class="dt">int</span> value<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-132"><a href="#cb5-132"></a>  TInt <span class="op">*</span>i<span class="op">;</span></span>
-<span id="cb5-133"><a href="#cb5-133"></a></span>
-<span id="cb5-134"><a href="#cb5-134"></a>  i <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_INT<span class="op">,</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> value<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb5-135"><a href="#cb5-135"></a>  <span class="cf">return</span> i<span class="op">;</span></span>
-<span id="cb5-136"><a href="#cb5-136"></a><span class="op">}</span></span>
-<span id="cb5-137"><a href="#cb5-137"></a></span>
-<span id="cb5-138"><a href="#cb5-138"></a>TInt <span class="op">*</span></span>
-<span id="cb5-139"><a href="#cb5-139"></a>t_int_new <span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-140"><a href="#cb5-140"></a>  TInt <span class="op">*</span>i<span class="op">;</span></span>
-<span id="cb5-141"><a href="#cb5-141"></a></span>
-<span id="cb5-142"><a href="#cb5-142"></a>  i <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_INT<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb5-143"><a href="#cb5-143"></a>  <span class="cf">return</span> i<span class="op">;</span></span>
-<span id="cb5-144"><a href="#cb5-144"></a><span class="op">}</span></span></code></pre></div>
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1"></a><span class="pp">#include </span><span class="im">&quot;tnumber.h&quot;</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="pp">#include </span><span class="im">&quot;tint.h&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="pp">#include </span><span class="im">&quot;tdouble.h&quot;</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a></span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="pp">#define PROP_INT 1</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="dt">static</span> GParamSpec <span class="op">*</span>int_property <span class="op">=</span> NULL<span class="op">;</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a></span>
+<span id="cb5-8"><a href="#cb5-8"></a><span class="kw">struct</span> _TInt <span class="op">{</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a>  TNumber parent<span class="op">;</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>  <span class="dt">int</span> value<span class="op">;</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="op">};</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a></span>
+<span id="cb5-13"><a href="#cb5-13"></a>G_DEFINE_TYPE <span class="op">(</span>TInt<span class="op">,</span> t_int<span class="op">,</span> T_TYPE_NUMBER<span class="op">)</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a></span>
+<span id="cb5-15"><a href="#cb5-15"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a>t_int_set_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> <span class="dt">const</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-17"><a href="#cb5-17"></a>  TInt <span class="op">*</span>self <span class="op">=</span> T_INT <span class="op">(</span>object<span class="op">);</span></span>
+<span id="cb5-18"><a href="#cb5-18"></a></span>
+<span id="cb5-19"><a href="#cb5-19"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_INT<span class="op">)</span></span>
+<span id="cb5-20"><a href="#cb5-20"></a>    self<span class="op">-&gt;</span>value <span class="op">=</span> g_value_get_int <span class="op">(</span>value<span class="op">);</span></span>
+<span id="cb5-21"><a href="#cb5-21"></a>  <span class="cf">else</span></span>
+<span id="cb5-22"><a href="#cb5-22"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
+<span id="cb5-23"><a href="#cb5-23"></a><span class="op">}</span></span>
+<span id="cb5-24"><a href="#cb5-24"></a></span>
+<span id="cb5-25"><a href="#cb5-25"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb5-26"><a href="#cb5-26"></a>t_int_get_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-27"><a href="#cb5-27"></a>  TInt <span class="op">*</span>self <span class="op">=</span> T_INT <span class="op">(</span>object<span class="op">);</span></span>
+<span id="cb5-28"><a href="#cb5-28"></a></span>
+<span id="cb5-29"><a href="#cb5-29"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_INT<span class="op">)</span></span>
+<span id="cb5-30"><a href="#cb5-30"></a>    g_value_set_int <span class="op">(</span>value<span class="op">,</span> self<span class="op">-&gt;</span>value<span class="op">);</span></span>
+<span id="cb5-31"><a href="#cb5-31"></a>  <span class="cf">else</span></span>
+<span id="cb5-32"><a href="#cb5-32"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
+<span id="cb5-33"><a href="#cb5-33"></a><span class="op">}</span></span>
+<span id="cb5-34"><a href="#cb5-34"></a></span>
+<span id="cb5-35"><a href="#cb5-35"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb5-36"><a href="#cb5-36"></a>t_int_init <span class="op">(</span>TInt <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-37"><a href="#cb5-37"></a><span class="op">}</span></span>
+<span id="cb5-38"><a href="#cb5-38"></a></span>
+<span id="cb5-39"><a href="#cb5-39"></a><span class="co">/* arithmetic operator */</span></span>
+<span id="cb5-40"><a href="#cb5-40"></a><span class="co">/* These operators create a new instance and return a pointer to it. */</span></span>
+<span id="cb5-41"><a href="#cb5-41"></a><span class="pp">#define t_int_binary_op(op) \</span></span>
+<span id="cb5-42"><a href="#cb5-42"></a><span class="pp">  int i; \</span></span>
+<span id="cb5-43"><a href="#cb5-43"></a><span class="pp">  double d; \</span></span>
+<span id="cb5-44"><a href="#cb5-44"></a><span class="pp">  if (T_IS_INT (other)) { \</span></span>
+<span id="cb5-45"><a href="#cb5-45"></a><span class="pp">    g_object_get (T_INT (other), &quot;value&quot;, &amp;i, NULL); \</span></span>
+<span id="cb5-46"><a href="#cb5-46"></a><span class="pp">    return  T_NUMBER (t_int_new_with_value (T_INT(self)-&gt;value op i)); \</span></span>
+<span id="cb5-47"><a href="#cb5-47"></a><span class="pp">  } else { \</span></span>
+<span id="cb5-48"><a href="#cb5-48"></a><span class="pp">    g_object_get (T_DOUBLE (other), &quot;value&quot;, &amp;d, NULL); \</span></span>
+<span id="cb5-49"><a href="#cb5-49"></a><span class="pp">    return  T_NUMBER (t_int_new_with_value (T_INT(self)-&gt;value op (int) d)); \</span></span>
+<span id="cb5-50"><a href="#cb5-50"></a><span class="pp">  }</span></span>
+<span id="cb5-51"><a href="#cb5-51"></a></span>
+<span id="cb5-52"><a href="#cb5-52"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
+<span id="cb5-53"><a href="#cb5-53"></a>t_int_add <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-54"><a href="#cb5-54"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_INT <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb5-55"><a href="#cb5-55"></a></span>
+<span id="cb5-56"><a href="#cb5-56"></a>  t_int_binary_op <span class="op">(+)</span></span>
+<span id="cb5-57"><a href="#cb5-57"></a><span class="op">}</span></span>
+<span id="cb5-58"><a href="#cb5-58"></a></span>
+<span id="cb5-59"><a href="#cb5-59"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
+<span id="cb5-60"><a href="#cb5-60"></a>t_int_sub <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-61"><a href="#cb5-61"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_INT <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb5-62"><a href="#cb5-62"></a></span>
+<span id="cb5-63"><a href="#cb5-63"></a>  t_int_binary_op <span class="op">(-)</span></span>
+<span id="cb5-64"><a href="#cb5-64"></a><span class="op">}</span></span>
+<span id="cb5-65"><a href="#cb5-65"></a></span>
+<span id="cb5-66"><a href="#cb5-66"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
+<span id="cb5-67"><a href="#cb5-67"></a>t_int_mul <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-68"><a href="#cb5-68"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_INT <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb5-69"><a href="#cb5-69"></a></span>
+<span id="cb5-70"><a href="#cb5-70"></a>  t_int_binary_op <span class="op">(*)</span></span>
+<span id="cb5-71"><a href="#cb5-71"></a><span class="op">}</span></span>
+<span id="cb5-72"><a href="#cb5-72"></a></span>
+<span id="cb5-73"><a href="#cb5-73"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
+<span id="cb5-74"><a href="#cb5-74"></a>t_int_div <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-75"><a href="#cb5-75"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_INT <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb5-76"><a href="#cb5-76"></a></span>
+<span id="cb5-77"><a href="#cb5-77"></a>  <span class="dt">int</span> i<span class="op">;</span></span>
+<span id="cb5-78"><a href="#cb5-78"></a>  <span class="dt">double</span> d<span class="op">;</span></span>
+<span id="cb5-79"><a href="#cb5-79"></a></span>
+<span id="cb5-80"><a href="#cb5-80"></a>  <span class="cf">if</span> <span class="op">(</span>T_IS_INT <span class="op">(</span>other<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb5-81"><a href="#cb5-81"></a>    g_object_get <span class="op">(</span>T_INT <span class="op">(</span>other<span class="op">),</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="op">&amp;</span>i<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb5-82"><a href="#cb5-82"></a>    <span class="cf">if</span> <span class="op">(</span>i <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-83"><a href="#cb5-83"></a>      g_signal_emit_by_name <span class="op">(</span>self<span class="op">,</span> <span class="st">&quot;div-by-zero&quot;</span><span class="op">);</span></span>
+<span id="cb5-84"><a href="#cb5-84"></a>      <span class="cf">return</span> NULL<span class="op">;</span></span>
+<span id="cb5-85"><a href="#cb5-85"></a>    <span class="op">}</span> <span class="cf">else</span></span>
+<span id="cb5-86"><a href="#cb5-86"></a>      <span class="cf">return</span>  T_NUMBER <span class="op">(</span>t_int_new_with_value <span class="op">(</span>T_INT<span class="op">(</span>self<span class="op">)-&gt;</span>value <span class="op">/</span> i<span class="op">));</span></span>
+<span id="cb5-87"><a href="#cb5-87"></a>  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb5-88"><a href="#cb5-88"></a>    g_object_get <span class="op">(</span>T_DOUBLE <span class="op">(</span>other<span class="op">),</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="op">&amp;</span>d<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb5-89"><a href="#cb5-89"></a>    <span class="cf">if</span> <span class="op">(</span>d <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-90"><a href="#cb5-90"></a>      g_signal_emit_by_name <span class="op">(</span>self<span class="op">,</span> <span class="st">&quot;div-by-zero&quot;</span><span class="op">);</span></span>
+<span id="cb5-91"><a href="#cb5-91"></a>      <span class="cf">return</span> NULL<span class="op">;</span></span>
+<span id="cb5-92"><a href="#cb5-92"></a>    <span class="op">}</span> <span class="cf">else</span></span>
+<span id="cb5-93"><a href="#cb5-93"></a>      <span class="cf">return</span>  T_NUMBER <span class="op">(</span>t_int_new_with_value <span class="op">(</span>T_INT<span class="op">(</span>self<span class="op">)-&gt;</span>value <span class="op">/</span> <span class="op">(</span><span class="dt">int</span><span class="op">)</span>  d<span class="op">));</span></span>
+<span id="cb5-94"><a href="#cb5-94"></a>  <span class="op">}</span></span>
+<span id="cb5-95"><a href="#cb5-95"></a><span class="op">}</span></span>
+<span id="cb5-96"><a href="#cb5-96"></a></span>
+<span id="cb5-97"><a href="#cb5-97"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
+<span id="cb5-98"><a href="#cb5-98"></a>t_int_uminus <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-99"><a href="#cb5-99"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_INT <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb5-100"><a href="#cb5-100"></a></span>
+<span id="cb5-101"><a href="#cb5-101"></a>  <span class="cf">return</span> T_NUMBER <span class="op">(</span>t_int_new_with_value <span class="op">(-</span> T_INT<span class="op">(</span>self<span class="op">)-&gt;</span>value<span class="op">));</span></span>
+<span id="cb5-102"><a href="#cb5-102"></a><span class="op">}</span></span>
+<span id="cb5-103"><a href="#cb5-103"></a></span>
+<span id="cb5-104"><a href="#cb5-104"></a><span class="dt">static</span> <span class="dt">char</span> <span class="op">*</span></span>
+<span id="cb5-105"><a href="#cb5-105"></a>t_int_to_s <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-106"><a href="#cb5-106"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_INT <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb5-107"><a href="#cb5-107"></a></span>
+<span id="cb5-108"><a href="#cb5-108"></a>  <span class="dt">int</span> i<span class="op">;</span></span>
+<span id="cb5-109"><a href="#cb5-109"></a></span>
+<span id="cb5-110"><a href="#cb5-110"></a>  g_object_get <span class="op">(</span>T_INT <span class="op">(</span>self<span class="op">),</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="op">&amp;</span>i<span class="op">,</span> NULL<span class="op">);</span> </span>
+<span id="cb5-111"><a href="#cb5-111"></a>  <span class="cf">return</span> g_strdup_printf <span class="op">(</span><span class="st">&quot;%d&quot;</span><span class="op">,</span> i<span class="op">);</span></span>
+<span id="cb5-112"><a href="#cb5-112"></a><span class="op">}</span></span>
+<span id="cb5-113"><a href="#cb5-113"></a></span>
+<span id="cb5-114"><a href="#cb5-114"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb5-115"><a href="#cb5-115"></a>t_int_class_init <span class="op">(</span>TIntClass <span class="op">*</span>class<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-116"><a href="#cb5-116"></a>  TNumberClass <span class="op">*</span>tnumber_class <span class="op">=</span> T_NUMBER_CLASS <span class="op">(</span>class<span class="op">);</span></span>
+<span id="cb5-117"><a href="#cb5-117"></a>  GObjectClass <span class="op">*</span>gobject_class <span class="op">=</span> G_OBJECT_CLASS <span class="op">(</span>class<span class="op">);</span></span>
+<span id="cb5-118"><a href="#cb5-118"></a></span>
+<span id="cb5-119"><a href="#cb5-119"></a>  <span class="co">/* override virtual functions */</span></span>
+<span id="cb5-120"><a href="#cb5-120"></a>  tnumber_class<span class="op">-&gt;</span>add <span class="op">=</span> t_int_add<span class="op">;</span></span>
+<span id="cb5-121"><a href="#cb5-121"></a>  tnumber_class<span class="op">-&gt;</span>sub <span class="op">=</span> t_int_sub<span class="op">;</span></span>
+<span id="cb5-122"><a href="#cb5-122"></a>  tnumber_class<span class="op">-&gt;</span>mul <span class="op">=</span> t_int_mul<span class="op">;</span></span>
+<span id="cb5-123"><a href="#cb5-123"></a>  tnumber_class<span class="op">-&gt;</span>div <span class="op">=</span> t_int_div<span class="op">;</span></span>
+<span id="cb5-124"><a href="#cb5-124"></a>  tnumber_class<span class="op">-&gt;</span>uminus <span class="op">=</span> t_int_uminus<span class="op">;</span></span>
+<span id="cb5-125"><a href="#cb5-125"></a>  tnumber_class<span class="op">-&gt;</span>to_s <span class="op">=</span> t_int_to_s<span class="op">;</span></span>
+<span id="cb5-126"><a href="#cb5-126"></a></span>
+<span id="cb5-127"><a href="#cb5-127"></a>  gobject_class<span class="op">-&gt;</span>set_property <span class="op">=</span> t_int_set_property<span class="op">;</span></span>
+<span id="cb5-128"><a href="#cb5-128"></a>  gobject_class<span class="op">-&gt;</span>get_property <span class="op">=</span> t_int_get_property<span class="op">;</span></span>
+<span id="cb5-129"><a href="#cb5-129"></a>  int_property <span class="op">=</span> g_param_spec_int <span class="op">(</span><span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="st">&quot;val&quot;</span><span class="op">,</span> <span class="st">&quot;Integer value&quot;</span><span class="op">,</span> G_MININT<span class="op">,</span> G_MAXINT<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> G_PARAM_READWRITE<span class="op">);</span></span>
+<span id="cb5-130"><a href="#cb5-130"></a>  g_object_class_install_property <span class="op">(</span>gobject_class<span class="op">,</span> PROP_INT<span class="op">,</span> int_property<span class="op">);</span></span>
+<span id="cb5-131"><a href="#cb5-131"></a><span class="op">}</span></span>
+<span id="cb5-132"><a href="#cb5-132"></a></span>
+<span id="cb5-133"><a href="#cb5-133"></a>TInt <span class="op">*</span></span>
+<span id="cb5-134"><a href="#cb5-134"></a>t_int_new_with_value <span class="op">(</span><span class="dt">int</span> value<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-135"><a href="#cb5-135"></a>  TInt <span class="op">*</span>i<span class="op">;</span></span>
+<span id="cb5-136"><a href="#cb5-136"></a></span>
+<span id="cb5-137"><a href="#cb5-137"></a>  i <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_INT<span class="op">,</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> value<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb5-138"><a href="#cb5-138"></a>  <span class="cf">return</span> i<span class="op">;</span></span>
+<span id="cb5-139"><a href="#cb5-139"></a><span class="op">}</span></span>
+<span id="cb5-140"><a href="#cb5-140"></a></span>
+<span id="cb5-141"><a href="#cb5-141"></a>TInt <span class="op">*</span></span>
+<span id="cb5-142"><a href="#cb5-142"></a>t_int_new <span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-143"><a href="#cb5-143"></a>  TInt <span class="op">*</span>i<span class="op">;</span></span>
+<span id="cb5-144"><a href="#cb5-144"></a></span>
+<span id="cb5-145"><a href="#cb5-145"></a>  i <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_INT<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb5-146"><a href="#cb5-146"></a>  <span class="cf">return</span> i<span class="op">;</span></span>
+<span id="cb5-147"><a href="#cb5-147"></a><span class="op">}</span></span></code></pre></div>
 <ul>
-<li>4-5, 14-32, 124-127: Definition of the property “value”. This is the
+<li>5-6, 15-33, 127-130: Definition of the property “value”. This is the
 same as before.</li>
-<li>7-10: Definition of the structure of TInt. This must be defined
+<li>8-11: Definition of the structure of TInt. This must be defined
 before <code>G_DEFINE_TYPE</code>.</li>
-<li>12: <code>G_DEFINE_TYPE</code> macro. This macro expands to:
+<li>13: <code>G_DEFINE_TYPE</code> macro. This macro expands to:
 <ul>
 <li>Declaration of <code>t_int_init ()</code> function.</li>
 <li>Definition of <code>t_int_get_type ()</code> function.</li>
 <li>Definition of <code>t_int_parent_class</code> static variable which
 points the parent class.</li>
 </ul></li>
-<li>34-36: <code>t_int_init</code>.</li>
-<li>40-109: These functions are connected to the class method pointers
+<li>35-37: <code>t_int_init</code>.</li>
+<li>41-112: These functions are connected to the class method pointers
 in TIntClass. They are the implementation of the virtual functions
 defined in <code>tnumber.c</code>.</li>
-<li>40-49: Defines a macro used in <code>t_int_add</code>,
+<li>41-50: Defines a macro used in <code>t_int_add</code>,
 <code>t_int_sub</code> and <code>t_int_mul</code>. This macro is similar
-to <code>t_int_div</code> function. refer to the explanation below for
+to <code>t_int_div</code> function. Refer to the explanation below for
 <code>t_int_div</code>.</li>
-<li>51-70: <code>t_int_add</code>, <code>t_int_sub</code> and
-<code>t_int_mul</code> functions. The macro <code>t_int_binary_op</code>
-is used.</li>
-<li>72-93: <code>t_int_div</code>. <code>self</code> is the object on
-which the function is called. <code>other</code> is another TNumber
-object. It can be TInt or TDouble. If it is TDouble, its value is casted
-to int before the division is performed. If the divisor
-(<code>other</code>) is zero, “div-by-zero” signal is emitted. The
-signal is defined in TNumber, so TInt doesn’t know the signal id. The
-emission is done with <code>g_signal_emit_by_name</code> instead of
+<li>52-71: The functions <code>t_int_add</code>, <code>t_int_sub</code>
+and <code>t_int_mul</code>. The macro <code>t_int_binary_op</code> is
+used.</li>
+<li>73-95: The function <code>t_int_div</code>. The first argument
+<code>self</code> is the object on which the function is called. The
+second argument <code>other</code> is another TNumber object. It can be
+TInt or TDouble. If it is TDouble, its value is casted to int before the
+division is performed. If the divisor (<code>other</code>) is zero,
+“div-by-zero” signal is emitted. The signal is defined in TNumber, so
+TInt doesn’t know the signal id. Therefore, the emission is done with
+<code>g_signal_emit_by_name</code> instead of
 <code>g_signal_emit</code>. The return value of <code>t_int_div</code>
 is TNumber type object However, because TNumber is abstract, the actual
 type of the object is TInt.</li>
-<li>95-100: A function for unary minus operator.</li>
-<li>102-109: <code>to_s</code> function. This function converts int to
-string. For example, if the value of the object is 123, then the result
-is a string “123”. The caller should free the string if it becomes
-useless.</li>
-<li>111- 128: <code>t_int_class_init</code>.</li>
-<li>117-122: The class methods are overridden. For example, if
+<li>97-102: A function for unary minus operator.</li>
+<li>104-112: The function <code>to_s</code>. This function converts int
+to string. For example, if the value of the object is 123, then the
+result is a string “123”. The caller should free the string if it
+becomes useless.</li>
+<li>114- 131: The class initialization function
+<code>t_int_class_init</code>.</li>
+<li>120-125: The class methods are overridden. For example, if
 <code>t_number_add</code> is called on a TInt object, then the function
 calls the class method <code>*tnumber_class-&gt;add</code>. The pointer
 points <code>t_int_add</code> function. Therefore,
-<code>t_int_add</code> is called finally.</li>
-<li>130-144: Instance creation functions are the same as before.</li>
+<code>t_int_add</code> is finally called.</li>
+<li>133-147: Instance creation functions are the same as before.</li>
 </ul>
 <h2 id="tdouble-object.">TDouble object.</h2>
 <p>TDouble object is defined with <code>tdouble.h</code> and
@@ -570,167 +577,167 @@ points <code>t_int_add</code> function. Therefore,
 subsection just shows the contents of the files.</p>
 <p>tdouble.h</p>
 <div class="sourceCode" id="cb6"><pre
-class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1"></a><span class="pp">#ifndef __T_DOUBLE_H__</span></span>
-<span id="cb6-2"><a href="#cb6-2"></a><span class="pp">#define __T_DOUBLE_H__</span></span>
-<span id="cb6-3"><a href="#cb6-3"></a></span>
-<span id="cb6-4"><a href="#cb6-4"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a><span class="pp">#include </span><span class="im">&quot;tnumber.h&quot;</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a></span>
-<span id="cb6-7"><a href="#cb6-7"></a><span class="pp">#define T_TYPE_DOUBLE  (t_double_get_type ())</span></span>
-<span id="cb6-8"><a href="#cb6-8"></a>G_DECLARE_FINAL_TYPE <span class="op">(</span>TDouble<span class="op">,</span> t_double<span class="op">,</span> T<span class="op">,</span> DOUBLE<span class="op">,</span> TNumber<span class="op">)</span></span>
-<span id="cb6-9"><a href="#cb6-9"></a></span>
-<span id="cb6-10"><a href="#cb6-10"></a><span class="co">/* create a new TDouble instance */</span></span>
-<span id="cb6-11"><a href="#cb6-11"></a>TDouble <span class="op">*</span></span>
-<span id="cb6-12"><a href="#cb6-12"></a>t_double_new_with_value <span class="op">(</span><span class="dt">double</span> value<span class="op">);</span></span>
-<span id="cb6-13"><a href="#cb6-13"></a></span>
-<span id="cb6-14"><a href="#cb6-14"></a>TDouble <span class="op">*</span></span>
-<span id="cb6-15"><a href="#cb6-15"></a>t_double_new <span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
-<span id="cb6-16"><a href="#cb6-16"></a><span class="pp">#endif </span><span class="co">/* __T_DOUBLE_H__ */</span></span></code></pre></div>
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="pp">#define T_TYPE_DOUBLE  (t_double_get_type ())</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>G_DECLARE_FINAL_TYPE <span class="op">(</span>TDouble<span class="op">,</span> t_double<span class="op">,</span> T<span class="op">,</span> DOUBLE<span class="op">,</span> TNumber<span class="op">)</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="co">/* create a new TDouble instance */</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>TDouble <span class="op">*</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a>t_double_new_with_value <span class="op">(</span><span class="dt">double</span> value<span class="op">);</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a></span>
+<span id="cb6-12"><a href="#cb6-12"></a>TDouble <span class="op">*</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a>t_double_new <span class="op">(</span><span class="dt">void</span><span class="op">);</span></span></code></pre></div>
 <p>tdouble.c</p>
 <div class="sourceCode" id="cb7"><pre
-class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1"></a><span class="pp">#include </span><span class="im">&quot;tdouble.h&quot;</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="pp">#include </span><span class="im">&quot;tint.h&quot;</span></span>
-<span id="cb7-3"><a href="#cb7-3"></a></span>
-<span id="cb7-4"><a href="#cb7-4"></a><span class="pp">#define PROP_DOUBLE 1</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a><span class="dt">static</span> GParamSpec <span class="op">*</span>double_property <span class="op">=</span> NULL<span class="op">;</span></span>
-<span id="cb7-6"><a href="#cb7-6"></a></span>
-<span id="cb7-7"><a href="#cb7-7"></a><span class="kw">struct</span> _TDouble <span class="op">{</span></span>
-<span id="cb7-8"><a href="#cb7-8"></a>  TNumber parent<span class="op">;</span></span>
-<span id="cb7-9"><a href="#cb7-9"></a>  <span class="dt">double</span> value<span class="op">;</span></span>
-<span id="cb7-10"><a href="#cb7-10"></a><span class="op">};</span></span>
-<span id="cb7-11"><a href="#cb7-11"></a></span>
-<span id="cb7-12"><a href="#cb7-12"></a>G_DEFINE_TYPE <span class="op">(</span>TDouble<span class="op">,</span> t_double<span class="op">,</span> T_TYPE_NUMBER<span class="op">)</span></span>
-<span id="cb7-13"><a href="#cb7-13"></a></span>
-<span id="cb7-14"><a href="#cb7-14"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb7-15"><a href="#cb7-15"></a>t_double_set_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> <span class="dt">const</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-16"><a href="#cb7-16"></a>  TDouble <span class="op">*</span>self <span class="op">=</span> T_DOUBLE <span class="op">(</span>object<span class="op">);</span></span>
-<span id="cb7-17"><a href="#cb7-17"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_DOUBLE<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-18"><a href="#cb7-18"></a>    self<span class="op">-&gt;</span>value <span class="op">=</span> g_value_get_double <span class="op">(</span>value<span class="op">);</span></span>
-<span id="cb7-19"><a href="#cb7-19"></a>  <span class="op">}</span> <span class="cf">else</span></span>
-<span id="cb7-20"><a href="#cb7-20"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
-<span id="cb7-21"><a href="#cb7-21"></a><span class="op">}</span></span>
-<span id="cb7-22"><a href="#cb7-22"></a></span>
-<span id="cb7-23"><a href="#cb7-23"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb7-24"><a href="#cb7-24"></a>t_double_get_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-25"><a href="#cb7-25"></a>  TDouble <span class="op">*</span>self <span class="op">=</span> T_DOUBLE <span class="op">(</span>object<span class="op">);</span></span>
-<span id="cb7-26"><a href="#cb7-26"></a></span>
-<span id="cb7-27"><a href="#cb7-27"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_DOUBLE<span class="op">)</span></span>
-<span id="cb7-28"><a href="#cb7-28"></a>    g_value_set_double <span class="op">(</span>value<span class="op">,</span> self<span class="op">-&gt;</span>value<span class="op">);</span></span>
-<span id="cb7-29"><a href="#cb7-29"></a>  <span class="cf">else</span></span>
-<span id="cb7-30"><a href="#cb7-30"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
-<span id="cb7-31"><a href="#cb7-31"></a><span class="op">}</span></span>
-<span id="cb7-32"><a href="#cb7-32"></a></span>
-<span id="cb7-33"><a href="#cb7-33"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb7-34"><a href="#cb7-34"></a>t_double_init <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-35"><a href="#cb7-35"></a><span class="op">}</span></span>
-<span id="cb7-36"><a href="#cb7-36"></a></span>
-<span id="cb7-37"><a href="#cb7-37"></a><span class="co">/* arithmetic operator */</span></span>
-<span id="cb7-38"><a href="#cb7-38"></a><span class="co">/* These operators create a new instance and return a pointer to it. */</span></span>
-<span id="cb7-39"><a href="#cb7-39"></a><span class="pp">#define t_double_binary_op(op) \</span></span>
-<span id="cb7-40"><a href="#cb7-40"></a><span class="pp">  int i; \</span></span>
-<span id="cb7-41"><a href="#cb7-41"></a><span class="pp">  double d; \</span></span>
-<span id="cb7-42"><a href="#cb7-42"></a><span class="pp">  if (T_IS_INT (other)) { \</span></span>
-<span id="cb7-43"><a href="#cb7-43"></a><span class="pp">    g_object_get (T_INT (other), &quot;value&quot;, &amp;i, NULL); \</span></span>
-<span id="cb7-44"><a href="#cb7-44"></a><span class="pp">    return  T_NUMBER (t_double_new_with_value (T_DOUBLE(self)-&gt;value op (double) i)); \</span></span>
-<span id="cb7-45"><a href="#cb7-45"></a><span class="pp">  } else { \</span></span>
-<span id="cb7-46"><a href="#cb7-46"></a><span class="pp">    g_object_get (T_DOUBLE (other), &quot;value&quot;, &amp;d, NULL); \</span></span>
-<span id="cb7-47"><a href="#cb7-47"></a><span class="pp">    return  T_NUMBER (t_double_new_with_value (T_DOUBLE(self)-&gt;value op d)); \</span></span>
-<span id="cb7-48"><a href="#cb7-48"></a><span class="pp">  }</span></span>
-<span id="cb7-49"><a href="#cb7-49"></a></span>
-<span id="cb7-50"><a href="#cb7-50"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
-<span id="cb7-51"><a href="#cb7-51"></a>t_double_add <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-52"><a href="#cb7-52"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb7-53"><a href="#cb7-53"></a></span>
-<span id="cb7-54"><a href="#cb7-54"></a>  t_double_binary_op <span class="op">(+)</span></span>
-<span id="cb7-55"><a href="#cb7-55"></a><span class="op">}</span></span>
-<span id="cb7-56"><a href="#cb7-56"></a></span>
-<span id="cb7-57"><a href="#cb7-57"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
-<span id="cb7-58"><a href="#cb7-58"></a>t_double_sub <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-59"><a href="#cb7-59"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb7-60"><a href="#cb7-60"></a></span>
-<span id="cb7-61"><a href="#cb7-61"></a>  t_double_binary_op <span class="op">(-)</span></span>
-<span id="cb7-62"><a href="#cb7-62"></a><span class="op">}</span></span>
-<span id="cb7-63"><a href="#cb7-63"></a></span>
-<span id="cb7-64"><a href="#cb7-64"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
-<span id="cb7-65"><a href="#cb7-65"></a>t_double_mul <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-66"><a href="#cb7-66"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb7-67"><a href="#cb7-67"></a></span>
-<span id="cb7-68"><a href="#cb7-68"></a>  t_double_binary_op <span class="op">(*)</span></span>
-<span id="cb7-69"><a href="#cb7-69"></a><span class="op">}</span></span>
-<span id="cb7-70"><a href="#cb7-70"></a></span>
-<span id="cb7-71"><a href="#cb7-71"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
-<span id="cb7-72"><a href="#cb7-72"></a>t_double_div <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-73"><a href="#cb7-73"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb7-74"><a href="#cb7-74"></a>  <span class="dt">int</span> i<span class="op">;</span></span>
-<span id="cb7-75"><a href="#cb7-75"></a>  <span class="dt">double</span> d<span class="op">;</span></span>
-<span id="cb7-76"><a href="#cb7-76"></a></span>
-<span id="cb7-77"><a href="#cb7-77"></a>  <span class="cf">if</span> <span class="op">(</span>T_IS_INT <span class="op">(</span>other<span class="op">))</span> <span class="op">{</span></span>
-<span id="cb7-78"><a href="#cb7-78"></a>    g_object_get <span class="op">(</span>T_INT <span class="op">(</span>other<span class="op">),</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="op">&amp;</span>i<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb7-79"><a href="#cb7-79"></a>    <span class="cf">if</span> <span class="op">(</span>i <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-80"><a href="#cb7-80"></a>      g_signal_emit_by_name <span class="op">(</span>self<span class="op">,</span> <span class="st">&quot;div-by-zero&quot;</span><span class="op">);</span></span>
-<span id="cb7-81"><a href="#cb7-81"></a>      <span class="cf">return</span> NULL<span class="op">;</span></span>
-<span id="cb7-82"><a href="#cb7-82"></a>    <span class="op">}</span> <span class="cf">else</span></span>
-<span id="cb7-83"><a href="#cb7-83"></a>      <span class="cf">return</span>  T_NUMBER <span class="op">(</span>t_double_new_with_value <span class="op">(</span>T_DOUBLE<span class="op">(</span>self<span class="op">)-&gt;</span>value <span class="op">/</span> <span class="op">(</span><span class="dt">double</span><span class="op">)</span> i<span class="op">));</span></span>
-<span id="cb7-84"><a href="#cb7-84"></a>  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb7-85"><a href="#cb7-85"></a>    g_object_get <span class="op">(</span>T_DOUBLE <span class="op">(</span>other<span class="op">),</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="op">&amp;</span>d<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb7-86"><a href="#cb7-86"></a>    <span class="cf">if</span> <span class="op">(</span>d <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-87"><a href="#cb7-87"></a>      g_signal_emit_by_name <span class="op">(</span>self<span class="op">,</span> <span class="st">&quot;div-by-zero&quot;</span><span class="op">);</span></span>
-<span id="cb7-88"><a href="#cb7-88"></a>      <span class="cf">return</span> NULL<span class="op">;</span></span>
-<span id="cb7-89"><a href="#cb7-89"></a>    <span class="op">}</span> <span class="cf">else</span></span>
-<span id="cb7-90"><a href="#cb7-90"></a>      <span class="cf">return</span>  T_NUMBER <span class="op">(</span>t_double_new_with_value <span class="op">(</span>T_DOUBLE<span class="op">(</span>self<span class="op">)-&gt;</span>value <span class="op">/</span> d<span class="op">));</span></span>
-<span id="cb7-91"><a href="#cb7-91"></a>  <span class="op">}</span></span>
-<span id="cb7-92"><a href="#cb7-92"></a><span class="op">}</span></span>
-<span id="cb7-93"><a href="#cb7-93"></a></span>
-<span id="cb7-94"><a href="#cb7-94"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
-<span id="cb7-95"><a href="#cb7-95"></a>t_double_uminus <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-96"><a href="#cb7-96"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb7-97"><a href="#cb7-97"></a></span>
-<span id="cb7-98"><a href="#cb7-98"></a>  <span class="cf">return</span> T_NUMBER <span class="op">(</span>t_double_new_with_value <span class="op">(-</span> T_DOUBLE<span class="op">(</span>self<span class="op">)-&gt;</span>value<span class="op">));</span></span>
-<span id="cb7-99"><a href="#cb7-99"></a><span class="op">}</span></span>
-<span id="cb7-100"><a href="#cb7-100"></a></span>
-<span id="cb7-101"><a href="#cb7-101"></a><span class="dt">static</span> <span class="dt">char</span> <span class="op">*</span></span>
-<span id="cb7-102"><a href="#cb7-102"></a>t_double_to_s <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-103"><a href="#cb7-103"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
-<span id="cb7-104"><a href="#cb7-104"></a>  <span class="dt">double</span> d<span class="op">;</span></span>
-<span id="cb7-105"><a href="#cb7-105"></a></span>
-<span id="cb7-106"><a href="#cb7-106"></a>  g_object_get <span class="op">(</span>T_DOUBLE <span class="op">(</span>self<span class="op">),</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="op">&amp;</span>d<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb7-107"><a href="#cb7-107"></a>  <span class="cf">return</span> g_strdup_printf <span class="op">(</span><span class="st">&quot;%lf&quot;</span><span class="op">,</span> d<span class="op">);</span></span>
-<span id="cb7-108"><a href="#cb7-108"></a><span class="op">}</span></span>
-<span id="cb7-109"><a href="#cb7-109"></a></span>
-<span id="cb7-110"><a href="#cb7-110"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb7-111"><a href="#cb7-111"></a>t_double_class_init <span class="op">(</span>TDoubleClass <span class="op">*</span>class<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-112"><a href="#cb7-112"></a>  TNumberClass <span class="op">*</span>tnumber_class <span class="op">=</span> T_NUMBER_CLASS <span class="op">(</span>class<span class="op">);</span></span>
-<span id="cb7-113"><a href="#cb7-113"></a>  GObjectClass <span class="op">*</span>gobject_class <span class="op">=</span> G_OBJECT_CLASS <span class="op">(</span>class<span class="op">);</span></span>
-<span id="cb7-114"><a href="#cb7-114"></a></span>
-<span id="cb7-115"><a href="#cb7-115"></a>  <span class="co">/* override virtual functions */</span></span>
-<span id="cb7-116"><a href="#cb7-116"></a>  tnumber_class<span class="op">-&gt;</span>add <span class="op">=</span> t_double_add<span class="op">;</span></span>
-<span id="cb7-117"><a href="#cb7-117"></a>  tnumber_class<span class="op">-&gt;</span>sub <span class="op">=</span> t_double_sub<span class="op">;</span></span>
-<span id="cb7-118"><a href="#cb7-118"></a>  tnumber_class<span class="op">-&gt;</span>mul <span class="op">=</span> t_double_mul<span class="op">;</span></span>
-<span id="cb7-119"><a href="#cb7-119"></a>  tnumber_class<span class="op">-&gt;</span>div <span class="op">=</span> t_double_div<span class="op">;</span></span>
-<span id="cb7-120"><a href="#cb7-120"></a>  tnumber_class<span class="op">-&gt;</span>uminus <span class="op">=</span> t_double_uminus<span class="op">;</span></span>
-<span id="cb7-121"><a href="#cb7-121"></a>  tnumber_class<span class="op">-&gt;</span>to_s <span class="op">=</span> t_double_to_s<span class="op">;</span></span>
-<span id="cb7-122"><a href="#cb7-122"></a></span>
-<span id="cb7-123"><a href="#cb7-123"></a>  gobject_class<span class="op">-&gt;</span>set_property <span class="op">=</span> t_double_set_property<span class="op">;</span></span>
-<span id="cb7-124"><a href="#cb7-124"></a>  gobject_class<span class="op">-&gt;</span>get_property <span class="op">=</span> t_double_get_property<span class="op">;</span></span>
-<span id="cb7-125"><a href="#cb7-125"></a>  double_property <span class="op">=</span> g_param_spec_double <span class="op">(</span><span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="st">&quot;val&quot;</span><span class="op">,</span> <span class="st">&quot;Double value&quot;</span><span class="op">,</span> <span class="op">-</span>G_MAXDOUBLE<span class="op">,</span> G_MAXDOUBLE<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> G_PARAM_READWRITE<span class="op">);</span></span>
-<span id="cb7-126"><a href="#cb7-126"></a>  g_object_class_install_property <span class="op">(</span>gobject_class<span class="op">,</span> PROP_DOUBLE<span class="op">,</span> double_property<span class="op">);</span></span>
-<span id="cb7-127"><a href="#cb7-127"></a><span class="op">}</span></span>
-<span id="cb7-128"><a href="#cb7-128"></a></span>
-<span id="cb7-129"><a href="#cb7-129"></a>TDouble <span class="op">*</span></span>
-<span id="cb7-130"><a href="#cb7-130"></a>t_double_new_with_value <span class="op">(</span><span class="dt">double</span> value<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-131"><a href="#cb7-131"></a>  TDouble <span class="op">*</span>d<span class="op">;</span></span>
-<span id="cb7-132"><a href="#cb7-132"></a></span>
-<span id="cb7-133"><a href="#cb7-133"></a>  d <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_DOUBLE<span class="op">,</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> value<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb7-134"><a href="#cb7-134"></a>  <span class="cf">return</span> d<span class="op">;</span></span>
-<span id="cb7-135"><a href="#cb7-135"></a><span class="op">}</span></span>
-<span id="cb7-136"><a href="#cb7-136"></a></span>
-<span id="cb7-137"><a href="#cb7-137"></a>TDouble <span class="op">*</span></span>
-<span id="cb7-138"><a href="#cb7-138"></a>t_double_new <span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-139"><a href="#cb7-139"></a>  TDouble <span class="op">*</span>d<span class="op">;</span></span>
-<span id="cb7-140"><a href="#cb7-140"></a></span>
-<span id="cb7-141"><a href="#cb7-141"></a>  d <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_DOUBLE<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb7-142"><a href="#cb7-142"></a>  <span class="cf">return</span> d<span class="op">;</span></span>
-<span id="cb7-143"><a href="#cb7-143"></a><span class="op">}</span></span></code></pre></div>
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1"></a><span class="pp">#include </span><span class="im">&quot;tnumber.h&quot;</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="pp">#include </span><span class="im">&quot;tdouble.h&quot;</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="pp">#include </span><span class="im">&quot;tint.h&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="pp">#define PROP_DOUBLE 1</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="dt">static</span> GParamSpec <span class="op">*</span>double_property <span class="op">=</span> NULL<span class="op">;</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a></span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="kw">struct</span> _TDouble <span class="op">{</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a>  TNumber parent<span class="op">;</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a>  <span class="dt">double</span> value<span class="op">;</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a><span class="op">};</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a></span>
+<span id="cb7-13"><a href="#cb7-13"></a>G_DEFINE_TYPE <span class="op">(</span>TDouble<span class="op">,</span> t_double<span class="op">,</span> T_TYPE_NUMBER<span class="op">)</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a></span>
+<span id="cb7-15"><a href="#cb7-15"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb7-16"><a href="#cb7-16"></a>t_double_set_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> <span class="dt">const</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-17"><a href="#cb7-17"></a>  TDouble <span class="op">*</span>self <span class="op">=</span> T_DOUBLE <span class="op">(</span>object<span class="op">);</span></span>
+<span id="cb7-18"><a href="#cb7-18"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_DOUBLE<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-19"><a href="#cb7-19"></a>    self<span class="op">-&gt;</span>value <span class="op">=</span> g_value_get_double <span class="op">(</span>value<span class="op">);</span></span>
+<span id="cb7-20"><a href="#cb7-20"></a>  <span class="op">}</span> <span class="cf">else</span></span>
+<span id="cb7-21"><a href="#cb7-21"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
+<span id="cb7-22"><a href="#cb7-22"></a><span class="op">}</span></span>
+<span id="cb7-23"><a href="#cb7-23"></a></span>
+<span id="cb7-24"><a href="#cb7-24"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb7-25"><a href="#cb7-25"></a>t_double_get_property <span class="op">(</span>GObject <span class="op">*</span>object<span class="op">,</span> guint property_id<span class="op">,</span> GValue <span class="op">*</span>value<span class="op">,</span> GParamSpec <span class="op">*</span>pspec<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-26"><a href="#cb7-26"></a>  TDouble <span class="op">*</span>self <span class="op">=</span> T_DOUBLE <span class="op">(</span>object<span class="op">);</span></span>
+<span id="cb7-27"><a href="#cb7-27"></a></span>
+<span id="cb7-28"><a href="#cb7-28"></a>  <span class="cf">if</span> <span class="op">(</span>property_id <span class="op">==</span> PROP_DOUBLE<span class="op">)</span></span>
+<span id="cb7-29"><a href="#cb7-29"></a>    g_value_set_double <span class="op">(</span>value<span class="op">,</span> self<span class="op">-&gt;</span>value<span class="op">);</span></span>
+<span id="cb7-30"><a href="#cb7-30"></a>  <span class="cf">else</span></span>
+<span id="cb7-31"><a href="#cb7-31"></a>    G_OBJECT_WARN_INVALID_PROPERTY_ID <span class="op">(</span>object<span class="op">,</span> property_id<span class="op">,</span> pspec<span class="op">);</span></span>
+<span id="cb7-32"><a href="#cb7-32"></a><span class="op">}</span></span>
+<span id="cb7-33"><a href="#cb7-33"></a></span>
+<span id="cb7-34"><a href="#cb7-34"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb7-35"><a href="#cb7-35"></a>t_double_init <span class="op">(</span>TDouble <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-36"><a href="#cb7-36"></a><span class="op">}</span></span>
+<span id="cb7-37"><a href="#cb7-37"></a></span>
+<span id="cb7-38"><a href="#cb7-38"></a><span class="co">/* arithmetic operator */</span></span>
+<span id="cb7-39"><a href="#cb7-39"></a><span class="co">/* These operators create a new instance and return a pointer to it. */</span></span>
+<span id="cb7-40"><a href="#cb7-40"></a><span class="pp">#define t_double_binary_op(op) \</span></span>
+<span id="cb7-41"><a href="#cb7-41"></a><span class="pp">  int i; \</span></span>
+<span id="cb7-42"><a href="#cb7-42"></a><span class="pp">  double d; \</span></span>
+<span id="cb7-43"><a href="#cb7-43"></a><span class="pp">  if (T_IS_INT (other)) { \</span></span>
+<span id="cb7-44"><a href="#cb7-44"></a><span class="pp">    g_object_get (T_INT (other), &quot;value&quot;, &amp;i, NULL); \</span></span>
+<span id="cb7-45"><a href="#cb7-45"></a><span class="pp">    return  T_NUMBER (t_double_new_with_value (T_DOUBLE(self)-&gt;value op (double) i)); \</span></span>
+<span id="cb7-46"><a href="#cb7-46"></a><span class="pp">  } else { \</span></span>
+<span id="cb7-47"><a href="#cb7-47"></a><span class="pp">    g_object_get (T_DOUBLE (other), &quot;value&quot;, &amp;d, NULL); \</span></span>
+<span id="cb7-48"><a href="#cb7-48"></a><span class="pp">    return  T_NUMBER (t_double_new_with_value (T_DOUBLE(self)-&gt;value op d)); \</span></span>
+<span id="cb7-49"><a href="#cb7-49"></a><span class="pp">  }</span></span>
+<span id="cb7-50"><a href="#cb7-50"></a></span>
+<span id="cb7-51"><a href="#cb7-51"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
+<span id="cb7-52"><a href="#cb7-52"></a>t_double_add <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-53"><a href="#cb7-53"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb7-54"><a href="#cb7-54"></a></span>
+<span id="cb7-55"><a href="#cb7-55"></a>  t_double_binary_op <span class="op">(+)</span></span>
+<span id="cb7-56"><a href="#cb7-56"></a><span class="op">}</span></span>
+<span id="cb7-57"><a href="#cb7-57"></a></span>
+<span id="cb7-58"><a href="#cb7-58"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
+<span id="cb7-59"><a href="#cb7-59"></a>t_double_sub <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-60"><a href="#cb7-60"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb7-61"><a href="#cb7-61"></a></span>
+<span id="cb7-62"><a href="#cb7-62"></a>  t_double_binary_op <span class="op">(-)</span></span>
+<span id="cb7-63"><a href="#cb7-63"></a><span class="op">}</span></span>
+<span id="cb7-64"><a href="#cb7-64"></a></span>
+<span id="cb7-65"><a href="#cb7-65"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
+<span id="cb7-66"><a href="#cb7-66"></a>t_double_mul <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-67"><a href="#cb7-67"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb7-68"><a href="#cb7-68"></a></span>
+<span id="cb7-69"><a href="#cb7-69"></a>  t_double_binary_op <span class="op">(*)</span></span>
+<span id="cb7-70"><a href="#cb7-70"></a><span class="op">}</span></span>
+<span id="cb7-71"><a href="#cb7-71"></a></span>
+<span id="cb7-72"><a href="#cb7-72"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
+<span id="cb7-73"><a href="#cb7-73"></a>t_double_div <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">,</span> TNumber <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-74"><a href="#cb7-74"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb7-75"><a href="#cb7-75"></a></span>
+<span id="cb7-76"><a href="#cb7-76"></a>  <span class="dt">int</span> i<span class="op">;</span></span>
+<span id="cb7-77"><a href="#cb7-77"></a>  <span class="dt">double</span> d<span class="op">;</span></span>
+<span id="cb7-78"><a href="#cb7-78"></a></span>
+<span id="cb7-79"><a href="#cb7-79"></a>  <span class="cf">if</span> <span class="op">(</span>T_IS_INT <span class="op">(</span>other<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb7-80"><a href="#cb7-80"></a>    g_object_get <span class="op">(</span>T_INT <span class="op">(</span>other<span class="op">),</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="op">&amp;</span>i<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb7-81"><a href="#cb7-81"></a>    <span class="cf">if</span> <span class="op">(</span>i <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-82"><a href="#cb7-82"></a>      g_signal_emit_by_name <span class="op">(</span>self<span class="op">,</span> <span class="st">&quot;div-by-zero&quot;</span><span class="op">);</span></span>
+<span id="cb7-83"><a href="#cb7-83"></a>      <span class="cf">return</span> NULL<span class="op">;</span></span>
+<span id="cb7-84"><a href="#cb7-84"></a>    <span class="op">}</span> <span class="cf">else</span></span>
+<span id="cb7-85"><a href="#cb7-85"></a>      <span class="cf">return</span>  T_NUMBER <span class="op">(</span>t_double_new_with_value <span class="op">(</span>T_DOUBLE<span class="op">(</span>self<span class="op">)-&gt;</span>value <span class="op">/</span> <span class="op">(</span><span class="dt">double</span><span class="op">)</span> i<span class="op">));</span></span>
+<span id="cb7-86"><a href="#cb7-86"></a>  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb7-87"><a href="#cb7-87"></a>    g_object_get <span class="op">(</span>T_DOUBLE <span class="op">(</span>other<span class="op">),</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="op">&amp;</span>d<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb7-88"><a href="#cb7-88"></a>    <span class="cf">if</span> <span class="op">(</span>d <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-89"><a href="#cb7-89"></a>      g_signal_emit_by_name <span class="op">(</span>self<span class="op">,</span> <span class="st">&quot;div-by-zero&quot;</span><span class="op">);</span></span>
+<span id="cb7-90"><a href="#cb7-90"></a>      <span class="cf">return</span> NULL<span class="op">;</span></span>
+<span id="cb7-91"><a href="#cb7-91"></a>    <span class="op">}</span> <span class="cf">else</span></span>
+<span id="cb7-92"><a href="#cb7-92"></a>      <span class="cf">return</span>  T_NUMBER <span class="op">(</span>t_double_new_with_value <span class="op">(</span>T_DOUBLE<span class="op">(</span>self<span class="op">)-&gt;</span>value <span class="op">/</span> d<span class="op">));</span></span>
+<span id="cb7-93"><a href="#cb7-93"></a>  <span class="op">}</span></span>
+<span id="cb7-94"><a href="#cb7-94"></a><span class="op">}</span></span>
+<span id="cb7-95"><a href="#cb7-95"></a></span>
+<span id="cb7-96"><a href="#cb7-96"></a><span class="dt">static</span> TNumber <span class="op">*</span></span>
+<span id="cb7-97"><a href="#cb7-97"></a>t_double_uminus <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-98"><a href="#cb7-98"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb7-99"><a href="#cb7-99"></a></span>
+<span id="cb7-100"><a href="#cb7-100"></a>  <span class="cf">return</span> T_NUMBER <span class="op">(</span>t_double_new_with_value <span class="op">(-</span> T_DOUBLE<span class="op">(</span>self<span class="op">)-&gt;</span>value<span class="op">));</span></span>
+<span id="cb7-101"><a href="#cb7-101"></a><span class="op">}</span></span>
+<span id="cb7-102"><a href="#cb7-102"></a></span>
+<span id="cb7-103"><a href="#cb7-103"></a><span class="dt">static</span> <span class="dt">char</span> <span class="op">*</span></span>
+<span id="cb7-104"><a href="#cb7-104"></a>t_double_to_s <span class="op">(</span>TNumber <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-105"><a href="#cb7-105"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
+<span id="cb7-106"><a href="#cb7-106"></a></span>
+<span id="cb7-107"><a href="#cb7-107"></a>  <span class="dt">double</span> d<span class="op">;</span></span>
+<span id="cb7-108"><a href="#cb7-108"></a></span>
+<span id="cb7-109"><a href="#cb7-109"></a>  g_object_get <span class="op">(</span>T_DOUBLE <span class="op">(</span>self<span class="op">),</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="op">&amp;</span>d<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb7-110"><a href="#cb7-110"></a>  <span class="cf">return</span> g_strdup_printf <span class="op">(</span><span class="st">&quot;%lf&quot;</span><span class="op">,</span> d<span class="op">);</span></span>
+<span id="cb7-111"><a href="#cb7-111"></a><span class="op">}</span></span>
+<span id="cb7-112"><a href="#cb7-112"></a></span>
+<span id="cb7-113"><a href="#cb7-113"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb7-114"><a href="#cb7-114"></a>t_double_class_init <span class="op">(</span>TDoubleClass <span class="op">*</span>class<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-115"><a href="#cb7-115"></a>  TNumberClass <span class="op">*</span>tnumber_class <span class="op">=</span> T_NUMBER_CLASS <span class="op">(</span>class<span class="op">);</span></span>
+<span id="cb7-116"><a href="#cb7-116"></a>  GObjectClass <span class="op">*</span>gobject_class <span class="op">=</span> G_OBJECT_CLASS <span class="op">(</span>class<span class="op">);</span></span>
+<span id="cb7-117"><a href="#cb7-117"></a></span>
+<span id="cb7-118"><a href="#cb7-118"></a>  <span class="co">/* override virtual functions */</span></span>
+<span id="cb7-119"><a href="#cb7-119"></a>  tnumber_class<span class="op">-&gt;</span>add <span class="op">=</span> t_double_add<span class="op">;</span></span>
+<span id="cb7-120"><a href="#cb7-120"></a>  tnumber_class<span class="op">-&gt;</span>sub <span class="op">=</span> t_double_sub<span class="op">;</span></span>
+<span id="cb7-121"><a href="#cb7-121"></a>  tnumber_class<span class="op">-&gt;</span>mul <span class="op">=</span> t_double_mul<span class="op">;</span></span>
+<span id="cb7-122"><a href="#cb7-122"></a>  tnumber_class<span class="op">-&gt;</span>div <span class="op">=</span> t_double_div<span class="op">;</span></span>
+<span id="cb7-123"><a href="#cb7-123"></a>  tnumber_class<span class="op">-&gt;</span>uminus <span class="op">=</span> t_double_uminus<span class="op">;</span></span>
+<span id="cb7-124"><a href="#cb7-124"></a>  tnumber_class<span class="op">-&gt;</span>to_s <span class="op">=</span> t_double_to_s<span class="op">;</span></span>
+<span id="cb7-125"><a href="#cb7-125"></a></span>
+<span id="cb7-126"><a href="#cb7-126"></a>  gobject_class<span class="op">-&gt;</span>set_property <span class="op">=</span> t_double_set_property<span class="op">;</span></span>
+<span id="cb7-127"><a href="#cb7-127"></a>  gobject_class<span class="op">-&gt;</span>get_property <span class="op">=</span> t_double_get_property<span class="op">;</span></span>
+<span id="cb7-128"><a href="#cb7-128"></a>  double_property <span class="op">=</span> g_param_spec_double <span class="op">(</span><span class="st">&quot;value&quot;</span><span class="op">,</span> <span class="st">&quot;val&quot;</span><span class="op">,</span> <span class="st">&quot;Double value&quot;</span><span class="op">,</span> <span class="op">-</span>G_MAXDOUBLE<span class="op">,</span> G_MAXDOUBLE<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> G_PARAM_READWRITE<span class="op">);</span></span>
+<span id="cb7-129"><a href="#cb7-129"></a>  g_object_class_install_property <span class="op">(</span>gobject_class<span class="op">,</span> PROP_DOUBLE<span class="op">,</span> double_property<span class="op">);</span></span>
+<span id="cb7-130"><a href="#cb7-130"></a><span class="op">}</span></span>
+<span id="cb7-131"><a href="#cb7-131"></a></span>
+<span id="cb7-132"><a href="#cb7-132"></a>TDouble <span class="op">*</span></span>
+<span id="cb7-133"><a href="#cb7-133"></a>t_double_new_with_value <span class="op">(</span><span class="dt">double</span> value<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-134"><a href="#cb7-134"></a>  TDouble <span class="op">*</span>d<span class="op">;</span></span>
+<span id="cb7-135"><a href="#cb7-135"></a></span>
+<span id="cb7-136"><a href="#cb7-136"></a>  d <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_DOUBLE<span class="op">,</span> <span class="st">&quot;value&quot;</span><span class="op">,</span> value<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb7-137"><a href="#cb7-137"></a>  <span class="cf">return</span> d<span class="op">;</span></span>
+<span id="cb7-138"><a href="#cb7-138"></a><span class="op">}</span></span>
+<span id="cb7-139"><a href="#cb7-139"></a></span>
+<span id="cb7-140"><a href="#cb7-140"></a>TDouble <span class="op">*</span></span>
+<span id="cb7-141"><a href="#cb7-141"></a>t_double_new <span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-142"><a href="#cb7-142"></a>  TDouble <span class="op">*</span>d<span class="op">;</span></span>
+<span id="cb7-143"><a href="#cb7-143"></a></span>
+<span id="cb7-144"><a href="#cb7-144"></a>  d <span class="op">=</span> g_object_new <span class="op">(</span>T_TYPE_DOUBLE<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb7-145"><a href="#cb7-145"></a>  <span class="cf">return</span> d<span class="op">;</span></span>
+<span id="cb7-146"><a href="#cb7-146"></a><span class="op">}</span></span></code></pre></div>
 <h2 id="main.c">main.c</h2>
 <p><code>main.c</code> is a simple program to test the objects.</p>
 <div class="sourceCode" id="cb8"><pre
@@ -808,7 +815,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <ul>
 <li>6-20: “notify” handler. This handler is upgraded to support both
 TInt and TDouble.</li>
-<li>22-71: A function <code>main</code>.</li>
+<li>22-71: The function <code>main</code>.</li>
 <li>30-31: Connects the notify signals on <code>i</code> (TInt) and
 <code>d</code> (TDouble).</li>
 <li>33-34: Set “value” properties on <code>i</code> and
@@ -834,19 +841,18 @@ class="sourceCode numberSource numberLines"><code class="sourceCode"><span id="c
 <span id="cb9-6"><a href="#cb9-6"></a></span>
 <span id="cb9-7"><a href="#cb9-7"></a>executable(&#39;tnumber&#39;, sourcefiles, dependencies: gobjdep, install: false)</span></code></pre></div>
 <p>Compilation and execution is done by the usual way.</p>
-<pre><code>$ meson _build
+<pre><code>$ cd src/tnumber
+$ meson setup _build
 $ ninja -C _build
 $ _build/tnumber</code></pre>
 <p>Then the following is shown on the display.</p>
-<pre><code>$ cd tnumber; _build/tnumber 2&gt;&amp;1
-Property &quot;value&quot; is set to 100.
+<pre><code>Property &quot;value&quot; is set to 100.
 Property &quot;value&quot; is set to 12.345000.
 100 + 12.345000 is 112.
 12.345000 + 100 is 112.345000.
 Property &quot;value&quot; is set to 0.000000.
 
-Error: division by zero.
-</code></pre>
+Error: division by zero.</code></pre>
 <p>The two answers are different because of the different types.</p>
 <p>This section has shown a simple example of derivable and abstract
 class. You can define your derivable object like this. If your object
@@ -859,22 +865,25 @@ API Reference</a>. See the tutorial for learning derivable object.</p>
 <h2 id="class-initialization-process">Class initialization process</h2>
 <h3 id="initialization-process-of-tnumberclass">Initialization process
 of TNumberClass</h3>
+<p>Because TNumber is an abstract object, you cannot instantiate it
+directly. And you cannot create the TNumber class as well. But when you
+create its descendant instance, TNumber class is made and initialized.
+First call for <code>g_object_new (T_TYPE_INT, ...)</code> or
+<code>g_object_new (T_TYPE_DOUBLE, ...)</code> creates and initializes
+TNumberClass if the class doesn’t exist. After that, TIntClass or
+TDoubleClass is created and followed by the creation for TInt or TDouble
+instance respectively.</p>
+<p>And the initialization process for the TNumber class is as
+follows.</p>
 <ol type="1">
 <li>GObjectClass has been initialized before the function
 <code>main</code> starts.</li>
-<li>First call for <code>g_object_new (T_TYPE_INT, ...)</code> or
-<code>g_object_new (T_TYPE_DOUBLE, ...)</code> initializes TNumberClass.
-Because TNumber is an abstract object, it cannot be instantiated.
-Instead, its child object, TInt or TDouble, can be instantiated. And
-when a child is instantiated for the first time, TNumberClass is
-initialized before the child is initialized. And the initialization
-process is as follows.</li>
 <li>Memory is allocated for TNumberClass.</li>
 <li>The parent (GObjectClass) part of the class is copied from
 GObjectClass.</li>
-<li><code>t_number_class_init</code> is called to initialize
-TNumberClass. This includes initializing pointers to class method
-handlers and a default signal handler.</li>
+<li>The class initialization function <code>t_number_class_init</code>
+is called. It initializes class methods (Pointers to the class methods)
+and a default signal handler.</li>
 </ol>
 <p>The diagram below shows the process.</p>
 <figure>
@@ -895,9 +904,9 @@ area. Therefore its structure is the same as its parent class
 (TNumberClass).</li>
 <li>The parent (TNumberClass) part of the class (This is the same as
 whole TIntClass) is copied from TNumberClass.</li>
-<li><code>t_int_class_init</code> is called to initialize TIntClass.
-This includes overriding class methods, set_property and
-get_property.</li>
+<li>The class initialization function <code>t_int_class_init</code> is
+called. It overrides class methods from TNumber,
+<code>set_property</code> and <code>get_property</code>.</li>
 </ol>
 <p>The diagram below shows the process.</p>
 <figure>

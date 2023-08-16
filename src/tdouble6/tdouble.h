@@ -1,5 +1,4 @@
-#ifndef __T_DOUBLE_H__
-#define __T_DOUBLE_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -29,5 +28,4 @@ t_double_new_with_value (double value);
 
 TDouble *
 t_double_new (void);
-#endif /* __T_DOUBLE_H__ */
 

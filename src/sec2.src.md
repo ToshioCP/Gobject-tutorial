@@ -88,7 +88,7 @@ You can compile them by:
 
 ~~~
 $ cd src/misc
-$ meson _build
+$ meson setup _build
 $ ninja -C _build
 ~~~
 
@@ -116,13 +116,17 @@ After the creation, this program displays the addresses of instances.
 Therefore, `class1` points the class of `instance1` and `class2` points the class of `instance2` respectively.
 The addresses of the two classes are displayed.
 - 18-19: `g_object_unref` will be explained in the next subsection.
-It destroys the objects and the memory is freed.
+It destroys the instances and the memory is freed.
 
 Now, execute it.
 
-@@@shell
-cd misc; _build/example1
-@@@
+~~~
+$ cd src/misc; _build/example1
+The address of instance1 is 0x55895eaf7ad0
+The address of instance2 is 0x55895eaf7af0
+The address of the class of instance1 is 0x55895eaf7880
+The address of the class of instance2 is 0x55895eaf7880
+~~~
 
 The locations of two instances `instance1` and `instance2` are different.
 Each instance has its own memory.
@@ -139,7 +143,7 @@ If it becomes useless, the memory must be freed.
 However, how can we determine whether it is useless?
 GObject system provides reference count to solve the problem.
 
-Instance is created and used by other objects or main program.
+An instance is created and used by other instance or the main program.
 That is to say, the instance is referred.
 If the instance is referred by A and B, then the number of the reference is two.
 This number is called *reference count*.
@@ -168,9 +172,20 @@ misc/example2.c
 
 Now execute it.
 
-@@@shell
-cd misc; _build/example2
-@@@
+~~~
+$ cd src/misc; _build/example2
+bash: cd: src/misc: No such file or directory
+Call g_object_new.
+Reference count is 1.
+Call g_object_ref.
+Reference count is 2.
+Call g_object_unref.
+Reference count is 1.
+Call g_object_unref.
+Now the reference count is zero and the instance is destroyed.
+The instance memories are possibly returned to the system.
+Therefore, the access to the same address may cause a segmentation error.
+~~~
 
 `example2` shows:
 

@@ -1,9 +1,15 @@
-#include "tint.h"
-#include "tdouble.h"
+#include "../tnumber/tnumber.h"
+#include "../tnumber/tint.h"
+#include "../tnumber/tdouble.h"
 #include "tcomparable.h"
 
-#define PROP_INT 1
-static GParamSpec *int_property = NULL;
+enum {
+  PROP_0,
+  PROP_INT,
+  N_PROPERTIES
+};
+
+static GParamSpec *int_properties[N_PROPERTIES] = {NULL, };
 
 struct _TInt {
   TNumber parent;
@@ -17,10 +23,10 @@ G_DEFINE_TYPE_WITH_CODE (TInt, t_int, T_TYPE_NUMBER,
 
 static int
 t_int_comparable_cmp (TComparable *self, TComparable *other) {
-  g_return_val_if_fail (T_IS_INT (self), -2);
-  if (! T_IS_NUMBER (other))
+  if (! T_IS_NUMBER (other)) {
     g_signal_emit_by_name (self, "arg-error");
-  g_return_val_if_fail (T_IS_NUMBER (other), -2);
+    return -2;
+  }
 
   int i;
   double s, o;
@@ -50,9 +56,9 @@ static void
 t_int_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   TInt *self = T_INT (object);
 
-  if (property_id == PROP_INT) {
+  if (property_id == PROP_INT)
     self->value = g_value_get_int (value);
-  } else
+  else
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 }
 
@@ -67,7 +73,7 @@ t_int_get_property (GObject *object, guint property_id, GValue *value, GParamSpe
 }
 
 static void
-t_int_init (TInt *i) {
+t_int_init (TInt *self) {
 }
 
 /* arithmetic operator */
@@ -107,6 +113,7 @@ t_int_mul (TNumber *self, TNumber *other) {
 static TNumber *
 t_int_div (TNumber *self, TNumber *other) {
   g_return_val_if_fail (T_IS_INT (self), NULL);
+
   int i;
   double d;
 
@@ -137,6 +144,7 @@ t_int_uminus (TNumber *self) {
 static char *
 t_int_to_s (TNumber *self) {
   g_return_val_if_fail (T_IS_INT (self), NULL);
+
   int i;
 
   g_object_get (T_INT (self), "value", &i, NULL); 
@@ -158,8 +166,8 @@ t_int_class_init (TIntClass *class) {
 
   gobject_class->set_property = t_int_set_property;
   gobject_class->get_property = t_int_get_property;
-  int_property = g_param_spec_int ("value", "val", "Integer value", G_MININT, G_MAXINT, 0, G_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class, PROP_INT, int_property);
+  int_properties[PROP_INT] = g_param_spec_int ("value", "val", "Integer value", G_MININT, G_MAXINT, 0, G_PARAM_READWRITE);
+  g_object_class_install_properties (gobject_class, N_PROPERTIES, int_properties);
 }
 
 TInt *

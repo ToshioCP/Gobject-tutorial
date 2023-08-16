@@ -1,5 +1,4 @@
-#ifndef __T_INT_H__
-#define __T_INT_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -29,5 +28,3 @@ t_int_new_with_value (int value);
 
 TInt *
 t_int_new (void);
-#endif /* __T_INT_H__ */
-

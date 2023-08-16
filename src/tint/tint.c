@@ -13,7 +13,7 @@ struct _TInt {
 G_DEFINE_TYPE (TInt, t_int, G_TYPE_OBJECT)
 
 static void
-div_by_zero_default_cb (TInt *i, gpointer user_data) {
+div_by_zero_default_cb (TInt *self, gpointer user_data) {
   g_printerr ("\nError: division by zero.\n\n");
 }
 
@@ -61,7 +61,7 @@ t_int_class_init (TIntClass *class) {
 }
 
 static void
-t_int_init (TInt *i) {
+t_int_init (TInt *self) {
 }
 
 /* arithmetic operator */
@@ -133,4 +133,3 @@ t_int_new (void) {
   i = g_object_new (T_TYPE_INT, NULL);
   return i;
 }
-

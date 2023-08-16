@@ -26,7 +26,7 @@ GFM is 'GitHub Flavored Markdown', which is used in the document files in the Gi
 
 1. You need Linux operating system, ruby, rake, pandoc and LaTeX system.
 2. download the [GObject-tutorial repository](https://github.com/ToshioCP/Gobject-tutorial) and uncompress the files.
-3. change your current directory to the top directory of the source files.
+3. change your current directory to the top directory of the files.
 4. type `rake` to produce GFM files. The files are generated under `gfm` directory.
 5. type `rake html` to produce HTML files. The files are generated under `docs` directory.
 6. type `rake pdf` to produce a PDF file. The file is generated under `latex` directory.

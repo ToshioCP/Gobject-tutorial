@@ -192,7 +192,7 @@ page</a>.</p>
 <p>There are sample programs in src/misc directory in the GObject
 tutorial repository. You can compile them by:</p>
 <pre><code>$ cd src/misc
-$ meson _build
+$ meson setup _build
 $ ninja -C _build</code></pre>
 <p>One of the programs is <code>example1.c</code>. Its code is as
 follows.</p>
@@ -244,14 +244,14 @@ class of <code>instance1</code> and <code>class2</code> points the class
 of <code>instance2</code> respectively. The addresses of the two classes
 are displayed.</li>
 <li>18-19: <code>g_object_unref</code> will be explained in the next
-subsection. It destroys the objects and the memory is freed.</li>
+subsection. It destroys the instances and the memory is freed.</li>
 </ul>
 <p>Now, execute it.</p>
-<pre><code>$ cd misc; _build/example1
-The address of instance1 is 0x55e6540e8ad0
-The address of instance2 is 0x55e6540e8af0
-The address of the class of instance1 is 0x55e6540e8880
-The address of the class of instance2 is 0x55e6540e8880</code></pre>
+<pre><code>$ cd src/misc; _build/example1
+The address of instance1 is 0x55895eaf7ad0
+The address of instance2 is 0x55895eaf7af0
+The address of the class of instance1 is 0x55895eaf7880
+The address of the class of instance2 is 0x55895eaf7880</code></pre>
 <p>The locations of two instances <code>instance1</code> and
 <code>instance2</code> are different. Each instance has its own memory.
 The locations of two classes <code>class1</code> and <code>class2</code>
@@ -265,10 +265,11 @@ are the same. Two GObject instances share the same class.</p>
 when it is created. If it becomes useless, the memory must be freed.
 However, how can we determine whether it is useless? GObject system
 provides reference count to solve the problem.</p>
-<p>Instance is created and used by other objects or main program. That
-is to say, the instance is referred. If the instance is referred by A
-and B, then the number of the reference is two. This number is called
-<em>reference count</em>. Let’s think about a scenario like this:</p>
+<p>An instance is created and used by other instance or the main
+program. That is to say, the instance is referred. If the instance is
+referred by A and B, then the number of the reference is two. This
+number is called <em>reference count</em>. Let’s think about a scenario
+like this:</p>
 <ul>
 <li>A calls <code>g_object_new</code> and owns an instance G. A refers
 G, so the reference count of G is 1.</li>
@@ -318,7 +319,8 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb6-32"><a href="#cb6-32"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb6-33"><a href="#cb6-33"></a><span class="op">}</span></span></code></pre></div>
 <p>Now execute it.</p>
-<pre><code>$ cd misc; _build/example2
+<pre><code>$ cd src/misc; _build/example2
+bash: cd: src/misc: No such file or directory
 Call g_object_new.
 Reference count is 1.
 Call g_object_ref.

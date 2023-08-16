@@ -1,4 +1,4 @@
-#include "tstr.h"
+#include "../tstr/tstr.h"
 #include "tcomparable.h"
 
 enum {
@@ -23,22 +23,29 @@ static void
 t_str_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   TStr *self = T_STR (object);
 
-  if (property_id == PROP_STRING) {
-    t_str_set_string(self, g_value_get_string (value));
-  } else
+/* The returned value of the function g_value_get_string can be NULL. */
+/* The function t_str_set_string calls a class method, */
+/* which is expected to rewrite in the descendant object. */
+  if (property_id == PROP_STRING)
+    t_str_set_string (self, g_value_get_string (value));
+  else
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 }
 
 static void
 t_str_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
   TStr *self = T_STR (object);
+  TStrPrivate *priv = t_str_get_instance_private (self);
 
+/* The second argument of the function g_value_set_string can be NULL. */
   if (property_id == PROP_STRING)
-    g_value_set_string (value, t_str_get_string(self));
+    g_value_set_string (value, priv->string);
   else
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 }
 
+/* This function just set the string. */
+/* So, no notify signal is emitted. */
 static void
 t_str_real_set_string (TStr *self, const char *s) {
   TStrPrivate *priv = t_str_get_instance_private (self);
@@ -60,10 +67,10 @@ t_str_finalize (GObject *object) {
 
 static int
 t_str_comparable_cmp (TComparable *self, TComparable *other) {
-  g_return_val_if_fail (T_IS_STR (self), -2);
-  if (! T_IS_STR (other))
+  if (! T_IS_STR (other)) {
     g_signal_emit_by_name (self, "arg-error");
-  g_return_val_if_fail (T_IS_STR (other), -2);
+    return -2;
+  }
 
   char *s, *o;
   int result;
@@ -115,6 +122,9 @@ t_str_set_string (TStr *self, const char *s) {
   g_return_if_fail (T_IS_STR (self));
   TStrClass *class = T_STR_GET_CLASS (self);
 
+/* The setter calls the class method 'set_string', */
+/* which is expected to be overridden by the descendant TNumStr. */
+/* Therefore, the behavior of the setter is different between TStr and TNumStr. */
   class->set_string (self, s);
 }
 
@@ -161,4 +171,3 @@ TStr *
 t_str_new (void) {
   return T_STR (g_object_new (T_TYPE_STR, NULL));
 }
-

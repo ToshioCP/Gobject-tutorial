@@ -123,7 +123,7 @@ important feature of GObject.</p>
 <p>An example of this section is an object represents a real number. It
 is not so useful because we have already had double type in C language
 to represent real numbers. However, I think this example is not so bad
-for knowing the technique to define a child object.</p>
+to know the technique how to define a child object.</p>
 <p>First, you need to know the naming convention. An object name
 consists of name space and name. For example, “GObject” consists of a
 name space “G” and a name “Object”. “GtkWidget” consists of a name space
@@ -174,15 +174,17 @@ child of GObject</h2>
 <p>The creation process of TDouble type is similar to the one of
 GObject.</p>
 <ol type="1">
-<li>Registers TDouble type with type system.</li>
+<li>Registers TDouble type to the type system.</li>
 <li>The type system allocates memory for TDoubleClass and TDouble.</li>
 <li>Initializes TDoubleClass.</li>
 <li>Initializes TDouble.</li>
 </ol>
 <h2 id="registration">Registration</h2>
 <p>Usually registration is done by convenient macro such as
-<code>G_DECLARE_FINAL_TYPE</code> and <code>G_DEFINE_TYPE</code>. So you
-don’t need to care about registration. But, in this tutorial, it is
+<code>G_DECLARE_FINAL_TYPE</code> and <code>G_DEFINE_TYPE</code>. You
+can use <code>G_DEFINE_FINAL_TYPE</code> for a final type class instead
+of <code>G_DEFINE_TYPE</code> since GLib version 2.70. So you don’t need
+to care about registration details. But, in this tutorial, it is
 important to understand GObject type system, so I want to show you the
 registration without macro, first.</p>
 <p>There are two kinds of types, static and dynamic. Static type doesn’t
@@ -239,7 +241,7 @@ type of the new object.</p>
 <ul>
 <li>class_size: The size of the class. For example, TDouble’s class size
 is <code>sizeof (TDoubleClass)</code>.</li>
-<li>base_init, base_finalize: These function initialize/finalize the
+<li>base_init, base_finalize: These functions initialize/finalize the
 dynamic members of the class. In many cases, they aren’t necessary, and
 are assigned NULL. For further information, see <a
 href="https://docs.gtk.org/gobject/callback.BaseInitFunc.html">GObject
@@ -272,7 +274,7 @@ the type is descendant of GObject, assign NULL.</li>
 is created or destroyed. Class_size and instance_size are used to
 allocate memory for the class and instance. Class_init and instance_init
 functions are called when class or instance is initialized.</p>
-<p><code>example3.c</code> shows how to use
+<p>The C program <code>example3.c</code> shows how to use
 <code>g_type_register_static</code>.</p>
 <div class="sourceCode" id="cb5"><pre
 class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
@@ -295,7 +297,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb5-18"><a href="#cb5-18"></a><span class="op">}</span></span>
 <span id="cb5-19"><a href="#cb5-19"></a></span>
 <span id="cb5-20"><a href="#cb5-20"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb5-21"><a href="#cb5-21"></a>t_double_init <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-21"><a href="#cb5-21"></a>t_double_init <span class="op">(</span>TDouble <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb5-22"><a href="#cb5-22"></a><span class="op">}</span></span>
 <span id="cb5-23"><a href="#cb5-23"></a></span>
 <span id="cb5-24"><a href="#cb5-24"></a>GType</span>
@@ -335,13 +337,16 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb5-58"><a href="#cb5-58"></a>    g_print <span class="op">(</span><span class="st">&quot;Instantiation was a success. The instance address is %p.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> d<span class="op">);</span></span>
 <span id="cb5-59"><a href="#cb5-59"></a>  <span class="cf">else</span></span>
 <span id="cb5-60"><a href="#cb5-60"></a>    g_print <span class="op">(</span><span class="st">&quot;Instantiation failed.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
-<span id="cb5-61"><a href="#cb5-61"></a></span>
-<span id="cb5-62"><a href="#cb5-62"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb5-63"><a href="#cb5-63"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb5-61"><a href="#cb5-61"></a>  g_object_unref <span class="op">(</span>d<span class="op">);</span> <span class="co">/* Releases the object d. */</span></span>
+<span id="cb5-62"><a href="#cb5-62"></a></span>
+<span id="cb5-63"><a href="#cb5-63"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-64"><a href="#cb5-64"></a><span class="op">}</span></span></code></pre></div>
 <ul>
 <li>16-22: A class initialization function and an instance
-initialization function. They do nothing here but they are necessary for
-the registration.</li>
+initialization function. The argument <code>class</code> points the
+class structure and the argument <code>self</code> points the instance
+structure. They do nothing here but they are necessary for the
+registration.</li>
 <li>24-43: <code>t_double_get_type</code> function. This function
 returns the type of the TDouble object. The name of a function is always
 <code>&lt;name space&gt;_&lt;name&gt;_get_type</code>. And a macro
@@ -352,21 +357,29 @@ upper case) is replaced by this function. Look at line 3.
 <code>type</code> to keep the type of the object. At the first call of
 this function, <code>type</code> is zero. Then it calls
 <code>g_type_register_static</code> to register the object to the type
-system. At the second or subsequent call, the function just return
+system. At the second or subsequent call, the function just returns
 <code>type</code>, because the static variable <code>type</code> has
 been assigned non-zero value by <code>g_type_register_static</code> and
 it keeps the value.</li>
 <li>30-40 : Sets <code>info</code> structure and calls
 <code>g_type_register_static</code>.</li>
-<li>45-63: Main function. Gets the type of TDouble object and displays
-it. <code>g_object_new</code> is used to instantiate the object. Shows
-the address of the instance.</li>
+<li>45-64: Main function. Gets the type of TDouble object and displays
+it. The function <code>g_object_new</code> is used to instantiate the
+object. The GObject API reference says that the function returns a
+pointer to a GObject instance but it actually returns a gpointer.
+Gpointer is the same as <code>void *</code> and it can be assigned to a
+pointer that points any type. So, the statement
+<code>d = g_object_new (T_TYPE_DOUBLE, NULL);</code> is correct. If the
+function <code>g_object_new</code> returned <code>GObject *</code>, it
+would be necessary to cast the returned pointer. After the creation, it
+shows the address of the instance. Finally, the instance is released and
+destroyed with the function <code>g_object_unref</code>.</li>
 </ul>
 <p><code>example3.c</code> is in the src/misc directory.</p>
 <p>Execute it.</p>
-<pre><code>$ cd misc; _build/example3
-Registration was a success. The type is 55fb5d416880.
-Instantiation was a success. The instance address is 0x55fb5d419010.</code></pre>
+<pre><code>$ cd src/misc; _build/example3
+Registration was a success. The type is 56414f164880.
+Instantiation was a success. The instance address is 0x56414f167010.</code></pre>
 <h2 id="g_define_type-macro">G_DEFINE_TYPE macro</h2>
 <p>The registration above is always done with the same algorithm.
 Therefore, it can be defined as a macro such as
@@ -417,7 +430,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb7-20"><a href="#cb7-20"></a><span class="op">}</span></span>
 <span id="cb7-21"><a href="#cb7-21"></a></span>
 <span id="cb7-22"><a href="#cb7-22"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb7-23"><a href="#cb7-23"></a>t_double_init <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-23"><a href="#cb7-23"></a>t_double_init <span class="op">(</span>TDouble <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb7-24"><a href="#cb7-24"></a><span class="op">}</span></span>
 <span id="cb7-25"><a href="#cb7-25"></a></span>
 <span id="cb7-26"><a href="#cb7-26"></a><span class="dt">int</span></span>
@@ -436,17 +449,21 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb7-39"><a href="#cb7-39"></a>    g_print <span class="op">(</span><span class="st">&quot;Instantiation was a success. The instance address is %p.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> d<span class="op">);</span></span>
 <span id="cb7-40"><a href="#cb7-40"></a>  <span class="cf">else</span></span>
 <span id="cb7-41"><a href="#cb7-41"></a>    g_print <span class="op">(</span><span class="st">&quot;Instantiation failed.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
-<span id="cb7-42"><a href="#cb7-42"></a></span>
-<span id="cb7-43"><a href="#cb7-43"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb7-44"><a href="#cb7-44"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb7-42"><a href="#cb7-42"></a>  g_object_unref <span class="op">(</span>d<span class="op">);</span></span>
+<span id="cb7-43"><a href="#cb7-43"></a></span>
+<span id="cb7-44"><a href="#cb7-44"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-45"><a href="#cb7-45"></a><span class="op">}</span></span></code></pre></div>
 <p>Thanks to <code>G_DEFINE_TYPE</code>, we are freed from writing
 bothersome code like <code>GTypeInfo</code> and
 <code>g_type_register_static</code>. One important thing to be careful
 is to follow the convention of the naming of init functions.</p>
 <p>Execute it.</p>
-<pre><code>$ cd misc; _build/example4
-Registration was a success. The type is 55e6f88298a0.
-Instantiation was a success. The instance address is 0x55e6f882b000.</code></pre>
+<pre><code>$ cd src/misc; _build/example4
+Registration was a success. The type is 564b4ff708a0.
+Instantiation was a success. The instance address is 0x564b4ff71400.</code></pre>
+<p>You can use <code>G_DEFINE_FINAL_TYPE</code> instead of
+<code>G_DEFINE_TYPE</code> for final type classes since GLib version
+2.70.</p>
 <h2 id="g_declare_final_type-macro">G_DECLARE_FINAL_TYPE macro</h2>
 <p>Another useful macro is <code>G_DECLARE_FINAL_TYPE</code> macro. This
 macro can be used for a final type. A final type doesn’t have any
@@ -487,7 +504,7 @@ before <code>G_DECLARE_FINAL_TYPE</code>. For example, if the object is
 <code>TDouble</code>, then</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define T_TYPE_DOUBLE  (t_double_get_type ())</span></span></code></pre></div>
 <p>needs to be defined before <code>G_DECLARE_FINAL_TYPE</code>.</p>
-<p><code>example5.c</code> uses this macro. It works like
+<p>The C file <code>example5.c</code> uses this macro. It works like
 <code>example3.c</code> or <code>example4.c</code>.</p>
 <div class="sourceCode" id="cb10"><pre
 class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
@@ -507,7 +524,7 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb10-15"><a href="#cb10-15"></a><span class="op">}</span></span>
 <span id="cb10-16"><a href="#cb10-16"></a></span>
 <span id="cb10-17"><a href="#cb10-17"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb10-18"><a href="#cb10-18"></a>t_double_init <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-18"><a href="#cb10-18"></a>t_double_init <span class="op">(</span>TDouble <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb10-19"><a href="#cb10-19"></a><span class="op">}</span></span>
 <span id="cb10-20"><a href="#cb10-20"></a></span>
 <span id="cb10-21"><a href="#cb10-21"></a><span class="dt">int</span></span>
@@ -536,54 +553,52 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb10-44"><a href="#cb10-44"></a>    g_print <span class="op">(</span><span class="st">&quot;d is GObject instance.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
 <span id="cb10-45"><a href="#cb10-45"></a>  <span class="cf">else</span></span>
 <span id="cb10-46"><a href="#cb10-46"></a>    g_print <span class="op">(</span><span class="st">&quot;d is not GObject instance.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
-<span id="cb10-47"><a href="#cb10-47"></a></span>
-<span id="cb10-48"><a href="#cb10-48"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb10-49"><a href="#cb10-49"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb10-47"><a href="#cb10-47"></a>  g_object_unref <span class="op">(</span>d<span class="op">);</span></span>
+<span id="cb10-48"><a href="#cb10-48"></a></span>
+<span id="cb10-49"><a href="#cb10-49"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-50"><a href="#cb10-50"></a><span class="op">}</span></span></code></pre></div>
 <p>Execute it.</p>
-<pre><code>$ cd misc; _build/example5
-Registration was a success. The type is 562049bce8a0.
-Instantiation was a success. The instance address is 0x562049bd0000.
+<pre><code>$ cd src/misc; _build/example5
+Registration was a success. The type is 5560b4cf58a0.
+Instantiation was a success. The instance address is 0x5560b4cf6400.
 d is TDouble instance.
 d is GObject instance.</code></pre>
 <h2 id="separate-the-file-into-main.c-tdouble.h-and-tdouble.c">Separate
 the file into main.c, tdouble.h and tdouble.c</h2>
 <p>Now it’s time to separate the contents into three files,
 <code>main.c</code>, <code>tdouble.h</code> and <code>tdouble.c</code>.
-An object is defined by two files, header file and C source file.</p>
+An object is defined by two files, a header file and C source file.</p>
 <p>tdouble.h</p>
 <div class="sourceCode" id="cb12"><pre
-class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1"></a><span class="pp">#ifndef __T_DOUBLE_H__</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a><span class="pp">#define __T_DOUBLE_H__</span></span>
-<span id="cb12-3"><a href="#cb12-3"></a></span>
-<span id="cb12-4"><a href="#cb12-4"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
-<span id="cb12-5"><a href="#cb12-5"></a></span>
-<span id="cb12-6"><a href="#cb12-6"></a><span class="pp">#define T_TYPE_DOUBLE  (t_double_get_type ())</span></span>
-<span id="cb12-7"><a href="#cb12-7"></a>G_DECLARE_FINAL_TYPE <span class="op">(</span>TDouble<span class="op">,</span> t_double<span class="op">,</span> T<span class="op">,</span> DOUBLE<span class="op">,</span> GObject<span class="op">)</span></span>
-<span id="cb12-8"><a href="#cb12-8"></a></span>
-<span id="cb12-9"><a href="#cb12-9"></a>gboolean</span>
-<span id="cb12-10"><a href="#cb12-10"></a>t_double_get_value <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">,</span> <span class="dt">double</span> <span class="op">*</span>value<span class="op">);</span></span>
-<span id="cb12-11"><a href="#cb12-11"></a></span>
-<span id="cb12-12"><a href="#cb12-12"></a><span class="dt">void</span></span>
-<span id="cb12-13"><a href="#cb12-13"></a>t_double_set_value <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">,</span> <span class="dt">double</span> value<span class="op">);</span></span>
-<span id="cb12-14"><a href="#cb12-14"></a></span>
-<span id="cb12-15"><a href="#cb12-15"></a>TDouble <span class="op">*</span></span>
-<span id="cb12-16"><a href="#cb12-16"></a>t_double_new <span class="op">(</span><span class="dt">double</span> value<span class="op">);</span></span>
-<span id="cb12-17"><a href="#cb12-17"></a></span>
-<span id="cb12-18"><a href="#cb12-18"></a><span class="pp">#endif </span><span class="co">/* __T_DOUBLE_H__ */</span></span></code></pre></div>
+class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a></span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="pp">#include </span><span class="im">&lt;glib-object.h&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a></span>
+<span id="cb12-5"><a href="#cb12-5"></a><span class="pp">#define T_TYPE_DOUBLE  (t_double_get_type ())</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a>G_DECLARE_FINAL_TYPE <span class="op">(</span>TDouble<span class="op">,</span> t_double<span class="op">,</span> T<span class="op">,</span> DOUBLE<span class="op">,</span> GObject<span class="op">)</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a></span>
+<span id="cb12-8"><a href="#cb12-8"></a>gboolean</span>
+<span id="cb12-9"><a href="#cb12-9"></a>t_double_get_value <span class="op">(</span>TDouble <span class="op">*</span>self<span class="op">,</span> <span class="dt">double</span> <span class="op">*</span>value<span class="op">);</span></span>
+<span id="cb12-10"><a href="#cb12-10"></a></span>
+<span id="cb12-11"><a href="#cb12-11"></a><span class="dt">void</span></span>
+<span id="cb12-12"><a href="#cb12-12"></a>t_double_set_value <span class="op">(</span>TDouble <span class="op">*</span>self<span class="op">,</span> <span class="dt">double</span> value<span class="op">);</span></span>
+<span id="cb12-13"><a href="#cb12-13"></a></span>
+<span id="cb12-14"><a href="#cb12-14"></a>TDouble <span class="op">*</span></span>
+<span id="cb12-15"><a href="#cb12-15"></a>t_double_new <span class="op">(</span><span class="dt">double</span> value<span class="op">);</span></span></code></pre></div>
 <ul>
-<li>The contents of header files are public, i.e. it is open to any
-files. Header files include macros, which gives type information, cast
-and type check, and public functions.</li>
-<li>1,2,18: These directives prevent the compiler from reading the
-header file two times or more. If your compiler supprts
-<code>#pragma once</code> directive, you can use it instead. It is not
-officially defined but is supported widely in many compilers.</li>
-<li>6,7: <code>T_TYPE_DOUBLE</code> is public.
-<code>G_DECLARE_FINAL_TYPE</code> is also expanded to public
+<li>Header files are public, i.e. it is open to any files. Header files
+include macros, which gives type information, cast and type check, and
+public functions.</li>
+<li>1: The directive <code>#pragma once</code> prevent the compiler from
+reading the header file two times or more. It is not officially defined
+but is supported widely in many compilers.</li>
+<li>5-6: <code>T_TYPE_DOUBLE</code> is public.
+<code>G_DECLARE_FINAL_TYPE</code> is expanded to public
 definitions.</li>
-<li>9-13: Function declarations. They are getter and setter of the value
-of the object.</li>
-<li>15-16: Object instantiation function.</li>
+<li>8-12: Public function declarations. They are getter and setter of
+the value of the object. They are called “instance methods”, which are
+used in object-oriented languages.</li>
+<li>14-15: Object instantiation function.</li>
 </ul>
 <p>tdouble.c</p>
 <div class="sourceCode" id="cb13"><pre
@@ -601,22 +616,22 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb13-12"><a href="#cb13-12"></a><span class="op">}</span></span>
 <span id="cb13-13"><a href="#cb13-13"></a></span>
 <span id="cb13-14"><a href="#cb13-14"></a><span class="dt">static</span> <span class="dt">void</span></span>
-<span id="cb13-15"><a href="#cb13-15"></a>t_double_init <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-15"><a href="#cb13-15"></a>t_double_init <span class="op">(</span>TDouble <span class="op">*</span>self<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb13-16"><a href="#cb13-16"></a><span class="op">}</span></span>
 <span id="cb13-17"><a href="#cb13-17"></a></span>
 <span id="cb13-18"><a href="#cb13-18"></a>gboolean</span>
-<span id="cb13-19"><a href="#cb13-19"></a>t_double_get_value <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">,</span> <span class="dt">double</span> <span class="op">*</span>value<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb13-20"><a href="#cb13-20"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>d<span class="op">),</span> FALSE<span class="op">);</span></span>
+<span id="cb13-19"><a href="#cb13-19"></a>t_double_get_value <span class="op">(</span>TDouble <span class="op">*</span>self<span class="op">,</span> <span class="dt">double</span> <span class="op">*</span>value<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-20"><a href="#cb13-20"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> FALSE<span class="op">);</span></span>
 <span id="cb13-21"><a href="#cb13-21"></a></span>
-<span id="cb13-22"><a href="#cb13-22"></a>  <span class="op">*</span>value <span class="op">=</span> d<span class="op">-&gt;</span>value<span class="op">;</span></span>
+<span id="cb13-22"><a href="#cb13-22"></a>  <span class="op">*</span>value <span class="op">=</span> self<span class="op">-&gt;</span>value<span class="op">;</span></span>
 <span id="cb13-23"><a href="#cb13-23"></a>  <span class="cf">return</span> TRUE<span class="op">;</span></span>
 <span id="cb13-24"><a href="#cb13-24"></a><span class="op">}</span></span>
 <span id="cb13-25"><a href="#cb13-25"></a></span>
 <span id="cb13-26"><a href="#cb13-26"></a><span class="dt">void</span></span>
-<span id="cb13-27"><a href="#cb13-27"></a>t_double_set_value <span class="op">(</span>TDouble <span class="op">*</span>d<span class="op">,</span> <span class="dt">double</span> value<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb13-28"><a href="#cb13-28"></a>  g_return_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>d<span class="op">));</span></span>
+<span id="cb13-27"><a href="#cb13-27"></a>t_double_set_value <span class="op">(</span>TDouble <span class="op">*</span>self<span class="op">,</span> <span class="dt">double</span> value<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-28"><a href="#cb13-28"></a>  g_return_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">));</span></span>
 <span id="cb13-29"><a href="#cb13-29"></a></span>
-<span id="cb13-30"><a href="#cb13-30"></a>  d<span class="op">-&gt;</span>value <span class="op">=</span> value<span class="op">;</span></span>
+<span id="cb13-30"><a href="#cb13-30"></a>  self<span class="op">-&gt;</span>value <span class="op">=</span> value<span class="op">;</span></span>
 <span id="cb13-31"><a href="#cb13-31"></a><span class="op">}</span></span>
 <span id="cb13-32"><a href="#cb13-32"></a></span>
 <span id="cb13-33"><a href="#cb13-33"></a>TDouble <span class="op">*</span></span>
@@ -635,21 +650,21 @@ structure must be <code>_TDouble</code>.</li>
 <li>8: <code>G_DEFINE_TYPE</code> macro.</li>
 <li>10-16: class and instance initialization functions. At present, they
 don’t do anything.</li>
-<li>18-24: Getter. The argument <code>value</code> is a pointer to
+<li>18-24: Getter. The argument <code>value</code> is the pointer to a
 double type variable. Assigns the object value
-(<code>d-&gt;value</code>) to the variable. If it succeeds, it returns
-TRUE. <code>g_return_val_if_fail</code> is used to check the argument
-type. If the argument <code>d</code> is not TDouble type, it outputs
-error to the log and immediately returns FALSE. This function is used to
-report a programmer’s error. You shouldn’t use it for a runtime error.
-See <a href="https://docs.gtk.org/glib/error-reporting.html">Glib API
-Reference – Error Reporting</a> for further information.
+(<code>self-&gt;value</code>) to the variable. If it succeeds, it
+returns TRUE. The function <code>g_return_val_if_fail</code> is used to
+check the argument type. If the argument <code>self</code> is not
+TDouble type, it outputs error to the log and immediately returns FALSE.
+This function is used to report a programmer’s error. You shouldn’t use
+it for a runtime error. See <a
+href="https://docs.gtk.org/glib/error-reporting.html">Glib API Reference
+– Error Reporting</a> for further information. The function
 <code>g_return_val_if_fail</code> isn’t used in static class functions,
-they are private, because static functions are called only from
-functions in the same file. Such functions know the parameters type
-well. <code>g_return_val_if_fail</code> is used in public
-functions.</li>
-<li>26-31: Setter. <code>g_return_if_fail</code> function is used to
+which are private, because static functions are called only from
+functions in the same file and the caller knows the type of
+parameters.</li>
+<li>26-31: Setter. The function <code>g_return_if_fail</code> is used to
 check the argument type. This function doesn’t return any value. Because
 the type of <code>t_double_set_value</code> is <code>void</code> so no
 value will be returned. Therefore, we use <code>g_return_if_fail</code>
@@ -684,9 +699,10 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb14-18"><a href="#cb14-18"></a>    g_print <span class="op">(</span><span class="st">&quot;t_double_get_value succesfully assigned %lf to value.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> value<span class="op">);</span></span>
 <span id="cb14-19"><a href="#cb14-19"></a>  <span class="cf">else</span></span>
 <span id="cb14-20"><a href="#cb14-20"></a>    g_print <span class="op">(</span><span class="st">&quot;t_double_get_value failed.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
-<span id="cb14-21"><a href="#cb14-21"></a></span>
-<span id="cb14-22"><a href="#cb14-22"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb14-23"><a href="#cb14-23"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb14-21"><a href="#cb14-21"></a>  g_object_unref <span class="op">(</span>d<span class="op">);</span></span>
+<span id="cb14-22"><a href="#cb14-22"></a></span>
+<span id="cb14-23"><a href="#cb14-23"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb14-24"><a href="#cb14-24"></a><span class="op">}</span></span></code></pre></div>
 <ul>
 <li>2: Includes <code>tdouble.h</code>. This is necessary for accessing
 TDouble object.</li>
@@ -694,29 +710,32 @@ TDouble object.</li>
 object.</li>
 <li>10-13: Tests the getter of the object.</li>
 <li>15-20: Tests the setter of the object.</li>
+<li>21: Releases the instance <code>d</code>.</li>
 </ul>
 <p>The source files are located in src/tdouble1. Change your current
 directory to the directory above and type the following.</p>
-<pre><code>meson _build
-ninja -C _build</code></pre>
+<pre><code>$ cd src/tdouble1
+$ meson setup _build
+$ ninja -C _build</code></pre>
 <p>Then, execute the program.</p>
-<pre><code>$ cd tdouble1; _build/example6
+<pre><code>$ cd src/tdouble1; _build/example6
 t_double_get_value succesfully assigned 10.000000 to value.
 Now, set d (tDouble object) with -20.000000.
 t_double_get_value succesfully assigned -20.000000 to value.</code></pre>
 <p>This example is very simple. But any object has header file and C
-source file as the example above has. And they follow the convention.
-You probably aware of the importance of the convention. For the further
-information refer to <a
+source file like this. And they follow the convention. You probably
+aware of the importance of the convention. For the further information
+refer to <a
 href="https://docs.gtk.org/gobject/concepts.html#conventions">GObject
 API Reference – Conventions</a>.</p>
 <h2 id="functions">Functions</h2>
 <p>Functions of objects are open to other objects. They are like public
-methods in object oriented languages.</p>
+methods in object oriented languages. They are actually called “instance
+method” in the GObject API Reference.</p>
 <p>It is natural to add calculation operators to TDouble objects because
 they represent real numbers. For example, <code>t_double_add</code> adds
 the value of the instance and another instance. Then it creates a new
-TDouble instance which value is the sum of the values.</p>
+TDouble instance which has a value of the sum of them.</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>TDouble <span class="op">*</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>t_double_add <span class="op">(</span>TDouble <span class="op">*</span>self<span class="op">,</span> TDouble <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_DOUBLE <span class="op">(</span>self<span class="op">),</span> NULL<span class="op">);</span></span>
@@ -727,8 +746,9 @@ TDouble instance which value is the sum of the values.</p>
 <span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> NULL<span class="op">;</span></span>
 <span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> t_double_new <span class="op">(</span>self<span class="op">-&gt;</span>value <span class="op">+</span> value<span class="op">);</span></span>
 <span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p><code>self</code> is the instance the function belongs to.
-<code>other</code> is another TDouble instance.</p>
+<p>The first argument <code>self</code> is the instance the function
+belongs to. The second argument <code>other</code> is another TDouble
+instance.</p>
 <p>The value of <code>self</code> can be accessed by
 <code>self-&gt;value</code>, but don’t use <code>other-&gt;value</code>
 to get the value of <code>other</code>. Use a function

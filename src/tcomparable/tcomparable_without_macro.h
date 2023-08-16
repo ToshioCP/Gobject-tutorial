@@ -1,5 +1,4 @@
-#ifndef __T_COMPARABLE_H__
-#define __T_COMPARABLE_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -42,5 +41,3 @@ t_comparable_ge (TComparable *self, TComparable *other);
 
 gboolean
 t_comparable_le (TComparable *self, TComparable *other);
-
-#endif /* __T_COMPARABLE_H__ */

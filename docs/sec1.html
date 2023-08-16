@@ -120,8 +120,10 @@ need:</p>
 <ul>
 <li>PC with Linux distribution like Ubuntu, Debian and so on.</li>
 <li>Gcc</li>
-<li>GLib. The version at the time this document is described is 2.74.0,
-but earlier version may work.</li>
+<li>GLib. The version at the time this document is described is 2.76.1.
+Some example program needs version 2.74 or higher. But they work on the
+older version if you replace the new function or macro with the old
+one.</li>
 <li>pkg-config</li>
 <li>meson and ninja</li>
 </ul>
@@ -136,26 +138,46 @@ Markdown(GFM) files, HTML files, LaTeX files and a PDF file.</p>
 <li>Linux distribution like Ubuntu.</li>
 <li>Ruby programming language. There are two ways to install it. One is
 installing the distribution’s package. The other is using rbenv and
-ruby-build. If you want to use the latest version of Ruby, you might
-need to use rbenv and ruby-build.</li>
+ruby-build. If you want to use the latest version of Ruby, you will need
+rbenv and ruby-build.</li>
 <li>Rake. It is a gem, which is a library written in ruby. Ruby package
-includes Rake gem so you don’t need to install it separately.</li>
+includes Rake gem as a standard library so you don’t need to install it
+separately.</li>
 </ul>
 <h2 id="license">License</h2>
 <p>Copyright (C) 2021-2022 ToshioCP (Toshio Sekiya)</p>
 <p>GObject tutorial repository contains the tutorial document and
 software such as converters, generators and controllers. All of them
 make up the ‘GObject tutorial’ package. This package is simply called
-‘GObject tutorial’ in the following description. ‘GObject tutorial’ is
-free; you can redistribute it and/or modify it under the terms of the
-GNU General Public License as published by the Free Software Foundation;
-either version 3 of the License, or (at your option) any later
-version.</p>
-<p>‘GObject tutorial’ is distributed in the hope that it will be useful,
+‘GObject tutorial’ in the following description.</p>
+<p>‘GObject tutorial’ is free; you can redistribute it and/or modify it
+under the terms of the following licenses.</p>
+<ul>
+<li>The license of documents in GObject tutorial is the GNU Free
+Documentation License as published by the Free Software Foundation;
+either version 1.3 of the License or, at your opinion, any later
+version. The documents are Markdown, HTML and image files. If you
+generate a PDF file by running <code>rake pdf</code>, it is also
+included by the documents.</li>
+<li>The license of programs in GObject tutorial is the GNU General
+Public License as published by the Free Software Foundation; either
+version 3 of the License or, at your option, any later version. The
+programs are written in C, Ruby and other languages.</li>
+</ul>
+<p>GObject tutorial is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the <a
-href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public
-License</a> for more details.</p>
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU License
+web pages for more details.</p>
+<ul>
+<li><a href="https://www.gnu.org/licenses/fdl-1.3.html">GNU Free
+Documentation License</a></li>
+<li><a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General
+Public License</a></li>
+</ul>
+<p>The licenses above is effective since 15/August/2023. Before that,
+GPL covered all the contents of the GObject tutorial. But GFDL1.3 is
+more appropriate for documents so the license was changed. The license
+above is the only effective license since 15/August/2023.</p>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
   </body>

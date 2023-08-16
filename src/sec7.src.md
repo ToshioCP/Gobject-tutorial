@@ -9,8 +9,7 @@ A numeric string is a string that expresses a number.
 For example, "0", "-100" and "123.45".
 The child object (numeric string) will be explained in the next section.
 
-I'd like to write about strings before derivable objects.
-Because TStr is an object of a string and we need to be careful to write a program with strings.
+This section describes memory management for strings before derivable objects.
 
 ## String and memory management
 
@@ -50,7 +49,7 @@ The string is an array 'H', 'e', 'l', 'l', 'o', '.' and zero ('\0').
 - Requests the system to allocate 7 bytes memories.
 - Copies the string to the memory.
 - Returns the pointer to the newly-allocated memory.
-- If the argument is NULL, then g\_strdup returns NULL.
+- If the argument is NULL, then no memory is allocated and it returns NULL.
 
 If the string `s` is no longer in use, `s` must be freed, which means the allocated 7 bytes must be returned to the system.
 `g_free` frees the memory.
@@ -67,7 +66,7 @@ If an array is initialized with a string literal, the array can be changed.
 ~~~C
 char a[]="Hello!";
 a[1]='a';
-g_print ("%s\n", a); /* Hallo will appear in your display. */
+g_print ("%s\n", a); /* Hallo will appear on your display. */
 ~~~
 
 The first line initializes an array `a`.
@@ -105,16 +104,16 @@ In conclusion, a string is an array of characters and it is placed in one of the
 
 - Read-only memory.
 A string literal is read-only.
-- stack.
+- Stack.
 If the class of an array is `auto`, then the array is placed in the stack.
 stack is writable.
 If the array is defined in a function, its default class is `auto`.
 The stack area will disappear when the function returns to the caller.
-- static area.
+- Static area.
 If the class of an array is `static`, then the array is placed in the static area.
 It keeps its value and remains for the life of the program.
 This area is writable.
-- heap.
+- Heap.
 You can allocate and free memory for a string.
 For allocation, `g_new` or `g_new0` is used.
 For freeing, `g_free` is used.
@@ -139,8 +138,8 @@ char *s = "Hello";
 char *t = g_strdup (s);
 ~~~
 
-`g_strdup` allocates memory and initializes it with "Hello", then returns the pointer to the memory.
-The function `g_strdup` is almost same as the `string_dup` function below.
+The function `g_strdup` allocates memory and initializes it with "Hello", then returns the pointer to the memory.
+The function `g_strdup` is almost same as the function `string_dup` below.
 
 ~~~C
 #include <glib-object.h>
@@ -207,6 +206,8 @@ The string is a pointer and an array of characters.
 The pointer points the array.
 The pointer can be NULL.
 If it is NULL, TStr has no array.
+The memory of the array comes from the heap area.
+TStr owns the memory and is responsible to free it when it becomes useless.
 TStr has a string type property.
 
 The header file `tstr.h` is as follows.
@@ -215,35 +216,32 @@ The header file `tstr.h` is as follows.
 tstr/tstr.h
 @@@
 
-- 7: Uses `G_DECLARE_DERIVABLE_TYPE` like the example in the previous section.
-- 9-13: TStrClass has one class method.
-It is `set_string`.
+- 6: Uses `G_DECLARE_DERIVABLE_TYPE`.
+The TStr class is derivable and its child class will be defined later.
+- 8-12: TStrClass has one class method.
+It is `set_string` member of the TStrClass structure.
 This will be overridden by the child class `TNumStr`.
-The class method is called by the public function `t_str_set_string`.
-It has a string parameter and sets the instance string with the string (argument).
-TNumStr class holds a string like TStr, but it holds the type of the string as well.
-The class method `set_string` will be overridden and it will set not only the string but also the type in the child class.
-The detailed explanation will be in the later part of this section and the next section. 
-- 15-16: `t_str_concat` connects two strings of TStr instances and returns a new TStr instance.
-- 19-23: Setter and getter.
-- 26-30: Functions to create a TStr object.
+Therefore, Both TStr and TNumStr has `set_string` member in their classes but they point different functions.
+- 14-15: The public function `t_str_concat` connects two strings of TStr instances and returns a new TStr instance.
+- 18-22: Setter and getter.
+- 25-29: Functions to create a TStr object.
 
 ## C file
 
-The C file of TStr object is as follows.
-It is `tstr.c`.
+The C file `tstr.c` for TStr is as follows.
 
 @@@include
 tstr/tstr.c
 @@@
 
 - 3-9: `enum` defines a property id.
-`PROP_STRING` is the id of "string" property.
-Only one property is defined here, so you can define it without `enum`.
-However, `enum` can be applied to define two or more properties.
-So, this way is more recommended.
-In the same way, an array `str_properties` is used.
-it stores a static pointer for GParamSpec.
+The member `PROP_STRING` is the id of the "string" property.
+Only one property is defined here, so it is possible to define it without `enum`.
+However, `enum` can be applied to define two or more properties and it is more common.
+The last member `N_PROPERTIES` is two because `enum` is zero-based.
+An array `str_properties` has two elements since `N_PROPERTIES` is two.
+The first element isn't used and it is assigned with NULL.
+The second element will be assigned a pointer to a GParamSpec instance in the class initialization function.
 - 11-13: TStrPrivate is a C structure.
 It is a private data area for TStr.
 If TStr were a final type, then no descendant would exist and TStr instance could be a private data area.
@@ -251,56 +249,53 @@ But TStr is derivable so you can't store such private data in TStr instance that
 The name of this structure is "<object name\>Private" like `TStrPrivate`.
 The structure must be defined before `G_DEFINE_TYPE_WITH_PRIVATE`.
 - 15: `G_DEFINE_TYPE_WITH_PRIVATE` macro.
+It is similar to `G_DEFINE_TYPE` macro but it adds the private data area for the derivable instance.
 This macro expands to:
-  - Declares `t_str_class_init` which is a class initialization function.
-  - Declares `t_str_init` which is an instance initialization function.
-  - Defines `t_str_parent_class` static variable.
+  - Declaration of `t_str_class_init` which is a class initialization function.
+  - Declaration of `t_str_init` which is an instance initialization function.
+  - Definition of `t_str_parent_class` static variable.
 It points to the parent class of TStr.
-  - Adds private instance data to the type.
-It is a C structure and its name is `TStrPrivate`. (See above).
-  - Defines `t_str_get_type ()` function.
+  - The function call that adds private instance data to the type.
+It is a C structure and its name is `TStrPrivate`.
+  - Definition of `t_str_get_type ()` function.
 This function registers the type in its first call.
-  - Defines a private instance getter `t_str_get_instance_private ()`.
-This function has a parameter which is the pointer to the instance.
-- 17-25: `t_str_set_property`.
-This is similar to `t_int_set_property`, but the property value is stored in the private area.
-- 22: It uses `t_str_set_string` function to set the private data area with the string from the GValue.
+  - Definition of the private instance getter `t_str_get_instance_private ()`.
+- 17-28: The function `t_str_set_property` sets the "string" property and it is used by `g_object_set` family functions.
+It uses `t_str_set_string` function to set the private data with the copy of the string from the GValue.
 It is important because `t_str_set_string` calls the class method `set_string`, which will be overridden by the child class.
-Therefore, the `t_str_set_property` function will set the string and also its type in the child class.
+Therefore, the behavior of `t_str_set_property` function is different between TStr and TNumStr, which is a child of TStr.
 The function `g_value_get_string` returns the pointer to the string that GValue owns.
-You can't own the string.
-That means you can't change or free the string.
-Therefore, it is necessary to duplicate the string before it is stored.
-The duplication is done in the function `t_str_set_string`.
-- 27-35: `t_str_get_property`.
-It uses `t_str_get_string` function.
-String duplication is done in the function.
-- 37-44 `t_str_real_set_string` function.
-This is pointed by `set_string` in the class.
-So, it is the body of the class method.
+So you need to duplicate the string and it is done in the function `t_str_set_string`.
+- 30-40: The function `t_str_get_property` gets the "string" property and it is used by `g_object_get` family functions.
+It just gives `priv->string` to the function `g_value_set_string`.
+The variable `priv` points the private data area.
+The second argument `priv->string` is owned by the TStr instance and the function `g_value_set_string` duplicates it to store in the GValue structure.
+- 44-51 The function `t_str_real_set_string` is the body of the class method and pointed by `set_string` member in the class.
 First, it gets the pointer to the private area with `t_str_get_instance_private` function.
-If the instance holds a string, free it before setting it with a new string.
-It copies the string and put it to `priv->string`.
-- 46-54: `t_str_finalize` is called when TStr instance is destroyed.
-This function frees the string `priv->string`.
+If the instance holds a string, free it before setting it to a new string.
+It copies the given string and assigns it to `priv->string`.
+The duplication is important.
+Thanks to that, the address of the string is hidden from the out of the instance.
+- 53-61: The finalize function `t_str_finalize` is called when TStr instance is destroyed.
+The destruction process has two phases, "dispose" and "finalize".
+In the disposal phase, the instance releases instances.
+In the finalization phase, the instance does the rest of all the finalization like freeing memories.
+This function frees the string `priv->string` if necessary.
 After that, it calls the parent's finalize method.
 This is called "chain up to its parent" and it will be explained later in this section.
-- 56-61: `t_str_init` initializes `priv->string`.
-- 63-74: `t_str_class_init` function initializes the class of TStr object.
-- 67: Overrides `finalize` method.
-This method is called in the destruction process.
-- 68-69: Overrides `set_property` and `get_property` method.
-- 70-71: Creates GParamSpec.
-Then installs the property.
-- 73: The class method `set_string` points to `t_str_real_set_string`.
-This method is expected  to be replaced in the child class.
-- 77-91: Setter and getter.
-They are used by property set/get functions `t_str_set_property` and `t_str_get_property`.
-The setter `t_str_set_string` just calls the class method.
-So its behavior will change in the child class.
-- 93-116: `t_str_concat` function.
-It concatenates the string of `self` and `other` and creates a new TStr.
-- 119-127: `t_str_new_with_string` and `t_str_new` create a new TStr instances.
+- 63-68: The instance initialization function `t_str_init` assigns NULL to `priv->string`.
+- 70-81: The class initialization function `t_str_class_init` overrides `finalize`, `set_property` and `get_property` members.
+It creates the GParamSpec instance with `g_param_spec_string` and installs the property with `g_object_class_install_properties`.
+It assigns `t_str_real_set_string` to the member `set_string`.
+It is a class method and is expected to be replaced in the child class.
+- 84-101: Setter and getter.
+The setter method `t_str_set_string` just calls the class method.
+So, it is expected to be replaced in the child class.
+It is used by property set function `t_str_set_property`.
+So the behavior of property setting will change in the child class.
+The getter method `t_str_get_string` just duplicates the string `priv->string` and return the copy.
+- 103-126: The public function `t_str_concat` concatenates the string of `self` and `other`, and creates a new TStr.
+- 129-137: Two functions `t_str_new_with_string` and `t_str_new` create a new TStr instances.
 
 ## Chaining up to its parent
 

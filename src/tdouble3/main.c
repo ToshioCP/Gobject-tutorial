@@ -2,7 +2,7 @@
 #include "tdouble.h"
 
 static void
-div_by_zero_cb (TDouble *d, gpointer user_data) {
+div_by_zero_cb (TDouble *self, gpointer user_data) {
   g_printerr ("\nError: division by zero.\n\n");
 }
 

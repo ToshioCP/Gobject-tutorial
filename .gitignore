@@ -13,7 +13,6 @@ src/tptr/_build
 src/tstr/_build
 src/tcomparable/_build
 src/temp
-html/*
 latex/*
 
 # backup file

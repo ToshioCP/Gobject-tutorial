@@ -1,5 +1,4 @@
-#ifndef __T_STR_H__
-#define __T_STR_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -28,5 +27,3 @@ t_str_new_with_string (const char *s);
 
 TStr *
 t_str_new (void);
-#endif /* __T_STR_H__ */
-

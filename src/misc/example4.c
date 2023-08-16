@@ -20,7 +20,7 @@ t_double_class_init (TDoubleClass *class) {
 }
 
 static void
-t_double_init (TDouble *d) {
+t_double_init (TDouble *self) {
 }
 
 int
@@ -39,6 +39,7 @@ main (int argc, char **argv) {
     g_print ("Instantiation was a success. The instance address is %p.\n", d);
   else
     g_print ("Instantiation failed.\n");
+  g_object_unref (d);
 
   return 0;
 }

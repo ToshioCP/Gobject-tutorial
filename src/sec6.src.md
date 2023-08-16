@@ -45,15 +45,15 @@ It converts the value of TNumber into a string.
 It is like sprintf function.
 And we will rewrite TInt and TDouble to implement the functions.
 
-## TNumber object
+## TNumber class
 
-`tnumber.h` is a header file for TNumber object.
+`tnumber.h` is a header file for the TNumber class.
 
 @@@include
 tnumber/tnumber.h
 @@@
 
-- 7: `G_DECLARE_DERIVABLE_TYPE` macro.
+- 6: `G_DECLARE_DERIVABLE_TYPE` macro.
 This is similar to `G_DECLARE_FINAL_TYPE` macro.
 The difference is derivable or final.
 `G_DECLARE_DERIVABLE_TYPE` is expanded to:
@@ -62,15 +62,15 @@ The difference is derivable or final.
   - Declaration of TNumberClass. It should be defined later in the header file.
   - Convenience macros `T_NUMBER` (cast to instance), `T_NUMBER_CLASS` (cast to class), `T_IS_NUMBER` (instance check), `T_IS_NUMBER_CLASS` (class check) and `T_NUMBER_GET_CLASS` are defined.
   - `g_autoptr()` support.
-- 9-19: Definition of the structure of TNumberClass.
-- 11-16: These are pointers to functions.
+- 8-18: Definition of the structure of TNumberClass.
+- 10-15: These are pointers to functions.
 They are called class methods or virtual functions.
-They are expected to be overridden by a function in the descendant object.
+They are expected to be overridden in the descendant object.
 The methods are five arithmetic operators and `to_s` function.
 `to_s` function is similar to sprintf function.
-- 18: A pointer to the default signal handler of "div-by-zero" signal.
+- 17: A pointer to the default signal handler of "div-by-zero" signal.
 The offset of this pointer is given to `g_signal_new` as an argument.
-- 21-40: Functions. They are public.
+- 22-38: Functions. They are public.
 
 `tnumber.c` is as follows.
 
@@ -86,12 +86,12 @@ This macro is expanded to:
   - Declaration of `t_number_class_init ()` function.
   - Definition of `t_number_get_type ()` function.
   - Definition of `t_number_parent_class` static variable that points the parent class.
-- 3, 7-10, 25-35: Defines division-by-zero signal.
-`div_by_zero_default_cb` is a default handler of "div-by-zero" signal.
+- 3, 7-10, 26-35: Defines division-by-zero signal.
+The function `div_by_zero_default_cb` is a default handler of "div-by-zero" signal.
 Default handler doesn't have user data parameter.
-`g_signal_new` is used instead of `g_signal_new_class_handler`.
-`g_signal_new` specifies a handler as the offset from the top of the class to the pointer to the handler.
-- 12-36: `t_number_class_init`.
+The function `g_signal_new` is used instead of `g_signal_new_class_handler`.
+It specifies a handler as the offset from the top of the class to the pointer to the handler.
+- 12-36: The class initialization function `t_number_class_init`.
 - 16-21: These class methods are virtual functions.
 They are expected to be overridden in the descendant object of TNumber.
 NULL is assigned here so that nothing happens when the methods are called.
@@ -101,66 +101,66 @@ This is the default handler of "div-by-zero" signal.
 But abstract object isn't instantiated.
 So, nothing is done in this function.
 But you can't leave out the definition of this function.
-- 42-92: Public functions.
+- 42-98: Public functions.
 These functions just call the corresponding class methods if the pointer to the class method is not NULL.
 
 ## TInt object.
 
-`tint.h` is a header file of TInt object.
-TInt is a child object of TNumber.
+`tint.h` is a header file of the TInt class.
+TInt is a child class of TNumber.
 
 @@@include
 tnumber/tint.h
 @@@
 
-- 10-16:Declares public functions.
+- 9-13:Declares public functions.
 Arithmetic functions and `to_s` are declared in TNumber, so TInt doesn't declare those functions.
 Only instance creation functions are declared.
 
-`tint.c` implements virtual functions (class methods).
+The C file `tint.c` implements virtual functions (class methods).
 And the pointers of the methods in TNumberClass are rewritten here.
 
 @@@include
 tnumber/tint.c
 @@@
 
-- 4-5, 14-32, 124-127: Definition of the property "value".
+- 5-6, 15-33, 127-130: Definition of the property "value".
 This is the same as before.
-- 7-10: Definition of the structure of TInt.
+- 8-11: Definition of the structure of TInt.
 This must be defined before `G_DEFINE_TYPE`.
-- 12: `G_DEFINE_TYPE` macro.
+- 13: `G_DEFINE_TYPE` macro.
 This macro expands to:
   - Declaration of `t_int_init ()` function.
   - Definition of `t_int_get_type ()` function.
   - Definition of `t_int_parent_class` static variable which points the parent class.
-- 34-36: `t_int_init`.
-- 40-109: These functions are connected to the class method pointers in TIntClass.
+- 35-37: `t_int_init`.
+- 41-112: These functions are connected to the class method pointers in TIntClass.
 They are the implementation of the virtual functions defined in `tnumber.c`.
-- 40-49: Defines a macro used in `t_int_add`, `t_int_sub` and `t_int_mul`.
+- 41-50: Defines a macro used in `t_int_add`, `t_int_sub` and `t_int_mul`.
 This macro is similar to `t_int_div` function.
-refer to the explanation below for `t_int_div`.
-- 51-70: `t_int_add`, `t_int_sub` and `t_int_mul` functions.
+Refer to the explanation below for `t_int_div`.
+- 52-71: The functions `t_int_add`, `t_int_sub` and `t_int_mul`.
 The macro `t_int_binary_op` is used.
-- 72-93: `t_int_div`.
-`self` is the object on which the function is called.
-`other` is another TNumber object.
+- 73-95: The function `t_int_div`.
+The first argument `self` is the object on which the function is called.
+The second argument `other` is another TNumber object.
 It can be TInt or TDouble.
 If it is TDouble, its value is casted to int before the division is performed.
 If the divisor (`other`) is zero, "div-by-zero" signal is emitted.
 The signal is defined in TNumber, so TInt doesn't know the signal id.
-The emission is done with `g_signal_emit_by_name` instead of `g_signal_emit`.
+Therefore, the emission is done with `g_signal_emit_by_name` instead of `g_signal_emit`.
 The return value of `t_int_div` is TNumber type object
 However, because TNumber is abstract, the actual type of the object is TInt.
-- 95-100: A function for unary minus operator.
-- 102-109: `to_s` function. This function converts int to string.
+- 97-102: A function for unary minus operator.
+- 104-112: The function `to_s`. This function converts int to string.
 For example, if the value of the object is 123, then the result is a string "123".
 The caller should free the string if it becomes useless.
-- 111- 128: `t_int_class_init`.
-- 117-122: The class methods are overridden.
+- 114- 131: The class initialization function `t_int_class_init`.
+- 120-125: The class methods are overridden.
 For example, if `t_number_add` is called on a TInt object, then the function calls the class method `*tnumber_class->add`.
 The pointer points `t_int_add` function.
-Therefore, `t_int_add` is called finally.
-- 130-144: Instance creation functions are the same as before.
+Therefore, `t_int_add` is finally called.
+- 133-147: Instance creation functions are the same as before.
 
 ## TDouble object.
 
@@ -190,7 +190,7 @@ tnumber/main.c
 
 - 6-20: "notify" handler.
 This handler is upgraded to support both TInt and TDouble.
-- 22-71: A function `main`.
+- 22-71: The function `main`.
 - 30-31: Connects the notify signals on `i` (TInt) and `d` (TDouble).
 - 33-34: Set "value" properties on `i` and `d`.
 - 36: Add `d` to `i`.
@@ -212,16 +212,23 @@ tnumber/meson.build
 Compilation and execution is done by the usual way.
 
 ~~~
-$ meson _build
+$ cd src/tnumber
+$ meson setup _build
 $ ninja -C _build
 $ _build/tnumber
 ~~~
 
 Then the following is shown on the display.
 
-@@@shell
-cd tnumber; _build/tnumber 2>&1
-@@@
+~~~
+Property "value" is set to 100.
+Property "value" is set to 12.345000.
+100 + 12.345000 is 112.
+12.345000 + 100 is 112.345000.
+Property "value" is set to 0.000000.
+
+Error: division by zero.
+~~~
 
 The two answers are different because of the different types.
 
@@ -238,16 +245,19 @@ It is also good to see source files in GTK.
 
 ### Initialization process of TNumberClass
 
+Because TNumber is an abstract object, you cannot instantiate it directly.
+And you cannot create the TNumber class as well.
+But when you create its descendant instance, TNumber class is made and initialized.
+First call for `g_object_new (T_TYPE_INT, ...)` or `g_object_new (T_TYPE_DOUBLE, ...)` creates and initializes TNumberClass if the class doesn't exist.
+After that, TIntClass or TDoubleClass is created and followed by the creation for TInt or TDouble instance respectively.
+
+And the initialization process for the TNumber class is as follows.
+
 1. GObjectClass has been initialized before the function `main` starts.
-2. First call for `g_object_new (T_TYPE_INT, ...)` or `g_object_new (T_TYPE_DOUBLE, ...)` initializes TNumberClass.
-Because TNumber is an abstract object, it cannot be instantiated.
-Instead, its child object, TInt or TDouble, can be instantiated.
-And when a child is instantiated for the first time, TNumberClass is initialized before the child is initialized.
-And the initialization process is as follows.
-3. Memory is allocated for TNumberClass.
-4. The parent (GObjectClass) part of the class is copied from GObjectClass.
-5. `t_number_class_init` is called to initialize TNumberClass.
-This includes initializing pointers to class method handlers and a default signal handler.
+2. Memory is allocated for TNumberClass.
+3. The parent (GObjectClass) part of the class is copied from GObjectClass.
+4. The class initialization function `t_number_class_init` is called.
+It initializes class methods (Pointers to the class methods) and a default signal handler.
 
 The diagram below shows the process.
 
@@ -262,8 +272,8 @@ And the initialization process is as follows.
 TIntClass doesn't have its own area.
 Therefore its structure is the same as its parent class (TNumberClass).
 4. The parent (TNumberClass) part of the class (This is the same as whole TIntClass) is copied from TNumberClass.
-5. `t_int_class_init` is called to initialize TIntClass.
-This includes overriding class methods, set\_property and get\_property.
+5. The class initialization function `t_int_class_init` is called.
+It overrides class methods from TNumber, `set_property` and `get_property`.
 
 The diagram below shows the process.
 

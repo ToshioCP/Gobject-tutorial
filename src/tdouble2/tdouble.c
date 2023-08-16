@@ -17,18 +17,18 @@ t_double_init (TDouble *d) {
 
 /* getter and setter */
 gboolean
-t_double_get_value (TDouble *d, double *value) {
-  g_return_val_if_fail (T_IS_DOUBLE (d), FALSE);
+t_double_get_value (TDouble *self, double *value) {
+  g_return_val_if_fail (T_IS_DOUBLE (self), FALSE);
 
-  *value = d->value;
+  *value = self->value;
   return TRUE;
 }
 
 void
-t_double_set_value (TDouble *d, double value) {
-  g_return_if_fail (T_IS_DOUBLE (d));
+t_double_set_value (TDouble *self, double value) {
+  g_return_if_fail (T_IS_DOUBLE (self));
 
-  d->value = value;
+  self->value = value;
 }
 
 /* arithmetic operator */
