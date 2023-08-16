@@ -105,58 +105,55 @@ The header file of TNumStr is [`tnumstr.h`](../src/tstr/tnumstr.h).
 It is in the `src/tstr` directory.
 
 ~~~C
- 1 #ifndef __T_NUM_STR_H__
- 2 #define __T_NUM_STR_H__
- 3 
- 4 #include <glib-object.h>
- 5 #include "tstr.h"
- 6 #include "../tnumber/tnumber.h"
- 7 
- 8 #define T_TYPE_NUM_STR  (t_num_str_get_type ())
- 9 G_DECLARE_FINAL_TYPE (TNumStr, t_num_str, T, NUM_STR, TStr)
-10 
-11 /* type of the numeric string */
-12 enum {
-13   t_none,
-14   t_int,
-15   t_double
-16 };
-17 
-18 /* get the type of the TNumStr object */
-19 int
-20 t_num_str_get_string_type (TNumStr *self);
-21 
-22 /* setter and getter */
-23 void
-24 t_num_str_set_from_t_number (TNumStr *self, TNumber *num);
-25 
-26 // TNumStr can have any string, which is t_none, t_int or t_double type.
-27 // If the type is t_none, t_num_str_get_t_number returns NULL.
-28 // It is good idea to call t_num_str_get_string_type and check the type in advance. 
-29 
-30 TNumber *
-31 t_num_str_get_t_number (TNumStr *self);
-32 
-33 /* create a new TNumStr instance */
-34 TNumStr *
-35 t_num_str_new_with_tnumber (TNumber *num);
-36 
-37 TNumStr *
-38 t_num_str_new (void);
-39 #endif /* __T_NUM_STR_H__ */
-40 
+ 1 #pragma once
+ 2 
+ 3 #include <glib-object.h>
+ 4 #include "tstr.h"
+ 5 #include "../tnumber/tnumber.h"
+ 6 
+ 7 #define T_TYPE_NUM_STR  (t_num_str_get_type ())
+ 8 G_DECLARE_FINAL_TYPE (TNumStr, t_num_str, T, NUM_STR, TStr)
+ 9 
+10 /* type of the numeric string */
+11 enum {
+12   t_none,
+13   t_int,
+14   t_double
+15 };
+16 
+17 /* get the type of the TNumStr object */
+18 int
+19 t_num_str_get_string_type (TNumStr *self);
+20 
+21 /* setter and getter */
+22 void
+23 t_num_str_set_from_t_number (TNumStr *self, TNumber *num);
+24 
+25 // TNumStr can have any string, which is t_none, t_int or t_double type.
+26 // If the type is t_none, t_num_str_get_t_number returns NULL.
+27 // It is good idea to call t_num_str_get_string_type and check the type in advance. 
+28 
+29 TNumber *
+30 t_num_str_get_t_number (TNumStr *self);
+31 
+32 /* create a new TNumStr instance */
+33 TNumStr *
+34 t_num_str_new_with_tnumber (TNumber *num);
+35 
+36 TNumStr *
+37 t_num_str_new (void);
 ~~~
 
-- 9: TNumStr is a child object of TStr.
-It is a final type object.
-- 12-16: These three enum data define the type of TNumStr string.
+- 8: The macro `G_DECLARE_FINAL_TYPE` for TNumStr class.
+It is a child class of TStr and a final type class.
+- 11-15: These three enum data define the type of TNumStr string.
   - `t_none`: No string is stored or the string isn't a numeric string.
-  - `t_int`: Integer
-  - `t_double`: Double
-- 19-20: `t_num_str_get_string_type` returns the type of the string TStrNum object has.
+  - `t_int`: The string expresses an integer
+  - `t_double`: The string expresses an real number, which is double type in C language.
+- 18-19: The public function `t_num_str_get_string_type` returns the type of the string TStrNum object has.
 The returned value is `t_none`, `t_int` or `t_double`.
-- 23-31: Setter and getter from/to a TNumber object.
-- 34-38: Functions to create new TNumStr objects.
+- 22-30: Setter and getter from/to a TNumber object.
+- 33-37: Functions to create new TNumStr objects.
 
 ## C file
 
@@ -164,155 +161,158 @@ The C file of TNumStr is [`tnumstr.c`](../src/tstr/tnumstr.c).
 It is in the `src/tstr` directory.
 
 ~~~C
-  1 #include <ctype.h>
-  2 #include "tnumstr.h"
-  3 #include "tstr.h"
-  4 #include "../tnumber/tnumber.h"
-  5 #include "../tnumber/tint.h"
-  6 #include "../tnumber/tdouble.h"
-  7 
-  8 struct _TNumStr {
-  9   TStr parent;
- 10   int type;
- 11 };
- 12 
- 13 G_DEFINE_TYPE(TNumStr, t_num_str, T_TYPE_STR)
- 14 
- 15 static int
- 16 t_num_str_string_type (const char *string) {
- 17   const char *t;
- 18   int stat, input;
- 19   /* state matrix */
- 20   int m[4][5] = {
- 21     {1, 2, 3, 6, 6},
- 22     {6, 2, 3, 6, 6},
- 23     {6, 2, 3, 4, 6},
- 24     {6, 3, 6, 5, 6}
- 25   };
- 26 
- 27   if (string == NULL)
- 28     return t_none;
- 29   stat = 0;
- 30   for (t = string; ; ++t) {
- 31     if (*t == '+' || *t == '-')
- 32       input = 0;
- 33     else if (isdigit (*t))
- 34       input = 1;
- 35     else if (*t == '.')
- 36       input = 2;
- 37     else if (*t == '\0')
- 38       input = 3;
- 39     else
- 40       input = 4;
- 41 
- 42     stat = m[stat][input];
- 43 
- 44     if (stat >= 4 || *t == '\0')
- 45       break;
- 46   }
- 47   if (stat == 4)
- 48     return t_int;
- 49   else if (stat == 5)
- 50     return t_double;
- 51   else
- 52     return t_none;
- 53 }
- 54 
- 55 static void
- 56 t_num_str_real_set_string (TStr *self, const char *s) {
- 57   T_STR_CLASS (t_num_str_parent_class)->set_string (self, s);
- 58   T_NUM_STR (self)->type = t_num_str_string_type(s);
- 59 }
- 60 
- 61 static void
- 62 t_num_str_init (TNumStr *self) {
- 63   self->type = t_none;
+  1 #include <stdlib.h>
+  2 #include <ctype.h>
+  3 #include "tnumstr.h"
+  4 #include "tstr.h"
+  5 #include "../tnumber/tnumber.h"
+  6 #include "../tnumber/tint.h"
+  7 #include "../tnumber/tdouble.h"
+  8 
+  9 struct _TNumStr {
+ 10   TStr parent;
+ 11   int type;
+ 12 };
+ 13 
+ 14 G_DEFINE_TYPE(TNumStr, t_num_str, T_TYPE_STR)
+ 15 
+ 16 static int
+ 17 t_num_str_string_type (const char *string) {
+ 18   const char *t;
+ 19   int stat, input;
+ 20   /* state matrix */
+ 21   int m[4][5] = {
+ 22     {1, 2, 3, 6, 6},
+ 23     {6, 2, 3, 6, 6},
+ 24     {6, 2, 3, 4, 6},
+ 25     {6, 3, 6, 5, 6}
+ 26   };
+ 27 
+ 28   if (string == NULL)
+ 29     return t_none;
+ 30   stat = 0;
+ 31   for (t = string; ; ++t) {
+ 32     if (*t == '+' || *t == '-')
+ 33       input = 0;
+ 34     else if (isdigit (*t))
+ 35       input = 1;
+ 36     else if (*t == '.')
+ 37       input = 2;
+ 38     else if (*t == '\0')
+ 39       input = 3;
+ 40     else
+ 41       input = 4;
+ 42 
+ 43     stat = m[stat][input];
+ 44 
+ 45     if (stat >= 4 || *t == '\0')
+ 46       break;
+ 47   }
+ 48   if (stat == 4)
+ 49     return t_int;
+ 50   else if (stat == 5)
+ 51     return t_double;
+ 52   else
+ 53     return t_none;
+ 54 }
+ 55 
+ 56 /* This function overrides t_str_set_string. */
+ 57 /* And it also changes the behavior of setting the "string" property. */
+ 58 /* On TStr => just set the "string" property */
+ 59 /* On TNumStr => set the "string" property and set the type of the string. */
+ 60 static void
+ 61 t_num_str_real_set_string (TStr *self, const char *s) {
+ 62   T_STR_CLASS (t_num_str_parent_class)->set_string (self, s);
+ 63   T_NUM_STR (self)->type = t_num_str_string_type(s);
  64 }
  65 
  66 static void
- 67 t_num_str_class_init (TNumStrClass *class) {
- 68   TStrClass *t_str_class = T_STR_CLASS (class);
- 69 
- 70   t_str_class->set_string = t_num_str_real_set_string;
- 71 }
- 72 
- 73 int
- 74 t_num_str_get_string_type (TNumStr *self) {
- 75   g_return_val_if_fail (T_IS_NUM_STR (self), -1);
- 76 
- 77   return self->type;
- 78 }
- 79 
- 80 /* setter and getter */
- 81 void
- 82 t_num_str_set_from_t_number (TNumStr *self, TNumber *num) {
- 83   g_return_if_fail (T_IS_NUM_STR (self));
- 84   g_return_if_fail (T_IS_NUMBER (num));
- 85 
- 86   char *s;
- 87 
- 88   s = t_number_to_s (T_NUMBER (num));
- 89   t_str_set_string (T_STR (self), s);
- 90   g_free (s);
- 91 }
+ 67 t_num_str_init (TNumStr *self) {
+ 68   self->type = t_none;
+ 69 }
+ 70 
+ 71 static void
+ 72 t_num_str_class_init (TNumStrClass *class) {
+ 73   TStrClass *t_str_class = T_STR_CLASS (class);
+ 74 
+ 75   t_str_class->set_string = t_num_str_real_set_string;
+ 76 }
+ 77 
+ 78 int
+ 79 t_num_str_get_string_type (TNumStr *self) {
+ 80   g_return_val_if_fail (T_IS_NUM_STR (self), -1);
+ 81 
+ 82   return self->type;
+ 83 }
+ 84 
+ 85 /* setter and getter */
+ 86 void
+ 87 t_num_str_set_from_t_number (TNumStr *self, TNumber *num) {
+ 88   g_return_if_fail (T_IS_NUM_STR (self));
+ 89   g_return_if_fail (T_IS_NUMBER (num));
+ 90 
+ 91   char *s;
  92 
- 93 TNumber *
- 94 t_num_str_get_t_number (TNumStr *self) {
- 95   g_return_val_if_fail (T_IS_NUM_STR (self), NULL);
- 96 
- 97   char *s = t_str_get_string(T_STR (self));
- 98   TNumber *tnum;
- 99 
-100   if (self->type == t_int)
-101     tnum = T_NUMBER (t_int_new_with_value (atoi (s)));
-102   else if (self->type == t_double)
-103     tnum = T_NUMBER (t_double_new_with_value (atof (s)));
-104   else
-105     tnum = NULL;
-106   g_free (s);
-107   return tnum;
-108 }
-109 
-110 /* create a new TNumStr instance */
-111 
-112 TNumStr *
-113 t_num_str_new_with_tnumber (TNumber *num) {
-114   g_return_val_if_fail (T_IS_NUMBER (num), NULL);
-115 
-116   TNumStr *numstr;
-117 
-118   numstr = t_num_str_new ();
-119   t_num_str_set_from_t_number (numstr, num);
-120   return numstr;
-121 }
+ 93   s = t_number_to_s (T_NUMBER (num));
+ 94   t_str_set_string (T_STR (self), s);
+ 95   g_free (s);
+ 96 }
+ 97 
+ 98 TNumber *
+ 99 t_num_str_get_t_number (TNumStr *self) {
+100   g_return_val_if_fail (T_IS_NUM_STR (self), NULL);
+101 
+102   char *s = t_str_get_string(T_STR (self));
+103   TNumber *tnum;
+104 
+105   if (self->type == t_int)
+106     tnum = T_NUMBER (t_int_new_with_value (atoi (s)));
+107   else if (self->type == t_double)
+108     tnum = T_NUMBER (t_double_new_with_value (atof (s)));
+109   else
+110     tnum = NULL;
+111   g_free (s);
+112   return tnum;
+113 }
+114 
+115 /* create a new TNumStr instance */
+116 
+117 TNumStr *
+118 t_num_str_new_with_tnumber (TNumber *num) {
+119   g_return_val_if_fail (T_IS_NUMBER (num), NULL);
+120 
+121   TNumStr *numstr;
 122 
-123 TNumStr *
-124 t_num_str_new (void) {
-125   return T_NUM_STR (g_object_new (T_TYPE_NUM_STR, NULL));
+123   numstr = t_num_str_new ();
+124   t_num_str_set_from_t_number (numstr, num);
+125   return numstr;
 126 }
+127 
+128 TNumStr *
+129 t_num_str_new (void) {
+130   return T_NUM_STR (g_object_new (T_TYPE_NUM_STR, NULL));
+131 }
 ~~~
 
-- 10-13: Definition of TNumStr type C structure.
-TNumStr instance holds a string and type.
-The string is placed in the parent's (TStr) private area, so the structure doesn't have it.
-The type is stored in the `type` element of the structure.
-- 15: `G_DEFINE_TYPE` macro.
-- 17- 55: `t_num_str_string_type` function checks the given string and returns `t_int`, `t_double` or `t_none`.
+- 9-12: TNumStr structure has its parent "TStr" and int type "type" members.
+So, TNumStr instance holds a string, which is placed in the parent's private area, and a type.
+- 14: `G_DEFINE_TYPE` macro.
+- 16- 54: The function `t_num_str_string_type` checks the given string and returns `t_int`, `t_double` or `t_none`.
 If the string is NULL or an non-numeric string, `t_none` will be returned.
 The check algorithm is explained in the first subsection "Verification of a numeric string".
-- 57-61: `t_num_str_real_set_string` function.
-It sets TNumStr's string and type with the parameter `s`.
-- 63-66: Initializes an instance.
-When the TNumStr instance is created, it has no string (NULL).
-So, the type is set with t\_none.
-- 68-73: Initializes the class.
-The class method `set_string` is replaced by `t_num_str_real_set_string`.
-So `t_str_set_string` and `t_str_set_property` (in tstr.c) sets not only the string but also the type.
-- 75-80: `t_num_str_get_string_type` returns the type.
-- 83-110: Setter and getter.
-The setter sets the numeric string with a TNumber object.
+- 60-64: The function `t_num_str_real_set_string` sets TNumStr's string and its type.
+This is a body of the class method pointed by `set_string` member of the class structure.
+The class method is initialized in the class initialization function `t_num_str_class_init`.
+- 66-69: The instance initialization function `t_num_str_init` sets the type to `t_none`
+because its parent initialization function set the pointer `priv->string` to NULL.
+- 71-76: The class initialization function `t_num_str_class_init` assigns `t_num_str_real_set_string` to the member `set_string`.
+Therefore, the function `t_str_set_string` calls `t_num_str_real_set_string`, which sets not only the string but also the type.
+The function `g_object_set` also calls it and sets both the string and type.
+- 78-83: The public function `t_num_str_get_string_type` returns the type of the string.
+- 86-113: Setter and getter.
+The setter sets the numeric string from a TNumber object.
 And the getter returns a TNumber object.
-- 114-128: TNumStr instance creating functions.
+- 117-131: These two functions create TNumStr instances.
 
 ## Child class extends parent's function.
 
@@ -329,8 +329,7 @@ TNumStr *ns = t_num_str_new ();
 t_str_set_string (T_STR (ns), "123.456");
 ```
 
-TNumStr extends the function of `t_str_set_string`.
-It sets not only a string but also its type for a TNumStr instance.
+TNumStr extends the function `t_str_set_string` and it sets not only a string but also the type for a TNumStr instance.
 
 ```c
 int t;
@@ -365,11 +364,28 @@ Compilation is done by usual way.
 First, change your current directory to `src/tstr`.
 
 ~~~
-$ meson _build
+$ cd src/tstr
+$ meson setup _build
 $ ninja -C _build
 $ _build/test1
 $ _build/test2
 $ _build/tnumstr
+String property is set to one.
+"one" and "two" is "onetwo".
+123 + 456 + 789 = 1368
+TNumStr => TNumber => TNumStr
+123 => 123 => 123
+-45 => -45 => -45
++0 => 0 => 0
+123.456 => 123.456000 => 123.456000
++123.456 => 123.456000 => 123.456000
+-123.456 => -123.456000 => -123.456000
+.456 => 0.456000 => 0.456000
+123. => 123.000000 => 123.000000
+0.0 => 0.000000 => 0.000000
+123.4567890123456789 => 123.456789 => 123.456789
+abc => (null) => abc
+(null) => (null) => (null)
 ~~~
 
 The last part of `main.c` is conversion between TNumStr and TNumber.

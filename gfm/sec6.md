@@ -47,55 +47,52 @@ It converts the value of TNumber into a string.
 It is like sprintf function.
 And we will rewrite TInt and TDouble to implement the functions.
 
-## TNumber object
+## TNumber class
 
-`tnumber.h` is a header file for TNumber object.
+`tnumber.h` is a header file for the TNumber class.
 
 ~~~C
- 1 #ifndef __T_NUMBER_H__
- 2 #define __T_NUMBER_H__
- 3 
- 4 #include <glib-object.h>
- 5 
- 6 #define T_TYPE_NUMBER             (t_number_get_type ())
- 7 G_DECLARE_DERIVABLE_TYPE (TNumber, t_number, T, NUMBER, GObject)
- 8 
- 9 struct _TNumberClass {
-10   GObjectClass parent_class;
-11   TNumber* (*add) (TNumber *self, TNumber *other);
-12   TNumber* (*sub) (TNumber *self, TNumber *other);
-13   TNumber* (*mul) (TNumber *self, TNumber *other);
-14   TNumber* (*div) (TNumber *self, TNumber *other);
-15   TNumber* (*uminus) (TNumber *self);
-16   char * (*to_s) (TNumber *self);
-17   /* signal */
-18   void (*div_by_zero) (TNumber *self);
-19 };
-20 
-21 /* arithmetic operator */
-22 /* These operators create a new instance and return a pointer to it. */
-23 TNumber *
-24 t_number_add (TNumber *self, TNumber *other);
-25 
-26 TNumber *
-27 t_number_sub (TNumber *self, TNumber *other);
-28 
-29 TNumber *
-30 t_number_mul (TNumber *self, TNumber *other);
-31 
-32 TNumber *
-33 t_number_div (TNumber *self, TNumber *other);
-34 
-35 TNumber *
-36 t_number_uminus (TNumber *self);
-37 
-38 char *
-39 t_number_to_s (TNumber *self);
-40 #endif /* __T_NUMBER_H__ */
-41 
+ 1 #pragma once
+ 2 
+ 3 #include <glib-object.h>
+ 4 
+ 5 #define T_TYPE_NUMBER             (t_number_get_type ())
+ 6 G_DECLARE_DERIVABLE_TYPE (TNumber, t_number, T, NUMBER, GObject)
+ 7 
+ 8 struct _TNumberClass {
+ 9   GObjectClass parent_class;
+10   TNumber* (*add) (TNumber *self, TNumber *other);
+11   TNumber* (*sub) (TNumber *self, TNumber *other);
+12   TNumber* (*mul) (TNumber *self, TNumber *other);
+13   TNumber* (*div) (TNumber *self, TNumber *other);
+14   TNumber* (*uminus) (TNumber *self);
+15   char * (*to_s) (TNumber *self);
+16   /* signal */
+17   void (*div_by_zero) (TNumber *self);
+18 };
+19 
+20 /* arithmetic operator */
+21 /* These operators create a new instance and return a pointer to it. */
+22 TNumber *
+23 t_number_add (TNumber *self, TNumber *other);
+24 
+25 TNumber *
+26 t_number_sub (TNumber *self, TNumber *other);
+27 
+28 TNumber *
+29 t_number_mul (TNumber *self, TNumber *other);
+30 
+31 TNumber *
+32 t_number_div (TNumber *self, TNumber *other);
+33 
+34 TNumber *
+35 t_number_uminus (TNumber *self);
+36 
+37 char *
+38 t_number_to_s (TNumber *self);
 ~~~
 
-- 7: `G_DECLARE_DERIVABLE_TYPE` macro.
+- 6: `G_DECLARE_DERIVABLE_TYPE` macro.
 This is similar to `G_DECLARE_FINAL_TYPE` macro.
 The difference is derivable or final.
 `G_DECLARE_DERIVABLE_TYPE` is expanded to:
@@ -104,15 +101,15 @@ The difference is derivable or final.
   - Declaration of TNumberClass. It should be defined later in the header file.
   - Convenience macros `T_NUMBER` (cast to instance), `T_NUMBER_CLASS` (cast to class), `T_IS_NUMBER` (instance check), `T_IS_NUMBER_CLASS` (class check) and `T_NUMBER_GET_CLASS` are defined.
   - `g_autoptr()` support.
-- 9-19: Definition of the structure of TNumberClass.
-- 11-16: These are pointers to functions.
+- 8-18: Definition of the structure of TNumberClass.
+- 10-15: These are pointers to functions.
 They are called class methods or virtual functions.
-They are expected to be overridden by a function in the descendant object.
+They are expected to be overridden in the descendant object.
 The methods are five arithmetic operators and `to_s` function.
 `to_s` function is similar to sprintf function.
-- 18: A pointer to the default signal handler of "div-by-zero" signal.
+- 17: A pointer to the default signal handler of "div-by-zero" signal.
 The offset of this pointer is given to `g_signal_new` as an argument.
-- 21-40: Functions. They are public.
+- 22-38: Functions. They are public.
 
 `tnumber.c` is as follows.
 
@@ -155,7 +152,7 @@ The offset of this pointer is given to `g_signal_new` as an argument.
 36 }
 37 
 38 static void
-39 t_number_init (TNumber *inst) {
+39 t_number_init (TNumber *self) {
 40 }
 41 
 42 TNumber *
@@ -164,52 +161,57 @@ The offset of this pointer is given to `g_signal_new` as an argument.
 45   g_return_val_if_fail (T_IS_NUMBER (other), NULL);
 46 
 47   TNumberClass *class = T_NUMBER_GET_CLASS(self);
-48   return class->add ? class->add (self, other) : NULL;
-49 }
-50 
-51 TNumber *
-52 t_number_sub (TNumber *self, TNumber *other) {
-53   g_return_val_if_fail (T_IS_NUMBER (self), NULL);
-54   g_return_val_if_fail (T_IS_NUMBER (other), NULL);
-55 
-56   TNumberClass *class = T_NUMBER_GET_CLASS(self);
-57   return class->sub ? class->sub (self, other) : NULL;
-58 }
-59 
-60 TNumber *
-61 t_number_mul (TNumber *self, TNumber *other) {
-62   g_return_val_if_fail (T_IS_NUMBER (self), NULL);
-63   g_return_val_if_fail (T_IS_NUMBER (other), NULL);
-64 
-65   TNumberClass *class = T_NUMBER_GET_CLASS(self);
-66   return class->mul ? class->mul (self, other) : NULL;
-67 }
+48 
+49   return class->add ? class->add (self, other) : NULL;
+50 }
+51 
+52 TNumber *
+53 t_number_sub (TNumber *self, TNumber *other) {
+54   g_return_val_if_fail (T_IS_NUMBER (self), NULL);
+55   g_return_val_if_fail (T_IS_NUMBER (other), NULL);
+56 
+57   TNumberClass *class = T_NUMBER_GET_CLASS(self);
+58 
+59   return class->sub ? class->sub (self, other) : NULL;
+60 }
+61 
+62 TNumber *
+63 t_number_mul (TNumber *self, TNumber *other) {
+64   g_return_val_if_fail (T_IS_NUMBER (self), NULL);
+65   g_return_val_if_fail (T_IS_NUMBER (other), NULL);
+66 
+67   TNumberClass *class = T_NUMBER_GET_CLASS(self);
 68 
-69 TNumber *
-70 t_number_div (TNumber *self, TNumber *other) {
-71   g_return_val_if_fail (T_IS_NUMBER (self), NULL);
-72   g_return_val_if_fail (T_IS_NUMBER (other), NULL);
-73 
-74   TNumberClass *class = T_NUMBER_GET_CLASS(self);
-75   return class->div ? class->div (self, other) : NULL;
-76 }
-77 
-78 TNumber *
-79 t_number_uminus (TNumber *self) {
-80   g_return_val_if_fail (T_IS_NUMBER (self), NULL);
+69   return class->mul ? class->mul (self, other) : NULL;
+70 }
+71 
+72 TNumber *
+73 t_number_div (TNumber *self, TNumber *other) {
+74   g_return_val_if_fail (T_IS_NUMBER (self), NULL);
+75   g_return_val_if_fail (T_IS_NUMBER (other), NULL);
+76 
+77   TNumberClass *class = T_NUMBER_GET_CLASS(self);
+78 
+79   return class->div ? class->div (self, other) : NULL;
+80 }
 81 
-82   TNumberClass *class = T_NUMBER_GET_CLASS(self);
-83   return class->uminus ? class->uminus (self) : NULL;
-84 }
+82 TNumber *
+83 t_number_uminus (TNumber *self) {
+84   g_return_val_if_fail (T_IS_NUMBER (self), NULL);
 85 
-86 char *
-87 t_number_to_s (TNumber *self) {
-88   g_return_val_if_fail (T_IS_NUMBER (self), NULL);
-89 
-90   TNumberClass *class = T_NUMBER_GET_CLASS(self);
-91   return class->to_s ? class->to_s (self) : NULL;
-92 }
-93 
+86   TNumberClass *class = T_NUMBER_GET_CLASS(self);
+87 
+88   return class->uminus ? class->uminus (self) : NULL;
+89 }
+90 
+91 char *
+92 t_number_to_s (TNumber *self) {
+93   g_return_val_if_fail (T_IS_NUMBER (self), NULL);
+94 
+95   TNumberClass *class = T_NUMBER_GET_CLASS(self);
+96 
+97   return class->to_s ? class->to_s (self) : NULL;
+98 }
 ~~~
 
 - 5: `G_DEFINE_ABSTRACT_TYPE` macro.
@@ -220,12 +222,12 @@ This macro is expanded to:
   - Declaration of `t_number_class_init ()` function.
   - Definition of `t_number_get_type ()` function.
   - Definition of `t_number_parent_class` static variable that points the parent class.
-- 3, 7-10, 25-35: Defines division-by-zero signal.
-`div_by_zero_default_cb` is a default handler of "div-by-zero" signal.
+- 3, 7-10, 26-35: Defines division-by-zero signal.
+The function `div_by_zero_default_cb` is a default handler of "div-by-zero" signal.
 Default handler doesn't have user data parameter.
-`g_signal_new` is used instead of `g_signal_new_class_handler`.
-`g_signal_new` specifies a handler as the offset from the top of the class to the pointer to the handler.
-- 12-36: `t_number_class_init`.
+The function `g_signal_new` is used instead of `g_signal_new_class_handler`.
+It specifies a handler as the offset from the top of the class to the pointer to the handler.
+- 12-36: The class initialization function `t_number_class_init`.
 - 16-21: These class methods are virtual functions.
 They are expected to be overridden in the descendant object of TNumber.
 NULL is assigned here so that nothing happens when the methods are called.
@@ -235,226 +237,224 @@ This is the default handler of "div-by-zero" signal.
 But abstract object isn't instantiated.
 So, nothing is done in this function.
 But you can't leave out the definition of this function.
-- 42-92: Public functions.
+- 42-98: Public functions.
 These functions just call the corresponding class methods if the pointer to the class method is not NULL.
 
 ## TInt object.
 
-`tint.h` is a header file of TInt object.
-TInt is a child object of TNumber.
+`tint.h` is a header file of the TInt class.
+TInt is a child class of TNumber.
 
 ~~~C
- 1 #ifndef __T_INT_H__
- 2 #define __T_INT_H__
- 3 
- 4 #include <glib-object.h>
- 5 #include "tnumber.h"
- 6 
- 7 #define T_TYPE_INT  (t_int_get_type ())
- 8 G_DECLARE_FINAL_TYPE (TInt, t_int, T, INT, TNumber)
- 9 
-10 /* create a new TInt instance */
-11 TInt *
-12 t_int_new_with_value (int value);
-13 
-14 TInt *
-15 t_int_new (void);
-16 #endif /* __T_INT_H__ */
-17 
+ 1 #pragma once
+ 2 
+ 3 #include <glib-object.h>
+ 4 
+ 5 #define T_TYPE_INT  (t_int_get_type ())
+ 6 G_DECLARE_FINAL_TYPE (TInt, t_int, T, INT, TNumber)
+ 7 
+ 8 /* create a new TInt instance */
+ 9 TInt *
+10 t_int_new_with_value (int value);
+11 
+12 TInt *
+13 t_int_new (void);
 ~~~
 
-- 10-16:Declares public functions.
+- 9-13:Declares public functions.
 Arithmetic functions and `to_s` are declared in TNumber, so TInt doesn't declare those functions.
 Only instance creation functions are declared.
 
-`tint.c` implements virtual functions (class methods).
+The C file `tint.c` implements virtual functions (class methods).
 And the pointers of the methods in TNumberClass are rewritten here.
 
 ~~~C
-  1 #include "tint.h"
-  2 #include "tdouble.h"
-  3 
-  4 #define PROP_INT 1
-  5 static GParamSpec *int_property = NULL;
-  6 
-  7 struct _TInt {
-  8   TNumber parent;
-  9   int value;
- 10 };
- 11 
- 12 G_DEFINE_TYPE (TInt, t_int, T_TYPE_NUMBER)
- 13 
- 14 static void
- 15 t_int_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
- 16   TInt *self = T_INT (object);
- 17 
- 18   if (property_id == PROP_INT)
- 19     self->value = g_value_get_int (value);
- 20   else
- 21     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
- 22 }
- 23 
- 24 static void
- 25 t_int_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
- 26   TInt *self = T_INT (object);
- 27 
- 28   if (property_id == PROP_INT)
- 29     g_value_set_int (value, self->value);
- 30   else
- 31     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
- 32 }
- 33 
- 34 static void
- 35 t_int_init (TInt *i) {
- 36 }
- 37 
- 38 /* arithmetic operator */
- 39 /* These operators create a new instance and return a pointer to it. */
- 40 #define t_int_binary_op(op) \
- 41   int i; \
- 42   double d; \
- 43   if (T_IS_INT (other)) { \
- 44     g_object_get (T_INT (other), "value", &i, NULL); \
- 45     return  T_NUMBER (t_int_new_with_value (T_INT(self)->value op i)); \
- 46   } else { \
- 47     g_object_get (T_DOUBLE (other), "value", &d, NULL); \
- 48     return  T_NUMBER (t_int_new_with_value (T_INT(self)->value op (int) d)); \
- 49   }
- 50 
- 51 static TNumber *
- 52 t_int_add (TNumber *self, TNumber *other) {
- 53   g_return_val_if_fail (T_IS_INT (self), NULL);
- 54 
- 55   t_int_binary_op (+)
- 56 }
- 57 
- 58 static TNumber *
- 59 t_int_sub (TNumber *self, TNumber *other) {
- 60   g_return_val_if_fail (T_IS_INT (self), NULL);
- 61 
- 62   t_int_binary_op (-)
- 63 }
- 64 
- 65 static TNumber *
- 66 t_int_mul (TNumber *self, TNumber *other) {
- 67   g_return_val_if_fail (T_IS_INT (self), NULL);
- 68 
- 69   t_int_binary_op (*)
- 70 }
- 71 
- 72 static TNumber *
- 73 t_int_div (TNumber *self, TNumber *other) {
- 74   g_return_val_if_fail (T_IS_INT (self), NULL);
- 75   int i;
- 76   double d;
- 77 
- 78   if (T_IS_INT (other)) {
- 79     g_object_get (T_INT (other), "value", &i, NULL);
- 80     if (i == 0) {
- 81       g_signal_emit_by_name (self, "div-by-zero");
- 82       return NULL;
- 83     } else
- 84       return  T_NUMBER (t_int_new_with_value (T_INT(self)->value / i));
- 85   } else {
- 86     g_object_get (T_DOUBLE (other), "value", &d, NULL);
- 87     if (d == 0) {
- 88       g_signal_emit_by_name (self, "div-by-zero");
- 89       return NULL;
- 90     } else
- 91       return  T_NUMBER (t_int_new_with_value (T_INT(self)->value / (int)  d));
- 92   }
- 93 }
- 94 
- 95 static TNumber *
- 96 t_int_uminus (TNumber *self) {
- 97   g_return_val_if_fail (T_IS_INT (self), NULL);
- 98 
- 99   return T_NUMBER (t_int_new_with_value (- T_INT(self)->value));
-100 }
-101 
-102 static char *
-103 t_int_to_s (TNumber *self) {
-104   g_return_val_if_fail (T_IS_INT (self), NULL);
-105   int i;
-106 
-107   g_object_get (T_INT (self), "value", &i, NULL); 
-108   return g_strdup_printf ("%d", i);
-109 }
-110 
-111 static void
-112 t_int_class_init (TIntClass *class) {
-113   TNumberClass *tnumber_class = T_NUMBER_CLASS (class);
-114   GObjectClass *gobject_class = G_OBJECT_CLASS (class);
-115 
-116   /* override virtual functions */
-117   tnumber_class->add = t_int_add;
-118   tnumber_class->sub = t_int_sub;
-119   tnumber_class->mul = t_int_mul;
-120   tnumber_class->div = t_int_div;
-121   tnumber_class->uminus = t_int_uminus;
-122   tnumber_class->to_s = t_int_to_s;
-123 
-124   gobject_class->set_property = t_int_set_property;
-125   gobject_class->get_property = t_int_get_property;
-126   int_property = g_param_spec_int ("value", "val", "Integer value", G_MININT, G_MAXINT, 0, G_PARAM_READWRITE);
-127   g_object_class_install_property (gobject_class, PROP_INT, int_property);
-128 }
-129 
-130 TInt *
-131 t_int_new_with_value (int value) {
-132   TInt *i;
-133 
-134   i = g_object_new (T_TYPE_INT, "value", value, NULL);
-135   return i;
-136 }
-137 
-138 TInt *
-139 t_int_new (void) {
-140   TInt *i;
-141 
-142   i = g_object_new (T_TYPE_INT, NULL);
-143   return i;
-144 }
-145 
+  1 #include "tnumber.h"
+  2 #include "tint.h"
+  3 #include "tdouble.h"
+  4 
+  5 #define PROP_INT 1
+  6 static GParamSpec *int_property = NULL;
+  7 
+  8 struct _TInt {
+  9   TNumber parent;
+ 10   int value;
+ 11 };
+ 12 
+ 13 G_DEFINE_TYPE (TInt, t_int, T_TYPE_NUMBER)
+ 14 
+ 15 static void
+ 16 t_int_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
+ 17   TInt *self = T_INT (object);
+ 18 
+ 19   if (property_id == PROP_INT)
+ 20     self->value = g_value_get_int (value);
+ 21   else
+ 22     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+ 23 }
+ 24 
+ 25 static void
+ 26 t_int_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
+ 27   TInt *self = T_INT (object);
+ 28 
+ 29   if (property_id == PROP_INT)
+ 30     g_value_set_int (value, self->value);
+ 31   else
+ 32     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+ 33 }
+ 34 
+ 35 static void
+ 36 t_int_init (TInt *self) {
+ 37 }
+ 38 
+ 39 /* arithmetic operator */
+ 40 /* These operators create a new instance and return a pointer to it. */
+ 41 #define t_int_binary_op(op) \
+ 42   int i; \
+ 43   double d; \
+ 44   if (T_IS_INT (other)) { \
+ 45     g_object_get (T_INT (other), "value", &i, NULL); \
+ 46     return  T_NUMBER (t_int_new_with_value (T_INT(self)->value op i)); \
+ 47   } else { \
+ 48     g_object_get (T_DOUBLE (other), "value", &d, NULL); \
+ 49     return  T_NUMBER (t_int_new_with_value (T_INT(self)->value op (int) d)); \
+ 50   }
+ 51 
+ 52 static TNumber *
+ 53 t_int_add (TNumber *self, TNumber *other) {
+ 54   g_return_val_if_fail (T_IS_INT (self), NULL);
+ 55 
+ 56   t_int_binary_op (+)
+ 57 }
+ 58 
+ 59 static TNumber *
+ 60 t_int_sub (TNumber *self, TNumber *other) {
+ 61   g_return_val_if_fail (T_IS_INT (self), NULL);
+ 62 
+ 63   t_int_binary_op (-)
+ 64 }
+ 65 
+ 66 static TNumber *
+ 67 t_int_mul (TNumber *self, TNumber *other) {
+ 68   g_return_val_if_fail (T_IS_INT (self), NULL);
+ 69 
+ 70   t_int_binary_op (*)
+ 71 }
+ 72 
+ 73 static TNumber *
+ 74 t_int_div (TNumber *self, TNumber *other) {
+ 75   g_return_val_if_fail (T_IS_INT (self), NULL);
+ 76 
+ 77   int i;
+ 78   double d;
+ 79 
+ 80   if (T_IS_INT (other)) {
+ 81     g_object_get (T_INT (other), "value", &i, NULL);
+ 82     if (i == 0) {
+ 83       g_signal_emit_by_name (self, "div-by-zero");
+ 84       return NULL;
+ 85     } else
+ 86       return  T_NUMBER (t_int_new_with_value (T_INT(self)->value / i));
+ 87   } else {
+ 88     g_object_get (T_DOUBLE (other), "value", &d, NULL);
+ 89     if (d == 0) {
+ 90       g_signal_emit_by_name (self, "div-by-zero");
+ 91       return NULL;
+ 92     } else
+ 93       return  T_NUMBER (t_int_new_with_value (T_INT(self)->value / (int)  d));
+ 94   }
+ 95 }
+ 96 
+ 97 static TNumber *
+ 98 t_int_uminus (TNumber *self) {
+ 99   g_return_val_if_fail (T_IS_INT (self), NULL);
+100 
+101   return T_NUMBER (t_int_new_with_value (- T_INT(self)->value));
+102 }
+103 
+104 static char *
+105 t_int_to_s (TNumber *self) {
+106   g_return_val_if_fail (T_IS_INT (self), NULL);
+107 
+108   int i;
+109 
+110   g_object_get (T_INT (self), "value", &i, NULL); 
+111   return g_strdup_printf ("%d", i);
+112 }
+113 
+114 static void
+115 t_int_class_init (TIntClass *class) {
+116   TNumberClass *tnumber_class = T_NUMBER_CLASS (class);
+117   GObjectClass *gobject_class = G_OBJECT_CLASS (class);
+118 
+119   /* override virtual functions */
+120   tnumber_class->add = t_int_add;
+121   tnumber_class->sub = t_int_sub;
+122   tnumber_class->mul = t_int_mul;
+123   tnumber_class->div = t_int_div;
+124   tnumber_class->uminus = t_int_uminus;
+125   tnumber_class->to_s = t_int_to_s;
+126 
+127   gobject_class->set_property = t_int_set_property;
+128   gobject_class->get_property = t_int_get_property;
+129   int_property = g_param_spec_int ("value", "val", "Integer value", G_MININT, G_MAXINT, 0, G_PARAM_READWRITE);
+130   g_object_class_install_property (gobject_class, PROP_INT, int_property);
+131 }
+132 
+133 TInt *
+134 t_int_new_with_value (int value) {
+135   TInt *i;
+136 
+137   i = g_object_new (T_TYPE_INT, "value", value, NULL);
+138   return i;
+139 }
+140 
+141 TInt *
+142 t_int_new (void) {
+143   TInt *i;
+144 
+145   i = g_object_new (T_TYPE_INT, NULL);
+146   return i;
+147 }
 ~~~
 
-- 4-5, 14-32, 124-127: Definition of the property "value".
+- 5-6, 15-33, 127-130: Definition of the property "value".
 This is the same as before.
-- 7-10: Definition of the structure of TInt.
+- 8-11: Definition of the structure of TInt.
 This must be defined before `G_DEFINE_TYPE`.
-- 12: `G_DEFINE_TYPE` macro.
+- 13: `G_DEFINE_TYPE` macro.
 This macro expands to:
   - Declaration of `t_int_init ()` function.
   - Definition of `t_int_get_type ()` function.
   - Definition of `t_int_parent_class` static variable which points the parent class.
-- 34-36: `t_int_init`.
-- 40-109: These functions are connected to the class method pointers in TIntClass.
+- 35-37: `t_int_init`.
+- 41-112: These functions are connected to the class method pointers in TIntClass.
 They are the implementation of the virtual functions defined in `tnumber.c`.
-- 40-49: Defines a macro used in `t_int_add`, `t_int_sub` and `t_int_mul`.
+- 41-50: Defines a macro used in `t_int_add`, `t_int_sub` and `t_int_mul`.
 This macro is similar to `t_int_div` function.
-refer to the explanation below for `t_int_div`.
-- 51-70: `t_int_add`, `t_int_sub` and `t_int_mul` functions.
+Refer to the explanation below for `t_int_div`.
+- 52-71: The functions `t_int_add`, `t_int_sub` and `t_int_mul`.
 The macro `t_int_binary_op` is used.
-- 72-93: `t_int_div`.
-`self` is the object on which the function is called.
-`other` is another TNumber object.
+- 73-95: The function `t_int_div`.
+The first argument `self` is the object on which the function is called.
+The second argument `other` is another TNumber object.
 It can be TInt or TDouble.
 If it is TDouble, its value is casted to int before the division is performed.
 If the divisor (`other`) is zero, "div-by-zero" signal is emitted.
 The signal is defined in TNumber, so TInt doesn't know the signal id.
-The emission is done with `g_signal_emit_by_name` instead of `g_signal_emit`.
+Therefore, the emission is done with `g_signal_emit_by_name` instead of `g_signal_emit`.
 The return value of `t_int_div` is TNumber type object
 However, because TNumber is abstract, the actual type of the object is TInt.
-- 95-100: A function for unary minus operator.
-- 102-109: `to_s` function. This function converts int to string.
+- 97-102: A function for unary minus operator.
+- 104-112: The function `to_s`. This function converts int to string.
 For example, if the value of the object is 123, then the result is a string "123".
 The caller should free the string if it becomes useless.
-- 111- 128: `t_int_class_init`.
-- 117-122: The class methods are overridden.
+- 114- 131: The class initialization function `t_int_class_init`.
+- 120-125: The class methods are overridden.
 For example, if `t_number_add` is called on a TInt object, then the function calls the class method `*tnumber_class->add`.
 The pointer points `t_int_add` function.
-Therefore, `t_int_add` is called finally.
-- 130-144: Instance creation functions are the same as before.
+Therefore, `t_int_add` is finally called.
+- 133-147: Instance creation functions are the same as before.
 
 ## TDouble object.
 
@@ -465,172 +465,170 @@ So, this subsection just shows the contents of the files.
 tdouble.h
 
 ~~~C
- 1 #ifndef __T_DOUBLE_H__
- 2 #define __T_DOUBLE_H__
- 3 
- 4 #include <glib-object.h>
- 5 #include "tnumber.h"
- 6 
- 7 #define T_TYPE_DOUBLE  (t_double_get_type ())
- 8 G_DECLARE_FINAL_TYPE (TDouble, t_double, T, DOUBLE, TNumber)
- 9 
-10 /* create a new TDouble instance */
-11 TDouble *
-12 t_double_new_with_value (double value);
-13 
-14 TDouble *
-15 t_double_new (void);
-16 #endif /* __T_DOUBLE_H__ */
-17 
+ 1 #pragma once
+ 2 
+ 3 #include <glib-object.h>
+ 4 
+ 5 #define T_TYPE_DOUBLE  (t_double_get_type ())
+ 6 G_DECLARE_FINAL_TYPE (TDouble, t_double, T, DOUBLE, TNumber)
+ 7 
+ 8 /* create a new TDouble instance */
+ 9 TDouble *
+10 t_double_new_with_value (double value);
+11 
+12 TDouble *
+13 t_double_new (void);
 ~~~
 
 tdouble.c
 
 ~~~C
-  1 #include "tdouble.h"
-  2 #include "tint.h"
-  3 
-  4 #define PROP_DOUBLE 1
-  5 static GParamSpec *double_property = NULL;
-  6 
-  7 struct _TDouble {
-  8   TNumber parent;
-  9   double value;
- 10 };
- 11 
- 12 G_DEFINE_TYPE (TDouble, t_double, T_TYPE_NUMBER)
- 13 
- 14 static void
- 15 t_double_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
- 16   TDouble *self = T_DOUBLE (object);
- 17   if (property_id == PROP_DOUBLE) {
- 18     self->value = g_value_get_double (value);
- 19   } else
- 20     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
- 21 }
- 22 
- 23 static void
- 24 t_double_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
- 25   TDouble *self = T_DOUBLE (object);
- 26 
- 27   if (property_id == PROP_DOUBLE)
- 28     g_value_set_double (value, self->value);
- 29   else
- 30     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
- 31 }
- 32 
- 33 static void
- 34 t_double_init (TDouble *d) {
- 35 }
- 36 
- 37 /* arithmetic operator */
- 38 /* These operators create a new instance and return a pointer to it. */
- 39 #define t_double_binary_op(op) \
- 40   int i; \
- 41   double d; \
- 42   if (T_IS_INT (other)) { \
- 43     g_object_get (T_INT (other), "value", &i, NULL); \
- 44     return  T_NUMBER (t_double_new_with_value (T_DOUBLE(self)->value op (double) i)); \
- 45   } else { \
- 46     g_object_get (T_DOUBLE (other), "value", &d, NULL); \
- 47     return  T_NUMBER (t_double_new_with_value (T_DOUBLE(self)->value op d)); \
- 48   }
- 49 
- 50 static TNumber *
- 51 t_double_add (TNumber *self, TNumber *other) {
- 52   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
- 53 
- 54   t_double_binary_op (+)
- 55 }
- 56 
- 57 static TNumber *
- 58 t_double_sub (TNumber *self, TNumber *other) {
- 59   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
- 60 
- 61   t_double_binary_op (-)
- 62 }
- 63 
- 64 static TNumber *
- 65 t_double_mul (TNumber *self, TNumber *other) {
- 66   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
- 67 
- 68   t_double_binary_op (*)
- 69 }
- 70 
- 71 static TNumber *
- 72 t_double_div (TNumber *self, TNumber *other) {
- 73   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
- 74   int i;
- 75   double d;
- 76 
- 77   if (T_IS_INT (other)) {
- 78     g_object_get (T_INT (other), "value", &i, NULL);
- 79     if (i == 0) {
- 80       g_signal_emit_by_name (self, "div-by-zero");
- 81       return NULL;
- 82     } else
- 83       return  T_NUMBER (t_double_new_with_value (T_DOUBLE(self)->value / (double) i));
- 84   } else {
- 85     g_object_get (T_DOUBLE (other), "value", &d, NULL);
- 86     if (d == 0) {
- 87       g_signal_emit_by_name (self, "div-by-zero");
- 88       return NULL;
- 89     } else
- 90       return  T_NUMBER (t_double_new_with_value (T_DOUBLE(self)->value / d));
- 91   }
- 92 }
- 93 
- 94 static TNumber *
- 95 t_double_uminus (TNumber *self) {
- 96   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
- 97 
- 98   return T_NUMBER (t_double_new_with_value (- T_DOUBLE(self)->value));
- 99 }
-100 
-101 static char *
-102 t_double_to_s (TNumber *self) {
-103   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
-104   double d;
-105 
-106   g_object_get (T_DOUBLE (self), "value", &d, NULL);
-107   return g_strdup_printf ("%lf", d);
-108 }
-109 
-110 static void
-111 t_double_class_init (TDoubleClass *class) {
-112   TNumberClass *tnumber_class = T_NUMBER_CLASS (class);
-113   GObjectClass *gobject_class = G_OBJECT_CLASS (class);
-114 
-115   /* override virtual functions */
-116   tnumber_class->add = t_double_add;
-117   tnumber_class->sub = t_double_sub;
-118   tnumber_class->mul = t_double_mul;
-119   tnumber_class->div = t_double_div;
-120   tnumber_class->uminus = t_double_uminus;
-121   tnumber_class->to_s = t_double_to_s;
-122 
-123   gobject_class->set_property = t_double_set_property;
-124   gobject_class->get_property = t_double_get_property;
-125   double_property = g_param_spec_double ("value", "val", "Double value", -G_MAXDOUBLE, G_MAXDOUBLE, 0, G_PARAM_READWRITE);
-126   g_object_class_install_property (gobject_class, PROP_DOUBLE, double_property);
-127 }
-128 
-129 TDouble *
-130 t_double_new_with_value (double value) {
-131   TDouble *d;
-132 
-133   d = g_object_new (T_TYPE_DOUBLE, "value", value, NULL);
-134   return d;
-135 }
-136 
-137 TDouble *
-138 t_double_new (void) {
-139   TDouble *d;
-140 
-141   d = g_object_new (T_TYPE_DOUBLE, NULL);
-142   return d;
-143 }
-144 
+  1 #include "tnumber.h"
+  2 #include "tdouble.h"
+  3 #include "tint.h"
+  4 
+  5 #define PROP_DOUBLE 1
+  6 static GParamSpec *double_property = NULL;
+  7 
+  8 struct _TDouble {
+  9   TNumber parent;
+ 10   double value;
+ 11 };
+ 12 
+ 13 G_DEFINE_TYPE (TDouble, t_double, T_TYPE_NUMBER)
+ 14 
+ 15 static void
+ 16 t_double_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
+ 17   TDouble *self = T_DOUBLE (object);
+ 18   if (property_id == PROP_DOUBLE) {
+ 19     self->value = g_value_get_double (value);
+ 20   } else
+ 21     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+ 22 }
+ 23 
+ 24 static void
+ 25 t_double_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
+ 26   TDouble *self = T_DOUBLE (object);
+ 27 
+ 28   if (property_id == PROP_DOUBLE)
+ 29     g_value_set_double (value, self->value);
+ 30   else
+ 31     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+ 32 }
+ 33 
+ 34 static void
+ 35 t_double_init (TDouble *self) {
+ 36 }
+ 37 
+ 38 /* arithmetic operator */
+ 39 /* These operators create a new instance and return a pointer to it. */
+ 40 #define t_double_binary_op(op) \
+ 41   int i; \
+ 42   double d; \
+ 43   if (T_IS_INT (other)) { \
+ 44     g_object_get (T_INT (other), "value", &i, NULL); \
+ 45     return  T_NUMBER (t_double_new_with_value (T_DOUBLE(self)->value op (double) i)); \
+ 46   } else { \
+ 47     g_object_get (T_DOUBLE (other), "value", &d, NULL); \
+ 48     return  T_NUMBER (t_double_new_with_value (T_DOUBLE(self)->value op d)); \
+ 49   }
+ 50 
+ 51 static TNumber *
+ 52 t_double_add (TNumber *self, TNumber *other) {
+ 53   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
+ 54 
+ 55   t_double_binary_op (+)
+ 56 }
+ 57 
+ 58 static TNumber *
+ 59 t_double_sub (TNumber *self, TNumber *other) {
+ 60   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
+ 61 
+ 62   t_double_binary_op (-)
+ 63 }
+ 64 
+ 65 static TNumber *
+ 66 t_double_mul (TNumber *self, TNumber *other) {
+ 67   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
+ 68 
+ 69   t_double_binary_op (*)
+ 70 }
+ 71 
+ 72 static TNumber *
+ 73 t_double_div (TNumber *self, TNumber *other) {
+ 74   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
+ 75 
+ 76   int i;
+ 77   double d;
+ 78 
+ 79   if (T_IS_INT (other)) {
+ 80     g_object_get (T_INT (other), "value", &i, NULL);
+ 81     if (i == 0) {
+ 82       g_signal_emit_by_name (self, "div-by-zero");
+ 83       return NULL;
+ 84     } else
+ 85       return  T_NUMBER (t_double_new_with_value (T_DOUBLE(self)->value / (double) i));
+ 86   } else {
+ 87     g_object_get (T_DOUBLE (other), "value", &d, NULL);
+ 88     if (d == 0) {
+ 89       g_signal_emit_by_name (self, "div-by-zero");
+ 90       return NULL;
+ 91     } else
+ 92       return  T_NUMBER (t_double_new_with_value (T_DOUBLE(self)->value / d));
+ 93   }
+ 94 }
+ 95 
+ 96 static TNumber *
+ 97 t_double_uminus (TNumber *self) {
+ 98   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
+ 99 
+100   return T_NUMBER (t_double_new_with_value (- T_DOUBLE(self)->value));
+101 }
+102 
+103 static char *
+104 t_double_to_s (TNumber *self) {
+105   g_return_val_if_fail (T_IS_DOUBLE (self), NULL);
+106 
+107   double d;
+108 
+109   g_object_get (T_DOUBLE (self), "value", &d, NULL);
+110   return g_strdup_printf ("%lf", d);
+111 }
+112 
+113 static void
+114 t_double_class_init (TDoubleClass *class) {
+115   TNumberClass *tnumber_class = T_NUMBER_CLASS (class);
+116   GObjectClass *gobject_class = G_OBJECT_CLASS (class);
+117 
+118   /* override virtual functions */
+119   tnumber_class->add = t_double_add;
+120   tnumber_class->sub = t_double_sub;
+121   tnumber_class->mul = t_double_mul;
+122   tnumber_class->div = t_double_div;
+123   tnumber_class->uminus = t_double_uminus;
+124   tnumber_class->to_s = t_double_to_s;
+125 
+126   gobject_class->set_property = t_double_set_property;
+127   gobject_class->get_property = t_double_get_property;
+128   double_property = g_param_spec_double ("value", "val", "Double value", -G_MAXDOUBLE, G_MAXDOUBLE, 0, G_PARAM_READWRITE);
+129   g_object_class_install_property (gobject_class, PROP_DOUBLE, double_property);
+130 }
+131 
+132 TDouble *
+133 t_double_new_with_value (double value) {
+134   TDouble *d;
+135 
+136   d = g_object_new (T_TYPE_DOUBLE, "value", value, NULL);
+137   return d;
+138 }
+139 
+140 TDouble *
+141 t_double_new (void) {
+142   TDouble *d;
+143 
+144   d = g_object_new (T_TYPE_DOUBLE, NULL);
+145   return d;
+146 }
 ~~~
 
 ## main.c
@@ -709,12 +707,11 @@ tdouble.c
 69 
 70   return 0;
 71 }
-72 
 ~~~
 
 - 6-20: "notify" handler.
 This handler is upgraded to support both TInt and TDouble.
-- 22-71: A function `main`.
+- 22-71: The function `main`.
 - 30-31: Connects the notify signals on `i` (TInt) and `d` (TDouble).
 - 33-34: Set "value" properties on `i` and `d`.
 - 36: Add `d` to `i`.
@@ -743,7 +740,8 @@ The file `meson.buld`, which controls the compilation process, is as follows.
 Compilation and execution is done by the usual way.
 
 ~~~
-$ meson _build
+$ cd src/tnumber
+$ meson setup _build
 $ ninja -C _build
 $ _build/tnumber
 ~~~
@@ -751,7 +749,6 @@ $ _build/tnumber
 Then the following is shown on the display.
 
 ~~~
-$ cd tnumber; _build/tnumber 2>&1
 Property "value" is set to 100.
 Property "value" is set to 12.345000.
 100 + 12.345000 is 112.
@@ -759,7 +756,6 @@ Property "value" is set to 12.345000.
 Property "value" is set to 0.000000.
 
 Error: division by zero.
-
 ~~~
 
 The two answers are different because of the different types.
@@ -777,16 +773,19 @@ It is also good to see source files in GTK.
 
 ### Initialization process of TNumberClass
 
+Because TNumber is an abstract object, you cannot instantiate it directly.
+And you cannot create the TNumber class as well.
+But when you create its descendant instance, TNumber class is made and initialized.
+First call for `g_object_new (T_TYPE_INT, ...)` or `g_object_new (T_TYPE_DOUBLE, ...)` creates and initializes TNumberClass if the class doesn't exist.
+After that, TIntClass or TDoubleClass is created and followed by the creation for TInt or TDouble instance respectively.
+
+And the initialization process for the TNumber class is as follows.
+
 1. GObjectClass has been initialized before the function `main` starts.
-2. First call for `g_object_new (T_TYPE_INT, ...)` or `g_object_new (T_TYPE_DOUBLE, ...)` initializes TNumberClass.
-Because TNumber is an abstract object, it cannot be instantiated.
-Instead, its child object, TInt or TDouble, can be instantiated.
-And when a child is instantiated for the first time, TNumberClass is initialized before the child is initialized.
-And the initialization process is as follows.
-3. Memory is allocated for TNumberClass.
-4. The parent (GObjectClass) part of the class is copied from GObjectClass.
-5. `t_number_class_init` is called to initialize TNumberClass.
-This includes initializing pointers to class method handlers and a default signal handler.
+2. Memory is allocated for TNumberClass.
+3. The parent (GObjectClass) part of the class is copied from GObjectClass.
+4. The class initialization function `t_number_class_init` is called.
+It initializes class methods (Pointers to the class methods) and a default signal handler.
 
 The diagram below shows the process.
 
@@ -801,8 +800,8 @@ And the initialization process is as follows.
 TIntClass doesn't have its own area.
 Therefore its structure is the same as its parent class (TNumberClass).
 4. The parent (TNumberClass) part of the class (This is the same as whole TIntClass) is copied from TNumberClass.
-5. `t_int_class_init` is called to initialize TIntClass.
-This includes overriding class methods, set\_property and get\_property.
+5. The class initialization function `t_int_class_init` is called.
+It overrides class methods from TNumber, `set_property` and `get_property`.
 
 The diagram below shows the process.
 

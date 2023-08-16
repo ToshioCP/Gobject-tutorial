@@ -74,7 +74,7 @@ g_signal_new ("div-by-zero",
 
 - `t_double_signal` is a static guint variable.
 The type guint is the same as unsigned int.
-It is set the with the signal id.
+It is set to the signal id returned by the function `g_signal_new`.
 - The second parameter is the type (GType) of the object the signal belongs to.
 `G_TYPE_FROM_CLASS (class)` returns the type corresponds to the class (`class` is a pointer to the class of the object).
 - The third parameter is a signal flag.
@@ -102,31 +102,33 @@ The handler has two parameters.
 The "div-by-zero" signal doesn't need user data.
 
 ~~~C
-void div_by_zero_cb (TDouble *d, gpointer user_data) { ... ... ...}
+void div_by_zero_cb (TDouble *self, gpointer user_data) { ... ... ...}
 ~~~
 
-Or, you can leave out the second parameter.
+The first argument `self` is the instance on which the signal is emitted.
+You can leave out the second parameter.
 
 ~~~C
-void div_by_zero_cb (TDouble *d) { ... ... ...}
+void div_by_zero_cb (TDouble *self) { ... ... ...}
 ~~~
 
-If a signal has parameters, the parameters are between the instance and user data.
-For example, the handler of "response" signal on GtkDialog is:
+If a signal has parameters, the parameters are between the instance and the user data.
+For example, the handler of "window-added" signal on GtkApplication is:
 
 ~~~C
-void user_function (GtkDialog *dialog, int response_id, gpointer user_data);
+void window_added (GtkApplication* self, GtkWindow* window, gpointer user_data);
 ~~~
 
-`resoponse_id` is the parameter of the signal.
-The "response" signal is emitted when a user clicks on a button like "OK" or "Cancel".
-The argument of `response_id` is a value that shows what button has been clicked.
+The second argument `window` is the parameter of the signal.
+The "window-added" signal is emitted when a new window is added to the application.
+The parameter `window` points a newly added window.
+See [GTK API reference](https://docs.gtk.org/gtk4/signal.Application.window-added.html) for further information.
 
 The handler of "div-by-zero" signal just shows an error message.
 
 ~~~C
 static void
-div_by_zero_cb (TDouble *d, gpointer user_data) {
+div_by_zero_cb (TDouble *self, gpointer user_data) {
   g_print ("\nError: division by zero.\n\n");
 }
 ~~~
@@ -136,10 +138,10 @@ div_by_zero_cb (TDouble *d, gpointer user_data) {
 A signal and a handler are connected with the function [`g_signal_connect`](https://docs.gtk.org/gobject/func.signal_connect.html).
 
 ~~~C
-g_signal_connect (d1, "div-by-zero", G_CALLBACK (div_by_zero_cb), NULL);
+g_signal_connect (self, "div-by-zero", G_CALLBACK (div_by_zero_cb), NULL);
 ~~~
 
-- `d1` is an instance the signal belongs.
+- `self` is an instance the signal belongs to.
 - The second argument is the signal name.
 - The third argument is the signal handler.
 It must be casted by `G_CALLBACK`.
@@ -182,6 +184,45 @@ If a signal has parameters, they are fourth and subsequent arguments.
 
 A sample program is in [src/tdouble3](../src/tdouble3).
 
+tdouble.h
+
+~~~C
+ 1 #pragma once
+ 2 
+ 3 #include <glib-object.h>
+ 4 
+ 5 #define T_TYPE_DOUBLE  (t_double_get_type ())
+ 6 G_DECLARE_FINAL_TYPE (TDouble, t_double, T, DOUBLE, GObject)
+ 7 
+ 8 /* getter and setter */
+ 9 gboolean
+10 t_double_get_value (TDouble *self, double *value);
+11 
+12 void
+13 t_double_set_value (TDouble *self, double value);
+14 
+15 /* arithmetic operator */
+16 /* These operators create a new instance and return a pointer to it. */
+17 TDouble *
+18 t_double_add (TDouble *self, TDouble *other);
+19 
+20 TDouble *
+21 t_double_sub (TDouble *self, TDouble *other);
+22 
+23 TDouble *
+24 t_double_mul (TDouble *self, TDouble *other);
+25 
+26 TDouble *
+27 t_double_div (TDouble *self, TDouble *other);
+28 
+29 TDouble *
+30 t_double_uminus (TDouble *self);
+31 
+32 /* create a new TDouble instance */
+33 TDouble *
+34 t_double_new (double value);
+~~~
+
 tdouble.c
 
 ~~~C
@@ -211,23 +252,23 @@ tdouble.c
  24 }
  25 
  26 static void
- 27 t_double_init (TDouble *d) {
+ 27 t_double_init (TDouble *self) {
  28 }
  29 
  30 /* getter and setter */
  31 gboolean
- 32 t_double_get_value (TDouble *d, double *value) {
- 33   g_return_val_if_fail (T_IS_DOUBLE (d), FALSE);
+ 32 t_double_get_value (TDouble *self, double *value) {
+ 33   g_return_val_if_fail (T_IS_DOUBLE (self), FALSE);
  34 
- 35   *value = d->value;
+ 35   *value = self->value;
  36   return TRUE;
  37 }
  38 
  39 void
- 40 t_double_set_value (TDouble *d, double value) {
- 41   g_return_if_fail (T_IS_DOUBLE (d));
+ 40 t_double_set_value (TDouble *self, double value) {
+ 41   g_return_if_fail (T_IS_DOUBLE (self));
  42 
- 43   d->value = value;
+ 43   self->value = value;
  44 }
  45 
  46 /* arithmetic operator */
@@ -293,7 +334,6 @@ tdouble.c
 106   d->value = value;
 107   return d;
 108 }
-109 
 ~~~
 
 main.c
@@ -303,7 +343,7 @@ main.c
  2 #include "tdouble.h"
  3 
  4 static void
- 5 div_by_zero_cb (TDouble *d, gpointer user_data) {
+ 5 div_by_zero_cb (TDouble *self, gpointer user_data) {
  6   g_printerr ("\nError: division by zero.\n\n");
  7 }
  8 
@@ -371,7 +411,7 @@ main.c
 Change your current directory to src/tdouble3 and type as follows.
 
 ~~~
-$ meson _build
+$ meson setup _build
 $ ninja -C _build
 ~~~
 
@@ -379,7 +419,7 @@ Then, Executable file `tdouble` is created in the `_build` directory.
 Execute it.
 
 ~~~
-$ cd tdouble3; _build/tdouble 2>&1
+$ _build/tdouble
 10.000000 + 20.000000 = 30.000000
 10.000000 - 20.000000 = -10.000000
 10.000000 * 20.000000 = 200.000000
@@ -419,15 +459,16 @@ If an object is derivable, it has its own class area, so you can set a default h
 But a final type object doesn't have its own class area, so it's impossible to set a default handler with `g_signal_new`.
 That's the reason why we use `g_signal_new_class_handler`.
 
-`tdouble.c` is changed.
-`div_by_zero_default_cb` function is added and `g_signal_new_class_handler` replaces `g_signal_new`.
+The C file `tdouble.c` is changed like this.
+The function `div_by_zero_default_cb` is added and `g_signal_new_class_handler` replaces `g_signal_new`.
 Default signal handler doesn't have `user_data` parameter.
-A `user_data` parameter is set with `g_signal_connect` family functions when user provided signal handler is connected to the signal.
-Because default signal handler isn't connected with `g_signal_connect` family function, no user data is given as an argument.
+A `user_data` parameter is set in the `g_signal_connect` family functions when a user connects their own signal handler to the signal.
+Default signal handler is managed by the instance, not a user.
+So no user data is given as an argument.
 
 ~~~C
  1 static void
- 2 div_by_zero_default_cb (TDouble *d) {
+ 2 div_by_zero_default_cb (TDouble *self) {
  3   g_printerr ("\nError: division by zero.\n\n");
  4 }
  5 
@@ -452,7 +493,7 @@ Because default signal handler isn't connected with `g_signal_connect` family fu
 Compile and execute it.
 
 ~~~
-$ cd tdouble4; _build/tdouble 2>&1
+$ cd src/tdouble4; _build/tdouble
 10.000000 + 20.000000 = 30.000000
 10.000000 - 20.000000 = -10.000000
 10.000000 * 20.000000 = 200.000000
@@ -470,7 +511,7 @@ Add the following in `main.c`.
 
 ~~~C
 static void
-div_by_zero_cb (TDouble *d, gpointer user_data) {
+div_by_zero_cb (TDouble *self, gpointer user_data) {
   g_print ("\nError happens in main.c.\n");
 }
 
@@ -504,7 +545,7 @@ Add the lines below to `main.c` again.
 
 ~~~C
 static void
-div_by_zero_after_cb (TDouble *d, gpointer user_data) {
+div_by_zero_after_cb (TDouble *self, gpointer user_data) {
   g_print ("\nError has happened in main.c and an error message has been displayed.\n");
 }
 
@@ -549,6 +590,5 @@ There are three flags which relate to the order of handlers' invocation.
 `G_SIGNAL_RUN_LAST` is the most appropriate in many cases.
 
 Other signal flags are described in [GObject API Reference](https://docs.gtk.org/gobject/flags.SignalFlags.html).
-
 
 Up: [Readme.md](../Readme.md),  Prev: [Section 3](sec3.md), Next: [Section 5](sec5.md)
