@@ -166,39 +166,38 @@ C file `tcomparable.c` is as follows.
 31 int
 32 t_comparable_cmp (TComparable *self, TComparable *other) {
 33   g_return_val_if_fail (T_IS_COMPARABLE (self), -2);
-34   g_return_val_if_fail (T_IS_COMPARABLE (other), -2);
-35 
-36   TComparableInterface *iface = T_COMPARABLE_GET_IFACE (self);
-37   
-38   return (iface->cmp == NULL ? -2 : iface->cmp (self, other));
-39 }
-40 
-41 gboolean
-42 t_comparable_eq (TComparable *self, TComparable *other) {
-43   return (t_comparable_cmp (self, other) == 0);
-44 }
-45 
-46 gboolean
-47 t_comparable_gt (TComparable *self, TComparable *other) {
-48   return (t_comparable_cmp (self, other) == 1);
-49 }
-50 
-51 gboolean
-52 t_comparable_lt (TComparable *self, TComparable *other) {
-53   return (t_comparable_cmp (self, other) == -1);
-54 }
-55 
-56 gboolean
-57 t_comparable_ge (TComparable *self, TComparable *other) {
-58   int result = t_comparable_cmp (self, other);
-59   return (result == 1 || result == 0);
-60 }
-61 
-62 gboolean
-63 t_comparable_le (TComparable *self, TComparable *other) {
-64   int result = t_comparable_cmp (self, other);
-65   return (result == -1 || result == 0);
-66 }
+34 
+35   TComparableInterface *iface = T_COMPARABLE_GET_IFACE (self);
+36   
+37   return (iface->cmp == NULL ? -2 : iface->cmp (self, other));
+38 }
+39 
+40 gboolean
+41 t_comparable_eq (TComparable *self, TComparable *other) {
+42   return (t_comparable_cmp (self, other) == 0);
+43 }
+44 
+45 gboolean
+46 t_comparable_gt (TComparable *self, TComparable *other) {
+47   return (t_comparable_cmp (self, other) == 1);
+48 }
+49 
+50 gboolean
+51 t_comparable_lt (TComparable *self, TComparable *other) {
+52   return (t_comparable_cmp (self, other) == -1);
+53 }
+54 
+55 gboolean
+56 t_comparable_ge (TComparable *self, TComparable *other) {
+57   int result = t_comparable_cmp (self, other);
+58   return (result == 1 || result == 0);
+59 }
+60 
+61 gboolean
+62 t_comparable_le (TComparable *self, TComparable *other) {
+63   int result = t_comparable_cmp (self, other);
+64   return (result == -1 || result == 0);
+65 }
 ~~~
 
 - 5: `G_DEFINE_INTERFACE` macro.
@@ -214,12 +213,12 @@ It initializes `TComparableInterface` structure.
 So, the comparison method doesn't work before an implementation class overrides it.
 - 17: Set the default signal handler of the signal "arg-error".
 - 18-28: Creates a signal "arg-error".
-- 31-39: `t_comparable_cmp` function.
-First two lines (33-36) check the argument types.
-If at least one of them is invalid, it logs the error message and returns -2 (error).
+- 31-38: The function `t_comparable_cmp`.
+It checks the type of `self` on the first line.
+If it isn't comparable, it logs the error message and returns -2 (error).
 If `iface->cmp` is NULL (it means the class method hasn't been overridden), then it returns -2.
 Otherwise it calls the class method and returns the value returned by the class method.
-- 41-66: Public functions.
+- 40-65: Public functions.
 These five functions are based on `t_comparable_cmp`.
 Therefore, no overriding is necessary for them.
 For example, `t_comparable_eq` just calls `t_comparable_cmp`.

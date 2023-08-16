@@ -286,39 +286,38 @@ class="sourceCode numberSource C numberLines"><code class="sourceCode c"><span i
 <span id="cb3-31"><a href="#cb3-31"></a><span class="dt">int</span></span>
 <span id="cb3-32"><a href="#cb3-32"></a>t_comparable_cmp <span class="op">(</span>TComparable <span class="op">*</span>self<span class="op">,</span> TComparable <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb3-33"><a href="#cb3-33"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_COMPARABLE <span class="op">(</span>self<span class="op">),</span> <span class="op">-</span><span class="dv">2</span><span class="op">);</span></span>
-<span id="cb3-34"><a href="#cb3-34"></a>  g_return_val_if_fail <span class="op">(</span>T_IS_COMPARABLE <span class="op">(</span>other<span class="op">),</span> <span class="op">-</span><span class="dv">2</span><span class="op">);</span></span>
-<span id="cb3-35"><a href="#cb3-35"></a></span>
-<span id="cb3-36"><a href="#cb3-36"></a>  TComparableInterface <span class="op">*</span>iface <span class="op">=</span> T_COMPARABLE_GET_IFACE <span class="op">(</span>self<span class="op">);</span></span>
-<span id="cb3-37"><a href="#cb3-37"></a>  </span>
-<span id="cb3-38"><a href="#cb3-38"></a>  <span class="cf">return</span> <span class="op">(</span>iface<span class="op">-&gt;</span>cmp <span class="op">==</span> NULL <span class="op">?</span> <span class="op">-</span><span class="dv">2</span> <span class="op">:</span> iface<span class="op">-&gt;</span>cmp <span class="op">(</span>self<span class="op">,</span> other<span class="op">));</span></span>
-<span id="cb3-39"><a href="#cb3-39"></a><span class="op">}</span></span>
-<span id="cb3-40"><a href="#cb3-40"></a></span>
-<span id="cb3-41"><a href="#cb3-41"></a>gboolean</span>
-<span id="cb3-42"><a href="#cb3-42"></a>t_comparable_eq <span class="op">(</span>TComparable <span class="op">*</span>self<span class="op">,</span> TComparable <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-43"><a href="#cb3-43"></a>  <span class="cf">return</span> <span class="op">(</span>t_comparable_cmp <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">==</span> <span class="dv">0</span><span class="op">);</span></span>
-<span id="cb3-44"><a href="#cb3-44"></a><span class="op">}</span></span>
-<span id="cb3-45"><a href="#cb3-45"></a></span>
-<span id="cb3-46"><a href="#cb3-46"></a>gboolean</span>
-<span id="cb3-47"><a href="#cb3-47"></a>t_comparable_gt <span class="op">(</span>TComparable <span class="op">*</span>self<span class="op">,</span> TComparable <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-48"><a href="#cb3-48"></a>  <span class="cf">return</span> <span class="op">(</span>t_comparable_cmp <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">==</span> <span class="dv">1</span><span class="op">);</span></span>
-<span id="cb3-49"><a href="#cb3-49"></a><span class="op">}</span></span>
-<span id="cb3-50"><a href="#cb3-50"></a></span>
-<span id="cb3-51"><a href="#cb3-51"></a>gboolean</span>
-<span id="cb3-52"><a href="#cb3-52"></a>t_comparable_lt <span class="op">(</span>TComparable <span class="op">*</span>self<span class="op">,</span> TComparable <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-53"><a href="#cb3-53"></a>  <span class="cf">return</span> <span class="op">(</span>t_comparable_cmp <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">==</span> <span class="op">-</span><span class="dv">1</span><span class="op">);</span></span>
-<span id="cb3-54"><a href="#cb3-54"></a><span class="op">}</span></span>
-<span id="cb3-55"><a href="#cb3-55"></a></span>
-<span id="cb3-56"><a href="#cb3-56"></a>gboolean</span>
-<span id="cb3-57"><a href="#cb3-57"></a>t_comparable_ge <span class="op">(</span>TComparable <span class="op">*</span>self<span class="op">,</span> TComparable <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-58"><a href="#cb3-58"></a>  <span class="dt">int</span> result <span class="op">=</span> t_comparable_cmp <span class="op">(</span>self<span class="op">,</span> other<span class="op">);</span></span>
-<span id="cb3-59"><a href="#cb3-59"></a>  <span class="cf">return</span> <span class="op">(</span>result <span class="op">==</span> <span class="dv">1</span> <span class="op">||</span> result <span class="op">==</span> <span class="dv">0</span><span class="op">);</span></span>
-<span id="cb3-60"><a href="#cb3-60"></a><span class="op">}</span></span>
-<span id="cb3-61"><a href="#cb3-61"></a></span>
-<span id="cb3-62"><a href="#cb3-62"></a>gboolean</span>
-<span id="cb3-63"><a href="#cb3-63"></a>t_comparable_le <span class="op">(</span>TComparable <span class="op">*</span>self<span class="op">,</span> TComparable <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-64"><a href="#cb3-64"></a>  <span class="dt">int</span> result <span class="op">=</span> t_comparable_cmp <span class="op">(</span>self<span class="op">,</span> other<span class="op">);</span></span>
-<span id="cb3-65"><a href="#cb3-65"></a>  <span class="cf">return</span> <span class="op">(</span>result <span class="op">==</span> <span class="op">-</span><span class="dv">1</span> <span class="op">||</span> result <span class="op">==</span> <span class="dv">0</span><span class="op">);</span></span>
-<span id="cb3-66"><a href="#cb3-66"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb3-34"><a href="#cb3-34"></a></span>
+<span id="cb3-35"><a href="#cb3-35"></a>  TComparableInterface <span class="op">*</span>iface <span class="op">=</span> T_COMPARABLE_GET_IFACE <span class="op">(</span>self<span class="op">);</span></span>
+<span id="cb3-36"><a href="#cb3-36"></a>  </span>
+<span id="cb3-37"><a href="#cb3-37"></a>  <span class="cf">return</span> <span class="op">(</span>iface<span class="op">-&gt;</span>cmp <span class="op">==</span> NULL <span class="op">?</span> <span class="op">-</span><span class="dv">2</span> <span class="op">:</span> iface<span class="op">-&gt;</span>cmp <span class="op">(</span>self<span class="op">,</span> other<span class="op">));</span></span>
+<span id="cb3-38"><a href="#cb3-38"></a><span class="op">}</span></span>
+<span id="cb3-39"><a href="#cb3-39"></a></span>
+<span id="cb3-40"><a href="#cb3-40"></a>gboolean</span>
+<span id="cb3-41"><a href="#cb3-41"></a>t_comparable_eq <span class="op">(</span>TComparable <span class="op">*</span>self<span class="op">,</span> TComparable <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-42"><a href="#cb3-42"></a>  <span class="cf">return</span> <span class="op">(</span>t_comparable_cmp <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">==</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb3-43"><a href="#cb3-43"></a><span class="op">}</span></span>
+<span id="cb3-44"><a href="#cb3-44"></a></span>
+<span id="cb3-45"><a href="#cb3-45"></a>gboolean</span>
+<span id="cb3-46"><a href="#cb3-46"></a>t_comparable_gt <span class="op">(</span>TComparable <span class="op">*</span>self<span class="op">,</span> TComparable <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-47"><a href="#cb3-47"></a>  <span class="cf">return</span> <span class="op">(</span>t_comparable_cmp <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">==</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb3-48"><a href="#cb3-48"></a><span class="op">}</span></span>
+<span id="cb3-49"><a href="#cb3-49"></a></span>
+<span id="cb3-50"><a href="#cb3-50"></a>gboolean</span>
+<span id="cb3-51"><a href="#cb3-51"></a>t_comparable_lt <span class="op">(</span>TComparable <span class="op">*</span>self<span class="op">,</span> TComparable <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-52"><a href="#cb3-52"></a>  <span class="cf">return</span> <span class="op">(</span>t_comparable_cmp <span class="op">(</span>self<span class="op">,</span> other<span class="op">)</span> <span class="op">==</span> <span class="op">-</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb3-53"><a href="#cb3-53"></a><span class="op">}</span></span>
+<span id="cb3-54"><a href="#cb3-54"></a></span>
+<span id="cb3-55"><a href="#cb3-55"></a>gboolean</span>
+<span id="cb3-56"><a href="#cb3-56"></a>t_comparable_ge <span class="op">(</span>TComparable <span class="op">*</span>self<span class="op">,</span> TComparable <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-57"><a href="#cb3-57"></a>  <span class="dt">int</span> result <span class="op">=</span> t_comparable_cmp <span class="op">(</span>self<span class="op">,</span> other<span class="op">);</span></span>
+<span id="cb3-58"><a href="#cb3-58"></a>  <span class="cf">return</span> <span class="op">(</span>result <span class="op">==</span> <span class="dv">1</span> <span class="op">||</span> result <span class="op">==</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb3-59"><a href="#cb3-59"></a><span class="op">}</span></span>
+<span id="cb3-60"><a href="#cb3-60"></a></span>
+<span id="cb3-61"><a href="#cb3-61"></a>gboolean</span>
+<span id="cb3-62"><a href="#cb3-62"></a>t_comparable_le <span class="op">(</span>TComparable <span class="op">*</span>self<span class="op">,</span> TComparable <span class="op">*</span>other<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-63"><a href="#cb3-63"></a>  <span class="dt">int</span> result <span class="op">=</span> t_comparable_cmp <span class="op">(</span>self<span class="op">,</span> other<span class="op">);</span></span>
+<span id="cb3-64"><a href="#cb3-64"></a>  <span class="cf">return</span> <span class="op">(</span>result <span class="op">==</span> <span class="op">-</span><span class="dv">1</span> <span class="op">||</span> result <span class="op">==</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb3-65"><a href="#cb3-65"></a><span class="op">}</span></span></code></pre></div>
 <ul>
 <li>5: <code>G_DEFINE_INTERFACE</code> macro. The third parameter is the
 type of the prerequisite. This macro expands to:
@@ -335,13 +334,13 @@ function is similar to class initialization function. It initializes
 doesn’t work before an implementation class overrides it.</li>
 <li>17: Set the default signal handler of the signal “arg-error”.</li>
 <li>18-28: Creates a signal “arg-error”.</li>
-<li>31-39: <code>t_comparable_cmp</code> function. First two lines
-(33-36) check the argument types. If at least one of them is invalid, it
+<li>31-38: The function <code>t_comparable_cmp</code>. It checks the
+type of <code>self</code> on the first line. If it isn’t comparable, it
 logs the error message and returns -2 (error). If
 <code>iface-&gt;cmp</code> is NULL (it means the class method hasn’t
 been overridden), then it returns -2. Otherwise it calls the class
 method and returns the value returned by the class method.</li>
-<li>41-66: Public functions. These five functions are based on
+<li>40-65: Public functions. These five functions are based on
 <code>t_comparable_cmp</code>. Therefore, no overriding is necessary for
 them. For example, <code>t_comparable_eq</code> just calls
 <code>t_comparable_cmp</code>. And it returns TRUE if

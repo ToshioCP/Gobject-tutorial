@@ -53,7 +53,6 @@ t_comparable_default_init (TComparableInterface *iface) {
 int
 t_comparable_cmp (TComparable *self, TComparable *other) {
   g_return_val_if_fail (T_IS_COMPARABLE (self), -2);
-  g_return_val_if_fail (T_IS_COMPARABLE (other), -2);
 
   TComparableInterface *iface = T_COMPARABLE_GET_IFACE (self);
 

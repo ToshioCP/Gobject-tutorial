@@ -110,12 +110,12 @@ It initializes `TComparableInterface` structure.
 So, the comparison method doesn't work before an implementation class overrides it.
 - 17: Set the default signal handler of the signal "arg-error".
 - 18-28: Creates a signal "arg-error".
-- 31-39: `t_comparable_cmp` function.
-First two lines (33-36) check the argument types.
-If at least one of them is invalid, it logs the error message and returns -2 (error).
+- 31-38: The function `t_comparable_cmp`.
+It checks the type of `self` on the first line.
+If it isn't comparable, it logs the error message and returns -2 (error).
 If `iface->cmp` is NULL (it means the class method hasn't been overridden), then it returns -2.
 Otherwise it calls the class method and returns the value returned by the class method.
-- 41-66: Public functions.
+- 40-65: Public functions.
 These five functions are based on `t_comparable_cmp`.
 Therefore, no overriding is necessary for them.
 For example, `t_comparable_eq` just calls `t_comparable_cmp`.
