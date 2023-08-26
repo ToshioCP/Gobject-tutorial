@@ -1,30 +1,24 @@
-# GObject Tutorial for beginners
-
-The github page of this tutorial is also available. Click [here](https://toshiocp.github.io/Gobject-tutorial/).
-
 The GitHub page of this tutorial is available.
-Click [here](https://toshiocp.github.io/Gobject-tutorial/) to see it.
+Click [here](https://toshiocp.github.io/Gobject-tutorial/).
 
 #### About this tutorial
 
-This tutorial is aimed at beginners who are learning the GObject system.
-One of the biggest difficulties in learning the GObject system is understanding its fundamental object oriented strategy.
-All the necessary topics are described in [GObject API Reference](https://docs.gtk.org/gobject/).
-But it is probably difficult especially for beginners.
+GObject is the base system for the GTK library, the current version of which is four.
+GTK provides GUI on Linux and is used by GNOME desktop system and many applications.
+See [GTK 4 tutorial](https://github.com/ToshioCP/Gtk4-tutorial).
+One of the problem to understand GTK 4 is the difficulty of the GObject.
+This tutorial is useful for those who learns GTK 4.
+And the readers of this tutorial should read GTK 4 tutorial because GTK is the only application of GObject so far.
 
+[GObject API Reference](https://docs.gtk.org/gobject/) offers everything necessary for GObject.
 The contents of this tutorial are not beyond the documentation.
-It just gives you some example codes and diagrams to help you.
+It just shows examples and how to write GObject programs.
+But I believe it is useful for the beginners who feels difficulty to learn the GObject system.
 Readers should refer to the GObject documentation when learning this tutorial.
-
-#### GObject reference manual has been changed
-
-I have to point out that the GObject documentation above is the new version.
-The GNOME documentation website is revised and the GObject reference manual is also changed in August 2021.
-The old version of the reference manual is [here](https://developer-old.gnome.org/gobject/stable/).
 
 #### Generating GFM, HTML and PDF
 
-The table of contents are below and you can see all the tutorials by following the link.
+The table of contents are at the end of this file and you can see all the tutorials through the link.
 However, you can make GFM, HTML or PDF by the following steps.
 GFM is 'GitHub Flavored Markdown', which is used in the document files in the GitHub repository.
 
@@ -36,7 +30,7 @@ GFM is 'GitHub Flavored Markdown', which is used in the document files in the Gi
 6. type `rake pdf` to produce a PDF file. The file is generated under `latex` directory.
 
 This system is the same as the one in the `GTK 4 tutorial` repository.
-There's a document `Readme_for_developers.md` in `gfm` directory in the repository.
+There's a document `Readme_for_developers.md` in `gfm` directory in it.
 It describes the details.
 
 #### Contribution

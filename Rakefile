@@ -71,8 +71,7 @@ task md: %w[Readme.md] + mdfiles
 file "Readme.md" => [abstract] + secfiles do |t|
   abstract_md = "gfm/"+abstract.pathmap("%f").ext(".md")
   src2md(abstract, "gfm")
-  buf = ["# GObject Tutorial for beginners\n\nThe github page of this tutorial is also available. Click [here](https://toshiocp.github.io/Gobject-tutorial/).\n\n"]\
-        + File.readlines(abstract_md)\
+  buf = File.readlines(abstract_md)\
         + ["\n## Table of contents\n\n"]
   File.delete(abstract_md)
   secfiles.each do |secfile|
