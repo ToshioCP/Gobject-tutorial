@@ -560,7 +560,7 @@ tdouble.c
 ~~~
 
 - 3-6: Declaration of the instance structure.
-Since `G_DECLARE_FINAL_TYPE` macro emits `typeder struct _TDouble TDouble`, the tag name of the structure must be `_TDouble`.
+Since `G_DECLARE_FINAL_TYPE` macro emits `typedef struct _TDouble TDouble`, the tag name of the structure must be `_TDouble`.
 - 8: `G_DEFINE_TYPE` macro.
 - 10-16: class and instance initialization functions.
 At present, they don't do anything.
