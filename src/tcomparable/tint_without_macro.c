@@ -1,7 +1,7 @@
 #include "../tnumber/tnumber.h"
 #include "../tnumber/tint.h"
 #include "../tnumber/tdouble.h"
-#include "tcomparable.h"
+#include "tcomparable_without_macro.h"
 
 enum {
   PROP_0,
