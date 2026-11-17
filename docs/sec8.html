@@ -3,8 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="generator" content="pandoc" />
+    <script>
+      // Follow the system preference before the page is painted, and while it is open.
+      if (window.matchMedia) {
+        const preference = window.matchMedia('(prefers-color-scheme: dark)');
+        const updateTheme = () => {
+          document.documentElement.setAttribute('data-bs-theme', preference.matches ? 'dark' : 'light');
+        };
+        updateTheme();
+        preference.addEventListener('change', updateTheme);
+      }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX" crossorigin="anonymous">
     <title>GObject tutorial</title>
     <style>
       code{white-space: pre-wrap;}
@@ -76,13 +87,82 @@
       code span.va { color: #19177c; } /* Variable */
       code span.vs { color: #4070a0; } /* VerbatimString */
       code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-      div.sourceCode { margin: 10px; padding: 16px 10px 8px 10px; border: 2px solid silver; background-color: ghostwhite; overflow-x:scroll}
-      pre:not(.sourceCode) { margin: 10px; padding: 16px 10px 8px 10px; border: 2px solid silver; background-color: ghostwhite; overflow-x:scroll}
-      table {margin-left: auto; margin-right: auto; border-collapse: collapse; border: 1px solid;}
-      th {padding: 2px 6px; border: 1px solid; background-color: ghostwhite;}
-      td {padding: 2px 6px; border: 1px solid;}
+      div.sourceCode { margin: 10px; padding: 16px 10px 8px 10px; border: 2px solid var(--tutorial-code-border); background-color: var(--tutorial-code-bg); overflow-x:scroll}
+      pre:not(.sourceCode) { margin: 10px; padding: 16px 10px 8px 10px; border: 2px solid var(--tutorial-code-border); background-color: var(--tutorial-code-bg); overflow-x:scroll}
+      table {margin-left: auto; margin-right: auto; border-collapse: collapse; border: 1px solid var(--tutorial-table-border);}
+      th {padding: 2px 6px; border: 1px solid var(--tutorial-table-border); background-color: var(--tutorial-code-bg);}
+      td {padding: 2px 6px; border: 1px solid var(--tutorial-table-border);}
       img {display: block; margin-left: auto; margin-right: auto;}
-      figcaption {text-align: center;}
+      figcaption {text-align: center; color: var(--tutorial-caption);}
+    </style>
+    <style>
+      /* Tutorial surfaces shared by the light, dark, and print styles. */
+      :root {
+        --tutorial-code-bg: ghostwhite;
+        --tutorial-code-border: silver;
+        --tutorial-table-border: currentColor;
+        --tutorial-line-number: #aaaaaa;
+        --tutorial-caption: currentColor;
+      }
+      pre { color: inherit; }
+      pre.numberSource {
+        border-left-color: var(--tutorial-line-number);
+      }
+      pre.numberSource code > span > a:first-child::after {
+        color: var(--tutorial-line-number);
+      }
+      @media screen {
+        :root[data-bs-theme="dark"] {
+          --tutorial-code-bg: var(--bs-tertiary-bg);
+          --tutorial-code-border: var(--bs-border-color);
+          --tutorial-table-border: var(--bs-border-color);
+          --tutorial-line-number: #adb5bd;
+          --tutorial-caption: var(--bs-secondary-color);
+        }
+        /* Override Pandoc's light syntax colors without changing token emphasis. */
+        [data-bs-theme="dark"] code span { color: var(--bs-body-color); }
+        [data-bs-theme="dark"] code span.al,
+        [data-bs-theme="dark"] code span.er { color: #ff9494; }
+        [data-bs-theme="dark"] code span.an,
+        [data-bs-theme="dark"] code span.co,
+        [data-bs-theme="dark"] code span.cv,
+        [data-bs-theme="dark"] code span.in,
+        [data-bs-theme="dark"] code span.wa { color: #adb5bd; }
+        [data-bs-theme="dark"] code span.at { color: #d5d98b; }
+        [data-bs-theme="dark"] code span.bn,
+        [data-bs-theme="dark"] code span.dv,
+        [data-bs-theme="dark"] code span.fl { color: #a8dbb8; }
+        [data-bs-theme="dark"] code span.bu,
+        [data-bs-theme="dark"] code span.cf,
+        [data-bs-theme="dark"] code span.im,
+        [data-bs-theme="dark"] code span.kw,
+        [data-bs-theme="dark"] code span.ot { color: #8fdb9b; }
+        [data-bs-theme="dark"] code span.ch,
+        [data-bs-theme="dark"] code span.sc,
+        [data-bs-theme="dark"] code span.st,
+        [data-bs-theme="dark"] code span.vs { color: #9ecbff; }
+        [data-bs-theme="dark"] code span.cn,
+        [data-bs-theme="dark"] code span.do,
+        [data-bs-theme="dark"] code span.dt { color: #f0b38c; }
+        [data-bs-theme="dark"] code span.fu { color: #b6cfff; }
+        [data-bs-theme="dark"] code span.op { color: #ced4da; }
+        [data-bs-theme="dark"] code span.pp { color: #f1cf82; }
+        [data-bs-theme="dark"] code span.ss { color: #efa8cf; }
+        [data-bs-theme="dark"] code span.va { color: #d0bfff; }
+        [data-bs-theme="dark"] code span.ex { color: #dee2e6; }
+      }
+      @media print {
+        :root[data-bs-theme] {
+          color-scheme: light;
+          --bs-body-bg: #fff;
+          --bs-body-color: #212529;
+          --bs-link-color: #0d6efd;
+          --bs-link-color-rgb: 13, 110, 253;
+          --bs-link-hover-color: #0a58ca;
+          --bs-link-hover-color-rgb: 10, 88, 202;
+          --bs-code-color: #d63384;
+        }
+      }
     </style>
   </head>
   <body style="padding-top: 70px;">
@@ -543,6 +623,6 @@ has long figures. TNumStr “123.4567890123456789” is converted to TNumber
 <p>It is difficult to compare two TNumStr instances. The best way is to
 compare TNumber instances converted from TNumStr.</p>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/js/bootstrap.bundle.min.js" integrity="sha384-WyOxWvTyr1QaMPfiPJSv76iReVthorl5uWlFtZPyK0IEB0hGzo9y5Bp9mYanr8Bu" crossorigin="anonymous"></script>
   </body>
   </html>
